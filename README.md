@@ -26,6 +26,7 @@ and gets following string
     40 + 2
 
 
+See [API page](https://github.com/Constellation/escodegen/wiki/API) for options.
 
 ### License
 
