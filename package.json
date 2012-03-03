@@ -1,0 +1,29 @@
+{
+    "name": "escodegen",
+    "description": "ECMAScript code generator",
+    "homepage": "http://github.com/Constellation/escodegen.html",
+    "main": "escodegen.js",
+    "bin": {
+        "escodegen": "./bin/escodegen.js"
+    },
+    "version": "0.0.1-dev",
+    "engines": {
+        "node": ">=0.4.0"
+    },
+    "maintainers": [{
+        "name": "Yusuke Suzuki",
+        "email": "utatane.tea@gmail.com",
+        "web": "http://github.com/Constellation"
+    }],
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/Constellation/escodegen.git"
+    },
+    "licenses": [{
+        "type": "BSD",
+        "url": "http://github.com/Constellation/escodegen/raw/master/LICENSE.BSD"
+    }],
+    "scripts": {
+        "test": "node test/run.js"
+    }
+}
