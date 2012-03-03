@@ -4,7 +4,7 @@
     "homepage": "http://github.com/Constellation/escodegen.html",
     "main": "escodegen.js",
     "bin": {
-        "escodegen": "./bin/escodegen.js"
+        "escodegen": "./bin/esgenerate.js"
     },
     "version": "0.0.1-dev",
     "engines": {
