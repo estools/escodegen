@@ -14,7 +14,7 @@ or in a Node.js application via the package manager:
 
 simple example:
 
-    esprima.generate({
+    escodegen.generate({
         type: 'BinaryExpression',
         operator: '+',
         left: { type: 'Literal', value: 40 },
