@@ -11,6 +11,22 @@ or in a Node.js application via the package manager:
 
     npm install escodegen
 
+
+simple example:
+
+    esprima.generate({
+        type: 'BinaryExpression',
+        operator: '+',
+        left: { type: 'Literal', value: 40 },
+        right: { type: 'Literal', value: 2 }
+    });
+
+and gets following string
+
+    40 + 2
+
+
+
 ### License
 
 Copyright (C) 2012 [Yusuke Suzuki](http://github.com/Constellation)
