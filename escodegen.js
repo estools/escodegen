@@ -269,7 +269,7 @@
 
         case Syntax.AssignmentExpression:
             result = parenthesize(
-                generateExpression(expr.left) + ' ' + expr.operator + ' ' +
+                generateExpression(expr.left, Precedence.Call) + ' ' + expr.operator + ' ' +
                     generateExpression(expr.right, Precedence.Assignment),
                 Precedence.Assignment,
                 precedence
@@ -705,7 +705,7 @@
             } else {
                 previousBase = base;
                 base += indent;
-                result += generateExpression(stmt.left);
+                result += generateExpression(stmt.left, Precedence.Call);
                 base = previousBase;
             }
 
