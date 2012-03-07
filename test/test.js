@@ -14610,6 +14610,43 @@ data = {
             }
         },
 
+        'x = {\n    set: 43,\n    get: 43\n}': {
+            from: {
+                type: 'AssignmentExpression',
+                operator: '=',
+                left: {
+                    type: 'Identifier',
+                    name: 'x'
+                },
+                right: {
+                    type: 'ObjectExpression',
+                    properties: [{
+                        type: 'Property',
+                        key: {
+                            type: 'Identifier',
+                            name: 'set'
+                        },
+                        value: {
+                            type: 'Literal',
+                            value: 43
+                        },
+                        kind: 'init'
+                    }, {
+                        type: 'Property',
+                        key: {
+                            type: 'Identifier',
+                            name: 'get'
+                        },
+                        value: {
+                            type: 'Literal',
+                            value: 43
+                        },
+                        kind: 'init'
+                    }]
+                }
+            }
+        },
+
         '0': {
             from: {
                 type: 'Literal',
