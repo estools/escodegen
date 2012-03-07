@@ -13596,6 +13596,13 @@ data = {
             }
         },
 
+        'null': {
+            from: {
+                type: 'Literal',
+                value: null
+            }
+        },
+
         '42': {
             from: {
                 type: 'Literal',
@@ -16564,6 +16571,26 @@ data = {
                         name: 'foo'
                     }
                 }]
+            }
+        },
+
+        'foo1;\nfoo2;': {
+            from: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Identifier',
+                        name: 'foo1'
+                    }
+                }, {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Identifier',
+                        name: 'foo2'
+                    }
+                }]
+
             }
         },
 
