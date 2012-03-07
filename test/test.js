@@ -14792,6 +14792,31 @@ data = {
             }
         },
 
+        'new foo.bar(1, 2)': {
+            from: {
+                type: 'NewExpression',
+                callee: {
+                    type: 'MemberExpression',
+                    computed: false,
+                    object: {
+                        type: 'Identifier',
+                        name: 'foo'
+                    },
+                    property: {
+                        type: 'Identifier',
+                        name: 'bar'
+                    }
+                },
+                'arguments': [{
+                    type: 'Literal',
+                    value: 1
+                }, {
+                    type: 'Literal',
+                    value: 2
+                }]
+            }
+        },
+
         'foo(bar, baz)': {
             from: {
                 type: 'CallExpression',
