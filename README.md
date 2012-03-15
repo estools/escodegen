@@ -27,7 +27,7 @@ and gets following string
 
 
 See [API page](https://github.com/Constellation/escodegen/wiki/API) for options.
-And see [online generator demo](http://constellation.github.com/escodegen/demo/codegen/codegen.html).
+And see [online generator demo](http://constellation.github.com/escodegen/demo/index.html).
 
 ### License
 
