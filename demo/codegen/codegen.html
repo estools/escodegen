@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JS code generator demo: JS → AST → JS</title>
+  <link rel="stylesheet" href="style.css" type="text/css" />
+  <script src='esprima.js'></script>
+  <script src='../../escodegen.js'></script>
+  <script type="text/javascript">
+function $D(elm) {
+  var range = document.createRange();
+  range.selectNodeContents(elm);
+  range.deleteContents();
+  range.detach();
+}
+function $T(mes) {
+  return document.createTextNode(mes);
+}
+function hasClass (e, name){
+  name = name.toLowerCase();
+  var cn = e.className;
+  if (!cn) return false;
+  var cnlist = cn.toLowerCase().split(/\s+/);
+  for (var i=0,l=cnlist.length;i<l;i++)
+    if(cnlist[i] == name) return true;
+  return false;
+}
+function addClass (e, name){
+  var cn = e.className || '';
+  if(hasClass(e, name)) return;
+  e.className = cn+' '+name;
+}
+function removeClass(e, name){
+  if(!hasClass(e, name)) return;
+  var cn = e.className || '';
+  name = name.toLowerCase();
+  var cnlist = cn.toLowerCase().split(/\s+/);
+  cnlist.splice(cnlist.indexOf(name), 1);
+  e.className = cnlist.join(' ');
+}
+function toggleClass(e, name){
+  (hasClass(e, name))? removeClass(e, name) : addClass(e, name);
+}
+document.addEventListener('DOMContentLoaded', function(ev) {
+  var textarea = document.getElementById("console");
+  var pre = document.getElementById("output");
+  textarea.value = "for(var i=1;i<=100;++i){if(i%15===0){console.log('FizzBuzz')}else if(i%3===0){console.log('Fizz')}else if(i%5===0){console.log('Buzz')}else{console.log(i)}}";
+  function show() {
+    $D(pre);
+    try {
+      removeClass(textarea, "invalid");
+      var AST = esprima.parse(textarea.value);
+      pre.appendChild($T(escodegen.generate(AST)));
+    } catch (e) {
+      addClass(textarea, "invalid")
+      pre.appendChild($T("Invalid"));
+    }
+  }
+  show();
+  textarea.addEventListener("input", show, false);
+}, false);
+  </script>
+</head>
+<body>
+<h1>JS code generator demo: JS → AST → JS</h1>
+<p>using <a href="http://www.esprima.org/">esprima</a> as parser</p>
+<p>and using <a href="https://github.com/Constellation/escodegen">escodegen</a> as code generator</p>
+<textarea id="console" rows="10" cols="30" placeholder="write your code"></textarea>
+<pre id="output"></pre>
+</body>
+</html>
