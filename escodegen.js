@@ -133,6 +133,17 @@
         '/': Precedence.Multiplicative
     };
 
+    function getDefaultOptions() {
+        // default options
+        return {
+            indent: '    ',
+            base: '',
+            parse: null,
+            format: {
+            }
+        };
+    }
+
     function unicodeEscape(ch) {
         var result, i;
         result = ch.charCodeAt(0).toString(16);
@@ -150,6 +161,43 @@
             result[i] = str.charAt(i);
         }
         return result;
+    }
+
+    function stringRepeat(str, num) {
+        var result = '';
+
+        num |= 0;  // toInt32
+        for (; num > 0; num >>>= 1, str += str) {
+            if (num & 1) {
+                result += str;
+            }
+        }
+
+        return result;
+    }
+
+    function updateDeeply(target, override) {
+        var key, val;
+
+        function isHashObject(target) {
+            return typeof target === 'object' && target instanceof Object && !(target instanceof RegExp);
+        }
+
+        for (key in override) {
+            if (override.hasOwnProperty(key)) {
+                val = override[key];
+                if (isHashObject(val)) {
+                    if (isHashObject(target[key])) {
+                        updateDeeply(target[key], val);
+                    } else {
+                        target[key] = updateDeeply({}, val);
+                    }
+                } else {
+                    target[key] = val;
+                }
+            }
+        }
+        return target;
     }
 
     function escapeString(str) {
@@ -768,8 +816,9 @@
 
     function generate(node, options) {
         if (typeof options !== 'undefined') {
-            base = options.base || '';
-            indent = options.indent || '    ';
+            options = updateDeeply(getDefaultOptions(), options);
+            indent = options.indent;
+            base = options.base;
             parse = options.parse;
         } else {
             base = '';
