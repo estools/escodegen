@@ -133,12 +133,6 @@
         '/': Precedence.Multiplicative
     };
 
-    if (typeof Object.freeze === 'function') {
-        Object.freeze(Syntax);
-        Object.freeze(Precedence);
-        Object.freeze(BinaryPrecedence);
-    }
-
     function unicodeEscape(ch) {
         var result, i;
         result = ch.charCodeAt(0).toString(16);
