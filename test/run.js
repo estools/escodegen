@@ -36,6 +36,7 @@
 
     suites = [
         'test',
+        'options',
         'identity'
     ];
 

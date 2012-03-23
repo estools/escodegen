@@ -136,10 +136,14 @@
     function getDefaultOptions() {
         // default options
         return {
-            indent: '    ',
-            base: '',
+            indent: null,
+            base: null,
             parse: null,
             format: {
+                indent: {
+                    style: '    ',
+                    base: 0
+                }
             }
         };
     }
@@ -166,8 +170,7 @@
     function stringRepeat(str, num) {
         var result = '';
 
-        num |= 0;  // toInt32
-        for (; num > 0; num >>>= 1, str += str) {
+        for (num |= 0; num > 0; num >>>= 1, str += str) {
             if (num & 1) {
                 result += str;
             }
@@ -815,15 +818,32 @@
     }
 
     function generate(node, options) {
+        var defaultOptions = getDefaultOptions();
+
         if (typeof options !== 'undefined') {
-            options = updateDeeply(getDefaultOptions(), options);
-            indent = options.indent;
-            base = options.base;
+            // Obsolete options
+            //
+            //   `options.indent`
+            //   `options.base`
+            //
+            // Instead of them, we can use `option.format.indent`.
+            if (typeof options.indent === 'string') {
+                defaultOptions.format.style = options.indent;
+            }
+
+            options = updateDeeply(defaultOptions, options);
+            indent = options.format.style;
+            if (typeof options.base === 'string') {
+                base = options.base;
+            } else {
+                base = stringRepeat(indent, options.format.base);
+            }
             parse = options.parse;
         } else {
-            base = '';
-            indent = '    ';
-            parse = null;
+            options = defaultOptions;
+            indent = options.format.style;
+            base = stringRepeat(indent, options.format.base);
+            parse = options.parse;
         }
 
         switch (node.type) {
