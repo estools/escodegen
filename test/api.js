@@ -123,6 +123,92 @@
                 }
             }],
             result: '        {\n            test;\n        }'
+        },
+        'generate with base 2 + indent 2': {
+            call: 'generate',
+            args: [{
+                type: 'Program',
+                body: [{
+                    type: 'BlockStatement',
+                    body: [{
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'Identifier',
+                            name: 'test'
+                        }
+                    }]
+                }]
+            }, {
+                format: {
+                    indent: {
+                        style: '  ',
+                        base: 2
+                    }
+                }
+            }],
+            result: '    {\n      test;\n    }'
+        },
+
+        // obsolete api
+        'obsolete generate with base 2': {
+            call: 'generate',
+            args: [{
+                type: 'Program',
+                body: [{
+                    type: 'BlockStatement',
+                    body: [{
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'Identifier',
+                            name: 'test'
+                        }
+                    }]
+                }]
+            }, {
+                base: '    '
+            }],
+            result: '    {\n        test;\n    }'
+        },
+
+        'obsolete generate with indent 2': {
+            call: 'generate',
+            args: [{
+                type: 'Program',
+                body: [{
+                    type: 'BlockStatement',
+                    body: [{
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'Identifier',
+                            name: 'test'
+                        }
+                    }]
+                }]
+            }, {
+                indent: '  ',
+            }],
+            result: '{\n  test;\n}'
+        },
+
+        'obsolete generate with base 2 + indent 2': {
+            call: 'generate',
+            args: [{
+                type: 'Program',
+                body: [{
+                    type: 'BlockStatement',
+                    body: [{
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'Identifier',
+                            name: 'test'
+                        }
+                    }]
+                }]
+            }, {
+                indent: '  ',
+                base: '    '
+            }],
+            result: '    {\n      test;\n    }'
         }
     };
 
