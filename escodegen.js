@@ -768,7 +768,7 @@
         case Syntax.Program:
             result = '';
             for (i = 0, len = stmt.body.length; i < len; i += 1) {
-                result += generateStatement(stmt.body[i]);
+                result += addIndent(generateStatement(stmt.body[i]));
                 if ((i + 1) < len) {
                     result += '\n';
                 }
@@ -828,21 +828,21 @@
             //
             // Instead of them, we can use `option.format.indent`.
             if (typeof options.indent === 'string') {
-                defaultOptions.format.style = options.indent;
+                defaultOptions.format.indent.style = options.indent;
             }
 
             options = updateDeeply(defaultOptions, options);
-            indent = options.format.style;
+            indent = options.format.indent.style;
             if (typeof options.base === 'string') {
                 base = options.base;
             } else {
-                base = stringRepeat(indent, options.format.base);
+                base = stringRepeat(indent, options.format.indent.base);
             }
             parse = options.parse;
         } else {
             options = defaultOptions;
-            indent = options.format.style;
-            base = stringRepeat(indent, options.format.base);
+            indent = options.format.indent.style;
+            base = stringRepeat(indent, options.format.indent.base);
             parse = options.parse;
         }
 
