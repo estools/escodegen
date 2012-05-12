@@ -898,7 +898,7 @@
     }
 
     // Sync with package.json.
-    exports.version = '0.0.3-dev';
+    exports.version = '0.0.4-dev';
 
     exports.generate = generate;
 
