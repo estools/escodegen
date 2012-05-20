@@ -91,7 +91,7 @@
         try {
             tree = esprima.parse(code, options);
             expected = JSON.stringify(tree, adjustRegexLiteral, 4);
-            tree = esprima.parse(esprima.generate(tree), options);
+            tree = esprima.parse(escodegen.generate(tree), options);
             actual = JSON.stringify(tree, adjustRegexLiteral, 4);
         } catch (e) {
             throw new NotMatchingError(expected, e.toString());
