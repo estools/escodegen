@@ -1,4 +1,5 @@
 /*
+  Copyright (C) 2012 John Freeman <jfreeman08@gmail.com>
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2012 Mathias Bynens <mathias@qiwi.be>
   Copyright (C) 2012 Joost-Wim Boekesteijn <joost-wim@boekesteijn.nl>
@@ -37,6 +38,9 @@
     var Syntax,
         Precedence,
         BinaryPrecedence,
+        VisitorKeys,
+        VisitorOption,
+        isArray,
         base,
         indent,
         extra,
@@ -179,6 +183,38 @@
         return result;
     }
 
+    isArray = Array.isArray;
+    if (!isArray) {
+        isArray = function isArray(array) {
+            return Object.prototype.toString.call(array) === '[object Array]';
+        };
+    }
+
+    function shallowCopy(obj) {
+        var ret = {}, key;
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                ret[key] = obj[key];
+            }
+        }
+        return ret;
+    }
+
+    function deepCopy(obj) {
+        var ret = {}, key, val;
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                val = obj[key];
+                if (typeof val === 'object' && val !== null) {
+                    ret[key] = deepCopy(val);
+                } else {
+                    ret[key] = val;
+                }
+            }
+        }
+        return ret;
+    }
+
     function updateDeeply(target, override) {
         var key, val;
 
@@ -258,7 +294,7 @@
     function maybeBlock(stmt, suffix) {
         var previousBase, result;
 
-        if (stmt.type === Syntax.BlockStatement) {
+        if (stmt.type === Syntax.BlockStatement && !stmt.leadingComments) {
             result = ' ' + generateStatement(stmt);
             if (suffix) {
                 return result + ' ';
@@ -266,7 +302,7 @@
             return result;
         }
 
-        if (stmt.type === Syntax.EmptyStatement) {
+        if (stmt.type === Syntax.EmptyStatement && !stmt.leadingComments) {
             result = ';';
         } else {
             previousBase = base;
@@ -543,7 +579,7 @@
     }
 
     function generateStatement(stmt) {
-        var i, len, result, previousBase;
+        var i, len, result, previousBase, comment, save;
 
         switch (stmt.type) {
         case Syntax.BlockStatement:
@@ -814,6 +850,34 @@
         if (result === undefined) {
             throw new Error('Unknown statement type: ' + stmt.type);
         }
+
+        // Attach comments
+
+        if (stmt.leadingComments) {
+            save = result;
+            result = '';
+            for (i = 0, len = stmt.leadingComments.length; i < len; i += 1) {
+                comment = stmt.leadingComments[i];
+                if (comment.type === 'Line') {
+                    result += '//' + comment.value + '\n';
+                } else {
+                    result += '/*' + comment.value + '*/' + '\n';
+                }
+            }
+            result += addIndent(save);
+        }
+
+        if (stmt.trailingComments) {
+            for (i = 0, len = stmt.trailingComments.length; i < len; i += 1) {
+                comment = stmt.trailingComments[i];
+                if (comment.type === 'Line') {
+                    result += ('\n' + addIndent('//' + comment.value));
+                } else {
+                    result += ('\n' + addIndent('/*' + comment.value + '*/'));
+                }
+            }
+        }
+
         return result;
     }
 
@@ -897,10 +961,254 @@
         throw new Error('Unknown node type: ' + node.type);
     }
 
+    // simple visitor implementation
+
+    VisitorKeys = {
+        AssignmentExpression: ['left', 'right'],
+        ArrayExpression: ['elements'],
+        BlockStatement: ['body'],
+        BinaryExpression: ['left', 'right'],
+        BreakStatement: ['label'],
+        CallExpression: ['callee', 'arguments'],
+        CatchClause: ['param', 'body'],
+        ConditionalExpression: ['test', 'consequent', 'alternate'],
+        ContinueStatement: ['label'],
+        DoWhileStatement: ['body', 'test'],
+        DebuggerStatement: [],
+        EmptyStatement: [],
+        ExpressionStatement: ['expression'],
+        ForStatement: ['init', 'test', 'update', 'body'],
+        ForInStatement: ['left', 'right', 'body'],
+        FunctionDeclaration: ['id', 'params', 'body'],
+        FunctionExpression: ['id', 'params', 'body'],
+        Identifier: [],
+        IfStatement: ['test', 'consequent', 'alternate'],
+        Literal: [],
+        LabeledStatement: ['label', 'body'],
+        LogicalExpression: ['left', 'right'],
+        MemberExpression: ['object', 'property'],
+        NewExpression: ['callee', 'arguments'],
+        ObjectExpression: ['properties'],
+        Program: ['body'],
+        Property: ['key', 'value'],
+        ReturnStatement: ['argument'],
+        SequenceExpression: ['expressions'],
+        SwitchStatement: ['descriminant', 'cases'],
+        SwitchCase: ['test', 'consequent'],
+        ThisExpression: [],
+        ThrowStatement: ['argument'],
+        TryStatement: ['block', 'handlers', 'finalizer'],
+        UnaryExpression: ['argument'],
+        UpdateExpression: ['argument'],
+        VariableDeclaration: ['declarations'],
+        VariableDeclarator: ['id', 'init'],
+        WhileStatement: ['test', 'body'],
+        WithStatement: ['object', 'body']
+    };
+
+    VisitorOption = {
+        Break: 1,
+        Skip: 2
+    };
+
+    function traverse(top, visitor) {
+        var worklist, leavelist, node, ret, current, current2, candidates, candidate;
+
+        worklist = [ top ];
+        leavelist = [];
+
+        while (worklist.length) {
+            node = worklist.pop();
+
+            if (node) {
+                if (visitor.enter) {
+                    ret = visitor.enter(node);
+                } else {
+                    ret = undefined;
+                }
+
+                if (ret === VisitorOption.Break) {
+                    return;
+                }
+
+                worklist.push(null);
+                leavelist.push(node);
+
+                if (ret !== VisitorOption.Skip) {
+                    candidates = VisitorKeys[node.type];
+                    current = candidates.length;
+                    while ((current -= 1) >= 0) {
+                        candidate = node[candidates[current]];
+                        if (candidate) {
+                            if (isArray(candidate)) {
+                                current2 = candidate.length;
+                                while ((current2 -= 1) >= 0) {
+                                    if (candidate[current2]) {
+                                        worklist.push(candidate[current2]);
+                                    }
+                                }
+                            } else {
+                                worklist.push(candidate);
+                            }
+                        }
+                    }
+                }
+            } else {
+                node = leavelist.pop();
+                if (visitor.leave) {
+                    ret = visitor.leave(node);
+                } else {
+                    ret = undefined;
+                }
+                if (ret === VisitorOption.Break) {
+                    return;
+                }
+            }
+        }
+    }
+
+
+    // based on LLVM libc++ upper_bound / lower_bound
+    // MIT License
+
+    function upperBound(array, func) {
+        var diff, len, i, current;
+
+        len = array.length;
+        i = 0;
+
+        while (len) {
+            diff = len >>> 1;
+            current = i + diff;
+            if (func(array[current])) {
+                len = diff;
+            } else {
+                i = current + 1;
+                len -= diff + 1;
+            }
+        }
+        return i;
+    }
+
+    function lowerBound(array, func) {
+        var diff, len, i, current;
+
+        len = array.length;
+        i = 0;
+
+        while (len) {
+            diff = len >>> 1;
+            current = i + diff;
+            if (func(array[current])) {
+                i = current + 1;
+                len -= diff + 1;
+            } else {
+                len = diff;
+            }
+        }
+        return i;
+    }
+
+    function extendCommentRange(comment, tokens) {
+        var target, token;
+
+        target = upperBound(tokens, function search(token) {
+            return token.range[0] > comment.range[0];
+        });
+
+        comment.extendedRange = [comment.range[0], comment.range[1]];
+
+        if (target !== tokens.length) {
+            comment.extendedRange[1] = tokens[target].range[0];
+        }
+
+        target -= 1;
+        if (target >= 0) {
+            if (target < tokens.length) {
+                comment.extendedRange[0] = tokens[target].range[1];
+            } else if (token.length) {
+                comment.extendedRange[1] = tokens[tokens.length - 1].range[0];
+            }
+        }
+
+        return comment;
+    }
+
+    function attachComments(tree, providedComments, tokens) {
+        // At first, we should calculate extended comment ranges.
+        var comments = [], len, i;
+
+        if (!tree.range) {
+            throw new Error('attachComments needs range information');
+        }
+
+        for (i = 0, len = providedComments.length; i < len; i += 1) {
+            comments.push(extendCommentRange(deepCopy(providedComments[i]), tokens));
+        }
+
+        // This is based on John Freeman's implementation.
+        traverse(tree, {
+            cursor: 0,
+            enter: function (node) {
+                var comment, len = comments.length;
+
+                while (this.cursor < len) {
+                    comment = comments[this.cursor];
+                    if (comment.extendedRange[1] > node.range[0]) {
+                        break;
+                    }
+
+                    if (comment.extendedRange[1] === node.range[0]) {
+                        if (!node.leadingComments) {
+                            node.leadingComments = [];
+                        }
+                        node.leadingComments.push(comment);
+                    }
+                    this.cursor += 1;
+                }
+
+                // already out of owned node
+                if (this.cursor === comments.length) {
+                    return VisitorOption.Break;
+                }
+
+                if (comments[this.cursor].extendedRange[0] > node.range[1]) {
+                    return VisitorOption.Skip;
+                }
+            },
+            leave: function (node) {
+                var comment, len = comments.length;
+
+                while (this.cursor < len) {
+                    comment = comments[this.cursor];
+                    if (node.range[1] < comment.extendedRange[0]) {
+                        break;
+                    }
+
+                    if (node.range[1] === comment.extendedRange[0]) {
+                        if (!node.trailingComments) {
+                            node.trailingComments = [];
+                        }
+                        node.trailingComments.push(comment);
+                    }
+                    this.cursor += 1;
+                }
+
+                // already out of owned node
+                if (this.cursor === comments.length) {
+                    return VisitorOption.Break;
+                }
+            }
+        });
+
+        return tree;
+    }
+
     // Sync with package.json.
     exports.version = '0.0.4-dev';
 
     exports.generate = generate;
+    exports.attachComments = attachComments;
 
 }(typeof exports === 'undefined' ? (escodegen = {}) : exports));
 /* vim: set sw=4 ts=4 et tw=80 : */

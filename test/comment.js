@@ -25,52 +25,25 @@
 /*jslint browser:true node:true */
 /*global escodegen:true, esprima:true*/
 
-var data = [{
-    options: {
-        format: {
-            base: 2,
-            indent: '    '
-        }
-    },
-    items : {
-        '        test': 'test'
-    }
-}, {
-    options: {
-        format: {
-            base: 4,
-            indent: '\t'
-        }
-    },
-    items : {
-        '\t\t\t\ttest': 'test'
-    }
-}, {
-    options: {
-        base: '  ',
-        format: {
-            base: 4,
-            indent: '\t'
-        }
-    },
-    items : {
-        '  test': 'test'
-    }
-}];
-
 (function () {
     'use strict';
-
     var total = 0,
         failures = [],
-        tick = new Date(),
+        tick,
+        fs = require('fs'),
+        expected,
         header,
-        escodegen,
-        esprima;
+        fixtures,
+        esprima,
+        escodegen;
 
     if (typeof window === 'undefined') {
         esprima = require('./3rdparty/esprima');
         escodegen = require('../escodegen');
+    }
+
+    function slug(name) {
+        return name.toLowerCase().replace(/\s/g, '-');
     }
 
     function adjustRegexLiteral(key, value) {
@@ -87,14 +60,30 @@ var data = [{
     }
     NotMatchingError.prototype = new Error();
 
-    function runTest(options, source, expected) {
-        var tree, actual;
+    function test(code, expected) {
+        var tree, actual, options, StringObject;
+
+        // alias, so that JSLint does not complain.
+        StringObject = String;
+
+        options = {
+            comment: true,
+            range: true,
+            loc: false,
+            tokens: true,
+            raw: false
+        };
+
         try {
-            tree = esprima.parse(source, options);
-            expected = JSON.stringify(tree, adjustRegexLiteral, 4);
-            tree = esprima.parse(escodegen.generate(tree), options);
-            actual = JSON.stringify(tree, adjustRegexLiteral, 4);
+            tree = esprima.parse(code, options);
+            tree = escodegen.attachComments(tree, tree.comments, tree.tokens);
+
+            // console.log(JSON.stringify(tree, null, 2));
+
+            // for UNIX text comment
+            actual = escodegen.generate(tree).replace(/[\n\r]$/, '') + '\n';
         } catch (e) {
+            console.error(e.stack);
             throw new NotMatchingError(expected, e.toString());
         }
         if (expected !== actual) {
@@ -102,19 +91,22 @@ var data = [{
         }
     }
 
-    data.forEach(function (category) {
-        var options = category.options;
-        Object.keys(category.items).forEach(function (source) {
-            var expected = category.items[source];
+    total = 0;
+    tick = new Date();
+    fs.readdirSync(__dirname + '/comment').sort().forEach(function(file) {
+        var code, expected, p;
+        if (!/expected\.js$/.test(file)) {
+            p = file.replace(/\.js$/, '.expected.js');
             total += 1;
+            code = fs.readFileSync(__dirname + '/comment/' + file, 'utf-8');
+            expected = fs.readFileSync(__dirname + '/comment/' + p, 'utf-8');
             try {
-                runTest(options, source, expected);
+                test(code, expected);
             } catch (e) {
-                e.source = source;
+                e.source = code;
                 failures.push(e);
             }
-
-        });
+        }
     });
     tick = (new Date()) - tick;
 
@@ -130,6 +122,5 @@ var data = [{
     } else {
         console.log(header);
     }
-    process.exit(failures.length === 0 ? 0 : 1);
 }());
 /* vim: set sw=4 ts=4 et tw=80 : */

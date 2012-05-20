@@ -38,7 +38,8 @@
         'test',
         'api',
         'options',
-        'identity'
+        'identity',
+        'comment'
     ];
 
     function nextTest() {
