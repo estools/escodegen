@@ -81,7 +81,13 @@
             // console.log(JSON.stringify(tree, null, 2));
 
             // for UNIX text comment
-            actual = escodegen.generate(tree).replace(/[\n\r]$/, '') + '\n';
+            actual = escodegen.generate(tree, {
+                format: {
+                    indent: {
+                        adjustMultilineComment: true
+                    }
+                }
+            }).replace(/[\n\r]$/, '') + '\n';
         } catch (e) {
             console.error(e.stack);
             throw new NotMatchingError(expected, e.toString());

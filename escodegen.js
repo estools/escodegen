@@ -146,7 +146,8 @@
             format: {
                 indent: {
                     style: '    ',
-                    base: 0
+                    base: 0,
+                    adjustMultilineComment: false
                 }
             }
         };
@@ -188,6 +189,10 @@
         isArray = function isArray(array) {
             return Object.prototype.toString.call(array) === '[object Array]';
         };
+    }
+
+    function endsWithLineTerminator(value) {
+        return (/(?:\r\n|[\n\r])$/).test(value);
     }
 
     function shallowCopy(obj) {
@@ -283,8 +288,60 @@
         return '\'' + result + '\'';
     }
 
+    function isWhiteSpace(ch) {
+        return (ch === ' ') || (ch === '\u0009') || (ch === '\u000B') ||
+            (ch === '\u000C') || (ch === '\u00A0') ||
+            (ch.charCodeAt(0) >= 0x1680 &&
+             '\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF'.indexOf(ch) >= 0);
+    }
+
     function addIndent(stmt) {
         return base + stmt;
+    }
+
+    function adjustMultilineComment(value) {
+        var array, i, len, line, j, ch, spaces;
+
+        spaces = Number.MAX_VALUE;
+        array = value.split(/\r\n|[\r\n]/);
+
+        // first line doesn't have indentation
+        for (i = 1, len = array.length; i < len; i += 1) {
+            line = array[i];
+            j = 0;
+            while (j < line.length && isWhiteSpace(line[j])) {
+                j += 1;
+            }
+            if (spaces > j) {
+                spaces = j;
+            }
+        }
+
+        if (spaces % 2 === 1) {
+            // /*
+            //  *
+            //  */
+            // If spaces are odd number, above pattern is considered.
+            // We waste 1 space.
+            spaces -= 1;
+        }
+        for (i = 1, len = array.length; i < len; i += 1) {
+            array[i] = addIndent(array[i].slice(spaces));
+        }
+        return array.join('\n');
+    }
+
+    function generateComment(comment) {
+        if (comment.type === 'Line') {
+            // Esprima always produce last line comment with LineTerminator
+            return '//' + comment.value;
+        } else {
+            if (extra.format.indent.adjustMultilineComment && /[\n\r]/.test(comment.value)) {
+                return adjustMultilineComment('/*' + comment.value + '*/');
+            } else {
+                return '/*' + comment.value + '*/';
+            }
+        }
     }
 
     function parenthesize(text, current, should) {
@@ -579,7 +636,7 @@
     }
 
     function generateStatement(stmt) {
-        var i, len, result, previousBase, comment, save;
+        var i, len, result, previousBase, comment, save, ret;
 
         switch (stmt.type) {
         case Syntax.BlockStatement:
@@ -856,12 +913,19 @@
         if (stmt.leadingComments) {
             save = result;
             result = '';
-            for (i = 0, len = stmt.leadingComments.length; i < len; i += 1) {
-                comment = stmt.leadingComments[i];
-                if (comment.type === 'Line') {
-                    result += '//' + comment.value + '\n';
-                } else {
-                    result += '/*' + comment.value + '*/' + '\n';
+            if (stmt.leadingComments.length) {
+                comment = stmt.leadingComments[0];
+                result = generateComment(comment);
+                if (!endsWithLineTerminator(result)) {
+                    result += '\n';
+                }
+                for (i = 1, len = stmt.leadingComments.length; i < len; i += 1) {
+                    comment = stmt.leadingComments[i];
+                    ret = generateComment(comment);
+                    if (!endsWithLineTerminator(ret)) {
+                        ret += '\n';
+                    }
+                    result += addIndent(ret);
                 }
             }
             result += addIndent(save);
@@ -870,11 +934,10 @@
         if (stmt.trailingComments) {
             for (i = 0, len = stmt.trailingComments.length; i < len; i += 1) {
                 comment = stmt.trailingComments[i];
-                if (comment.type === 'Line') {
-                    result += ('\n' + addIndent('//' + comment.value));
-                } else {
-                    result += ('\n' + addIndent('/*' + comment.value + '*/'));
+                if (!endsWithLineTerminator(result)) {
+                    result += '\n';
                 }
+                result += addIndent(generateComment(comment));
             }
         }
 
@@ -909,6 +972,7 @@
             base = stringRepeat(indent, options.format.indent.base);
             parse = options.parse;
         }
+        extra = options;
 
         switch (node.type) {
         case Syntax.BlockStatement:
