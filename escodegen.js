@@ -636,7 +636,7 @@
     }
 
     function generateStatement(stmt) {
-        var i, len, result, previousBase, comment, save, ret;
+        var i, len, result, previousBase, comment, save, ret, node;
 
         switch (stmt.type) {
         case Syntax.BlockStatement:
@@ -708,20 +708,33 @@
             break;
 
         case Syntax.VariableDeclaration:
-            result = stmt.kind + ' ';
+            result = stmt.kind;
             // special path for
             // var x = function () {
             // };
             if (stmt.declarations.length === 1 && stmt.declarations[0].init &&
                     stmt.declarations[0].init.type === Syntax.FunctionExpression) {
-                result += generateStatement(stmt.declarations[0]);
+                result += ' ' + generateStatement(stmt.declarations[0]);
             } else {
+                // VariableDeclarator is typed as Statement,
+                // but joined with comma (not LineTerminator).
+                // So if comment is attached to target node, we should specialize.
                 previousBase = base;
                 base += indent;
-                for (i = 0, len = stmt.declarations.length; i < len; i += 1) {
-                    result += generateStatement(stmt.declarations[i]);
-                    if ((i + 1) < len) {
-                        result += ', ';
+
+                node = stmt.declarations[0];
+                if (node.leadingComments) {
+                    result += '\n' + addIndent(generateStatement(node));
+                } else {
+                    result += ' ' + generateStatement(node);
+                }
+
+                for (i = 1, len = stmt.declarations.length; i < len; i += 1) {
+                    node = stmt.declarations[i];
+                    if (node.leadingComments) {
+                        result += ',\n' + addIndent(generateStatement(node));
+                    } else {
+                        result += ', ' + generateStatement(node);
                     }
                 }
                 base = previousBase;
@@ -912,22 +925,22 @@
 
         if (stmt.leadingComments) {
             save = result;
-            result = '';
-            if (stmt.leadingComments.length) {
-                comment = stmt.leadingComments[0];
-                result = generateComment(comment);
-                if (!endsWithLineTerminator(result)) {
-                    result += '\n';
-                }
-                for (i = 1, len = stmt.leadingComments.length; i < len; i += 1) {
-                    comment = stmt.leadingComments[i];
-                    ret = generateComment(comment);
-                    if (!endsWithLineTerminator(ret)) {
-                        ret += '\n';
-                    }
-                    result += addIndent(ret);
-                }
+
+            comment = stmt.leadingComments[0];
+            result = generateComment(comment);
+            if (!endsWithLineTerminator(result)) {
+                result += '\n';
             }
+
+            for (i = 1, len = stmt.leadingComments.length; i < len; i += 1) {
+                comment = stmt.leadingComments[i];
+                ret = generateComment(comment);
+                if (!endsWithLineTerminator(ret)) {
+                    ret += '\n';
+                }
+                result += addIndent(ret);
+            }
+
             result += addIndent(save);
         }
 
