@@ -38,8 +38,9 @@
         'test',
         'api',
         'options',
+        'comment',
+        'compare',
         'identity',
-        'comment'
     ];
 
     function nextTest() {
