@@ -1374,9 +1374,9 @@
         traverse(tree, {
             cursor: 0,
             enter: function (node) {
-                var comment, len = comments.length;
+                var comment;
 
-                while (this.cursor < len) {
+                while (this.cursor < comments.length) {
                     comment = comments[this.cursor];
                     if (comment.extendedRange[1] > node.range[0]) {
                         break;
@@ -1387,9 +1387,10 @@
                             node.leadingComments = [];
                         }
                         node.leadingComments.push(comment);
-                        comment.ownedType = 'LeadingComment';
+                        comments.splice(this.cursor, 1);
+                    } else {
+                        this.cursor += 1;
                     }
-                    this.cursor += 1;
                 }
 
                 // already out of owned node
@@ -1406,27 +1407,32 @@
         traverse(tree, {
             cursor: 0,
             leave: function (node) {
-                var comment, len = comments.length;
+                var comment;
 
-                while (this.cursor < len) {
+                while (this.cursor < comments.length) {
                     comment = comments[this.cursor];
                     if (node.range[1] < comment.extendedRange[0]) {
                         break;
                     }
 
-                    if (node.range[1] === comment.extendedRange[0] && !comment.ownedType) {
+                    if (node.range[1] === comment.extendedRange[0]) {
                         if (!node.trailingComments) {
                             node.trailingComments = [];
                         }
                         node.trailingComments.push(comment);
-                        comment.ownedType = 'TrailingComment';
+                        comments.splice(this.cursor, 1);
+                    } else {
+                        this.cursor += 1;
                     }
-                    this.cursor += 1;
                 }
 
                 // already out of owned node
                 if (this.cursor === comments.length) {
                     return VisitorOption.Break;
+                }
+
+                if (comments[this.cursor].extendedRange[0] > node.range[1]) {
+                    return VisitorOption.Skip;
                 }
             }
         });
