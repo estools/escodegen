@@ -82,6 +82,7 @@
 
             // for UNIX text comment
             actual = escodegen.generate(tree, {
+                comment: true,
                 format: {
                     indent: {
                         adjustMultilineComment: true

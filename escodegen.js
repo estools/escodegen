@@ -143,6 +143,7 @@
             indent: null,
             base: null,
             parse: null,
+            comment: false,
             format: {
                 indent: {
                     style: '    ',
@@ -349,7 +350,7 @@
     function maybeBlock(stmt, suffix) {
         var previousBase, result;
 
-        if (stmt.type === Syntax.BlockStatement && !stmt.leadingComments) {
+        if (stmt.type === Syntax.BlockStatement && (!extra.comment || !stmt.leadingComments)) {
             result = ' ' + generateStatement(stmt);
             if (suffix) {
                 return result + ' ';
@@ -357,7 +358,7 @@
             return result;
         }
 
-        if (stmt.type === Syntax.EmptyStatement && !stmt.leadingComments) {
+        if (stmt.type === Syntax.EmptyStatement && (!extra.comment || !stmt.leadingComments)) {
             result = ';';
         } else {
             previousBase = base;
@@ -721,7 +722,7 @@
                 base += indent;
 
                 node = stmt.declarations[0];
-                if (node.leadingComments) {
+                if (extra.comment && node.leadingComments) {
                     result += '\n' + addIndent(generateStatement(node));
                 } else {
                     result += ' ' + generateStatement(node);
@@ -729,7 +730,7 @@
 
                 for (i = 1, len = stmt.declarations.length; i < len; i += 1) {
                     node = stmt.declarations[i];
-                    if (node.leadingComments) {
+                    if (extra.comment && node.leadingComments) {
                         result += ',\n' + addIndent(generateStatement(node));
                     } else {
                         result += ', ' + generateStatement(node);
@@ -921,34 +922,36 @@
 
         // Attach comments
 
-        if (stmt.leadingComments) {
-            save = result;
+        if (extra.comment) {
+            if (stmt.leadingComments) {
+                save = result;
 
-            comment = stmt.leadingComments[0];
-            result = generateComment(comment);
-            if (!endsWithLineTerminator(result)) {
-                result += '\n';
-            }
-
-            for (i = 1, len = stmt.leadingComments.length; i < len; i += 1) {
-                comment = stmt.leadingComments[i];
-                ret = generateComment(comment);
-                if (!endsWithLineTerminator(ret)) {
-                    ret += '\n';
-                }
-                result += addIndent(ret);
-            }
-
-            result += addIndent(save);
-        }
-
-        if (stmt.trailingComments) {
-            for (i = 0, len = stmt.trailingComments.length; i < len; i += 1) {
-                comment = stmt.trailingComments[i];
+                comment = stmt.leadingComments[0];
+                result = generateComment(comment);
                 if (!endsWithLineTerminator(result)) {
                     result += '\n';
                 }
-                result += addIndent(generateComment(comment));
+
+                for (i = 1, len = stmt.leadingComments.length; i < len; i += 1) {
+                    comment = stmt.leadingComments[i];
+                    ret = generateComment(comment);
+                    if (!endsWithLineTerminator(ret)) {
+                        ret += '\n';
+                    }
+                    result += addIndent(ret);
+                }
+
+                result += addIndent(save);
+            }
+
+            if (stmt.trailingComments) {
+                for (i = 0, len = stmt.trailingComments.length; i < len; i += 1) {
+                    comment = stmt.trailingComments[i];
+                    if (!endsWithLineTerminator(result)) {
+                        result += '\n';
+                    }
+                    result += addIndent(generateComment(comment));
+                }
             }
         }
 
