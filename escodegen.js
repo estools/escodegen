@@ -335,13 +335,11 @@
         if (comment.type === 'Line') {
             // Esprima always produce last line comment with LineTerminator
             return '//' + comment.value;
-        } else {
-            if (extra.format.indent.adjustMultilineComment && /[\n\r]/.test(comment.value)) {
-                return adjustMultilineComment('/*' + comment.value + '*/');
-            } else {
-                return '/*' + comment.value + '*/';
-            }
         }
+        if (extra.format.indent.adjustMultilineComment && /[\n\r]/.test(comment.value)) {
+            return adjustMultilineComment('/*' + comment.value + '*/');
+        }
+        return '/*' + comment.value + '*/';
     }
 
     function parenthesize(text, current, should) {
@@ -1240,6 +1238,7 @@
                             node.leadingComments = [];
                         }
                         node.leadingComments.push(comment);
+                        comment.ownedType = 'LeadingComment';
                     }
                     this.cursor += 1;
                 }
@@ -1252,7 +1251,11 @@
                 if (comments[this.cursor].extendedRange[0] > node.range[1]) {
                     return VisitorOption.Skip;
                 }
-            },
+            }
+        });
+
+        traverse(tree, {
+            cursor: 0,
             leave: function (node) {
                 var comment, len = comments.length;
 
@@ -1262,11 +1265,12 @@
                         break;
                     }
 
-                    if (node.range[1] === comment.extendedRange[0]) {
+                    if (node.range[1] === comment.extendedRange[0] && !comment.ownedType) {
                         if (!node.trailingComments) {
                             node.trailingComments = [];
                         }
                         node.trailingComments.push(comment);
+                        comment.ownedType = 'TrailingComment';
                     }
                     this.cursor += 1;
                 }
@@ -1285,6 +1289,7 @@
     exports.version = '0.0.4-dev';
 
     exports.generate = generate;
+    exports.traverse = traverse;
     exports.attachComments = attachComments;
 
 }(typeof exports === 'undefined' ? (escodegen = {}) : exports));
