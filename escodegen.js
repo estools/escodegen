@@ -155,12 +155,8 @@
     }
 
     function unicodeEscape(ch) {
-        var result, i;
-        result = ch.charCodeAt(0).toString(16);
-        for (i = result.length; i < 4; i += 1) {
-            result = '0' + result;
-        }
-        return '\\u' + result;
+        var result = ch.charCodeAt(0).toString(16);
+        return '\\u' + "0000".slice(result.length) + result;
     }
 
     function stringToArray(str) {
