@@ -1133,10 +1133,10 @@
             if (stmt.trailingComments) {
                 for (i = 0, len = stmt.trailingComments.length; i < len; i += 1) {
                     comment = stmt.trailingComments[i];
+                    result += addIndent(generateComment(comment));
                     if (!endsWithLineTerminator(result)) {
                         result += '\n';
                     }
-                    result += addIndent(generateComment(comment));
                 }
             }
         }
