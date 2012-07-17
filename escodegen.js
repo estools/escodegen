@@ -1,4 +1,5 @@
 /*
+  Copyright (C) 2012 Robert Gust-Bardon <donate@robert.gust-bardon.org>
   Copyright (C) 2012 John Freeman <jfreeman08@gmail.com>
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2012 Mathias Bynens <mathias@qiwi.be>
@@ -43,6 +44,9 @@
         isArray,
         base,
         indent,
+        json,
+        renumber,
+        hexadecimal,
         extra,
         parse;
 
@@ -149,7 +153,10 @@
                     style: '    ',
                     base: 0,
                     adjustMultilineComment: false
-                }
+                },
+                json: false,
+                renumber: false,
+                hexadecimal: false
             }
         };
     }
@@ -239,6 +246,62 @@
             }
         }
         return target;
+    }
+
+    function generateNumber(value) {
+        var result, point, temp, exponent, pos;
+
+        if (value !== value) {
+            throw new Error('Numeric literal whose value is NaN');
+        }
+        if (1 / value < 0) {
+            throw new Error('Numeric literal whose value is negative');
+        }
+
+        if (value === 1 / 0) {
+            return json ? 'null' : renumber ? '1e400' : '1e+400';
+        }
+
+        result = '' + value;
+        if (!renumber || result.length < 3) {
+            return result;
+        }
+
+        point = result.indexOf('.');
+        if (!json && result.charAt(0) === '0' && point === 1) {
+            point = 0;
+            result = result.slice(1);
+        }
+        temp = result;
+        result = result.replace('e+', 'e');
+        exponent = 0;
+        if ((pos = temp.indexOf('e')) > 0) {
+            exponent = +temp.slice(pos + 1);
+            temp = temp.slice(0, pos);
+        }
+        if (point >= 0) {
+            exponent -= temp.length - point - 1;
+            temp = +(temp.slice(0, point) + temp.slice(point + 1)) + '';
+        }
+        pos = 0;
+        while (temp.charAt(temp.length + pos - 1) === '0') {
+            pos -= 1;
+        }
+        if (pos !== 0) {
+            exponent -= pos;
+            temp = temp.slice(0, pos);
+        }
+        if (exponent !== 0) {
+            temp += 'e' + exponent;
+        }
+        if ((temp.length < result.length ||
+             hexadecimal && value > 1e12 && Math.floor(value) === value &&
+             (temp = '0x' + value.toString(16)).length < result.length) &&
+            +temp === value) {
+            result = temp;
+        }
+
+        return result;
     }
 
     function escapeString(str) {
@@ -710,9 +773,8 @@
                 break;
             }
 
-            if (typeof expr.value === 'number' && expr.value === Infinity) {
-                // Infinity is variable
-                result = '1e+1000';
+            if (typeof expr.value === 'number') {
+                result = generateNumber(expr.value);
                 break;
             }
 
@@ -1157,7 +1219,9 @@
             if (typeof options.indent === 'string') {
                 defaultOptions.format.indent.style = options.indent;
             }
-
+            if (typeof options.base === 'number') {
+                defaultOptions.format.indent.base = options.base;
+            }
             options = updateDeeply(defaultOptions, options);
             indent = options.format.indent.style;
             if (typeof options.base === 'string') {
@@ -1165,13 +1229,15 @@
             } else {
                 base = stringRepeat(indent, options.format.indent.base);
             }
-            parse = options.parse;
         } else {
             options = defaultOptions;
             indent = options.format.indent.style;
             base = stringRepeat(indent, options.format.indent.base);
-            parse = options.parse;
         }
+        json = options.format.json;
+        renumber = options.format.renumber;
+        hexadecimal = json ? false : options.format.hexadecimal;
+        parse = json ? null : options.parse;
         extra = options;
 
         switch (node.type) {
