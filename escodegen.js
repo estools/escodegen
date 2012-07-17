@@ -47,6 +47,8 @@
         json,
         renumber,
         hexadecimal,
+        quotes,
+        escapeless,
         extra,
         parse;
 
@@ -156,7 +158,9 @@
                 },
                 json: false,
                 renumber: false,
-                hexadecimal: false
+                hexadecimal: false,
+                quotes: 'single',
+                escapeless: false
             }
         };
     }
@@ -304,8 +308,62 @@
         return result;
     }
 
+    function escapeAllowedCharacter(ch, next) {
+        var code = ch.charCodeAt(0), hex = code.toString(16), result = '\\';
+
+        switch (ch) {
+        case '\b':
+            result += 'b';
+            break;
+        case '\f':
+            result += 'f';
+            break;
+        case '\t':
+            result += 't';
+            break;
+        default:
+            if (json || code > 0xff) {
+                result += 'u' + '0000'.slice(hex.length) + hex;
+            } else if (ch === '\0' && '0123456789'.indexOf(next) < 0) {
+                result += '0';
+            } else if (ch === '\v') {
+                result += 'v';
+            } else {
+                result += 'x' + '00'.slice(hex.length) + hex;
+            }
+            break;
+        }
+
+        return result;
+    }
+
+    function escapeDisallowedCharacter(ch) {
+        var result = '\\';
+        switch (ch) {
+        case '\\':
+            result += '\\';
+            break;
+        case '\n':
+            result += 'n';
+            break;
+        case '\r':
+            result += 'r';
+            break;
+        case '\u2028':
+            result += 'u2028';
+            break;
+        case '\u2029':
+            result += 'u2029';
+            break;
+        default:
+            throw new Error('Incorrectly classified character');
+        }
+
+        return result;
+    }
+
     function escapeString(str) {
-        var result = '', i, len, ch;
+        var result = '', i, len, ch, next, singleQuotes = 0, doubleQuotes = 0, single;
 
         if (typeof str[0] === 'undefined') {
             str = stringToArray(str);
@@ -313,39 +371,39 @@
 
         for (i = 0, len = str.length; i < len; i += 1) {
             ch = str[i];
-            if ('\'\\\b\f\n\r\t'.indexOf(ch) >= 0) {
+            if (ch === '\'') {
+                singleQuotes += 1;
+            } else if (ch === '"') {
+                doubleQuotes += 1;
+            } else if (ch === '/' && json) {
                 result += '\\';
-                switch (ch) {
-                case '\'':
-                    result += '\'';
-                    break;
-                case '\\':
-                    result += '\\';
-                    break;
-                case '\b':
-                    result += 'b';
-                    break;
-                case '\f':
-                    result += 'f';
-                    break;
-                case '\n':
-                    result += 'n';
-                    break;
-                case '\r':
-                    result += 'r';
-                    break;
-                case '\t':
-                    result += 't';
-                    break;
-                }
-            } else if (ch < ' ' || ch.charCodeAt(0) >= 0x80) {
-                result += unicodeEscape(ch);
-            } else {
-                result += ch;
+            } else if ('\\\n\r\u2028\u2029'.indexOf(ch) >= 0) {
+                result += escapeDisallowedCharacter(ch);
+                continue;
+            } else if (json && ch < ' ' || !(json || escapeless || ch >= ' ' && ch <= '~')) {
+                result += escapeAllowedCharacter(ch, str[i + 1]);
+                continue;
             }
+            result += ch;
         }
 
-        return '\'' + result + '\'';
+        single = !(quotes === 'double' || quotes === 'auto' && doubleQuotes < singleQuotes);
+        str = result;
+        result = single ? '\'' : '"';
+
+        if (typeof str[0] === 'undefined') {
+            str = stringToArray(str);
+        }
+
+        for (i = 0, len = str.length; i < len; i += 1) {
+            ch = str[i];
+            if (ch === '\'' && single || ch === '"' && !single) {
+                result += '\\';
+            }
+            result += ch;
+        }
+
+        return result + (single ? '\'' : '"');
     }
 
     function isWhiteSpace(ch) {
@@ -1282,6 +1340,8 @@
         json = options.format.json;
         renumber = options.format.renumber;
         hexadecimal = json ? false : options.format.hexadecimal;
+        quotes = json ? 'double' : options.format.quotes;
+        escapeless = options.format.escapeless;
         parse = json ? null : options.parse;
         extra = options;
 
