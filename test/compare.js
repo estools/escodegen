@@ -91,16 +91,18 @@
     tick = new Date();
     fs.readdirSync(__dirname + '/compare').sort().forEach(function(file) {
         var code, expected, p;
-        if (!/expected\.js$/.test(file)) {
-            p = file.replace(/\.js$/, '.expected.js');
-            total += 1;
-            code = fs.readFileSync(__dirname + '/compare/' + file, 'utf-8');
-            expected = fs.readFileSync(__dirname + '/compare/' + p, 'utf-8');
-            try {
-                test(code, expected);
-            } catch (e) {
-                e.source = code;
-                failures.push(e);
+        if (/\.js$/.test(file)) {
+            if (!/expected\.js$/.test(file)) {
+                p = file.replace(/\.js$/, '.expected.js');
+                total += 1;
+                code = fs.readFileSync(__dirname + '/compare/' + file, 'utf-8');
+                expected = fs.readFileSync(__dirname + '/compare/' + p, 'utf-8');
+                try {
+                    test(code, expected);
+                } catch (e) {
+                    e.source = code;
+                    failures.push(e);
+                }
             }
         }
     });
