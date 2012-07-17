@@ -359,11 +359,20 @@
         return base + stmt;
     }
 
-    function adjustMultilineComment(value) {
-        var array, i, len, line, j, ch, spaces;
+    function calculateSpaces(code) {
+        var result = code.match(/(?:^|\r\n|[\r\n])([^\r\n]*)$/);
+        if (result) {
+            return result[1].length;
+        } else {
+            return undefined;
+        }
+    }
 
-        spaces = Number.MAX_VALUE;
+    function adjustMultilineComment(value, specialBase) {
+        var array, i, len, line, j, ch, spaces, previousBase;
+
         array = value.split(/\r\n|[\r\n]/);
+        spaces = Number.MAX_VALUE;
 
         // first line doesn't have indentation
         for (i = 1, len = array.length; i < len; i += 1) {
@@ -377,27 +386,46 @@
             }
         }
 
-        if (spaces % 2 === 1) {
-            // /*
-            //  *
-            //  */
-            // If spaces are odd number, above pattern is considered.
-            // We waste 1 space.
-            spaces -= 1;
+        if (typeof specialBase !== 'undefined') {
+            // pattern like
+            // {
+            //   var t = 20;  /*
+            //                 * this is comment
+            //                 */
+            // }
+            previousBase = base;
+            if (array[1][spaces] === '*') {
+                specialBase += ' ';
+            }
+            base = specialBase;
+        } else {
+            if (spaces % 2 === 1) {
+                // /*
+                //  *
+                //  */
+                // If spaces are odd number, above pattern is considered.
+                // We waste 1 space.
+                spaces -= 1;
+            }
+            previousBase = base;
         }
+
         for (i = 1, len = array.length; i < len; i += 1) {
             array[i] = addIndent(array[i].slice(spaces));
         }
+
+        base = previousBase;
+
         return array.join('\n');
     }
 
-    function generateComment(comment) {
+    function generateComment(comment, specialBase) {
         if (comment.type === 'Line') {
             // Esprima always produce last line comment with LineTerminator
             return '//' + comment.value;
         }
         if (extra.format.indent.adjustMultilineComment && /[\n\r]/.test(comment.value)) {
-            return adjustMultilineComment('/*' + comment.value + '*/');
+            return adjustMultilineComment('/*' + comment.value + '*/', specialBase);
         }
         return '/*' + comment.value + '*/';
     }
@@ -792,7 +820,7 @@
     }
 
     function generateStatement(stmt, option) {
-        var i, len, result, previousBase, comment, save, ret, node, allowIn;
+        var i, len, result, previousBase, comment, save, ret, node, allowIn, tailingToStatement, specialBase;
 
         allowIn = true;
         if (option) {
@@ -1193,10 +1221,27 @@
             }
 
             if (stmt.trailingComments) {
+                tailingToStatement = !endsWithLineTerminator(result);
+                specialBase = stringRepeat(' ', calculateSpaces(base + result + indent));
                 for (i = 0, len = stmt.trailingComments.length; i < len; i += 1) {
                     comment = stmt.trailingComments[i];
-                    result += addIndent(generateComment(comment));
-                    if (!endsWithLineTerminator(result)) {
+                    if (tailingToStatement) {
+                        // We assume target like following script
+                        //
+                        // var t = 20;  /**
+                        //               * This is comment of t
+                        //               */
+                        if (i === 0) {
+                            // first case
+                            result += indent;
+                        } else {
+                            result += specialBase;
+                        }
+                        result += generateComment(comment, specialBase);
+                    } else {
+                        result += addIndent(generateComment(comment));
+                    }
+                    if (i !== len - 1 && !endsWithLineTerminator(result)) {
                         result += '\n';
                     }
                 }

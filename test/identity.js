@@ -75,11 +75,12 @@
     ];
 
     function testIdentity(code) {
-        var expected, tree, actual, options, StringObject, err;
+        var expected, tree, actual, options, commentOptions, commentTree, StringObject, err;
 
         // alias, so that JSLint does not complain.
         StringObject = String;
 
+        // once
         options = {
             comment: false,
             range: false,
@@ -92,6 +93,27 @@
             tree = esprima.parse(code, options);
             expected = JSON.stringify(tree, adjustRegexLiteral, 4);
             tree = esprima.parse(escodegen.generate(tree), options);
+            actual = JSON.stringify(tree, adjustRegexLiteral, 4);
+        } catch (e) {
+            throw new NotMatchingError(expected, e.toString());
+        }
+        if (expected !== actual) {
+            throw new NotMatchingError(expected, actual);
+        }
+
+        // second, attachComments
+        commentOptions = {
+            comment: true,
+            range: true,
+            loc: false,
+            tokens: true,
+            raw: false
+        };
+
+        try {
+            commentTree = esprima.parse(code, commentOptions);
+            commentTree = escodegen.attachComments(commentTree, commentTree.comments, commentTree.tokens);
+            tree = esprima.parse(escodegen.generate(commentTree), options);
             actual = JSON.stringify(tree, adjustRegexLiteral, 4);
         } catch (e) {
             throw new NotMatchingError(expected, e.toString());
