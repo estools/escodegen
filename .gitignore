@@ -1,0 +1,10 @@
+# Emacs
+*~
+\#*\#
+
+# Node modules
+node_modules/
+
+# Cover
+.coverage_data/
+cover_html/
