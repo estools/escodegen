@@ -47,10 +47,8 @@ var data = [{
         base: '  ',
         format: {
             indent: {
-                style: {
-                    base: 4,
-                    indent: '\t'
-                }
+                base: 4,
+                style: '\t'
             }
         }
     },
@@ -535,6 +533,120 @@ var data = [{
     items: {
         '+""' : '+"";',
         '+\'\\0\'': '+\'\\0\';'
+    }
+}, {
+    options: {
+        base: 1,
+        indent: '  ',
+        format: {
+            compact: false
+        }
+    },
+    items: {
+        '{}': '  {\n  }',
+        '{42}': '  {\n    42;\n  }',
+        '[]': '  [];',
+        '[,42]': '  [\n    ,\n    42\n  ];',
+        '!{}': '  !{};',
+        '!{42:42,foo:42}': '  !{\n    42: 42,\n    foo: 42\n  };',
+        'switch(42){}': '  switch (42) {\n  }',
+        'switch(42){default:42}': '  switch (42) {\n  default:\n    42;\n  }',
+        '42;42': '  42;\n  42;',
+
+        '!function(foo,bar){}': '  !function (foo, bar) {\n  };',
+        '42,42': '  42, 42;',
+        'foo=42': '  foo = 42;',
+        '42?42:42': '  42 ? 42 : 42;',
+        'foo(42,42)': '  foo(42, 42);',
+        'new Foo(42,42)': '  new Foo(42, 42);',
+        '!{42:42}': '  !{\n    42: 42\n  };',
+        'do{}while(42);': '  do {\n  } while (42);',
+        'try{}catch(foo){}': '  try {\n  } catch (foo) {\n  }',
+        'var foo=42': '  var foo = 42;',
+        'var foo,bar': '  var foo, bar;',
+        'try{}finally{}': '  try {\n  } finally {\n  }',
+        'switch(foo){}': '  switch (foo) {\n  }',
+        'if(42){}': '  if (42) {\n  }',
+        'if(42){}else if(42){}': '  if (42) {\n  } else if (42) {\n  }',
+        'if(42){}else{}': '  if (42) {\n  } else {\n  }',
+        'for(;42;42);': '  for (; 42; 42);',
+        'for(foo in 42);': '  for (foo in 42);',
+        'while(42);': '  while (42);',
+        'with({});': '  with ({});',
+
+        'foo in bar,[]in[]': '  foo in bar, [] in [];',
+        'new Foo(),new[]()': '  new Foo(), new []();',
+        'typeof 42,typeof[]': '  typeof 42, typeof [];',
+        'throw 42;throw[]': '  throw 42;\n  throw [];',
+        'switch(42){case 42:case[]:}': '  switch (42) {\n  case 42:\n  case []:\n  }',
+        'if(42){}else 42;if(42){}else[];': '  if (42) {\n  } else\n    42;\n  if (42) {\n  } else\n    [];',
+        'for(foo in 42);for(foo in[]);': '  for (foo in 42);\n  for (foo in []);',
+        '!function(){return 42},function(){return[]}': '  !function () {\n    return 42;\n  }, function () {\n    return [];\n  };',
+
+        '!function foo(){}': '  !function foo() {\n  };',
+        '!{get 42(){},set 42(bar){}}': '  !{\n    get 42() {\n    },\n    set 42(bar) {\n    }\n  };',
+        'foo:while(42)break foo;': '  foo:\n    while (42)\n      break foo;',
+        'foo:while(42)continue foo;': '  foo:\n    while (42)\n      continue foo;',
+        'var foo' : '  var foo;',
+        'for(var foo in 42);': '  for (var foo in 42);',
+        'function foo(){}': '  function foo() {\n  }'
+    }
+}, {
+    options: {
+        base: 1,
+        indent: '  ',
+        format: {
+            compact: true
+        }
+    },
+    items: {
+        '{}': '{}',
+        '{42}': '{42;}',
+        '[]': '[];',
+        '[,42]': '[,42];',
+        '!{}': '!{};',
+        '!{42:42,foo:42}': '!{42:42,foo:42};',
+        'switch(42){}': 'switch(42){}',
+        'switch(42){default:42}': 'switch(42){default:42;}',
+        '42;42': '42;42;',
+
+        '!function(foo,bar){}': '!function(foo,bar){};',
+        '42,42': '42,42;',
+        'foo=42': 'foo=42;',
+        '42?42:42': '42?42:42;',
+        'foo(42,42)': 'foo(42,42);',
+        'new Foo(42,42)': 'new Foo(42,42);',
+        '!{42:42}': '!{42:42};',
+        'do{}while(42);': 'do{}while(42);',
+        'try{}catch(foo){}': 'try{}catch(foo){}',
+        'var foo=42': 'var foo=42;',
+        'var foo,bar': 'var foo,bar;',
+        'try{}finally{}': 'try{}finally{}',
+        'switch(foo){}': 'switch(foo){}',
+        'if(42){}': 'if(42){}',
+        'if(42){}else if(42){}': 'if(42){}else if(42){}',
+        'if(42){}else{}': 'if(42){}else{}',
+        'for(;42;42);': 'for(;42;42);',
+        'for(foo in 42);': 'for(foo in 42);',
+        'while(42);': 'while(42);',
+        'with({});': 'with({});',
+
+        'foo in bar,[]in[]': 'foo in bar,[]in[];',
+        'new Foo(),new[]()': 'new Foo(),new[]();',
+        'typeof 42,typeof[]': 'typeof 42,typeof[];',
+        'throw 42;throw[]': 'throw 42;throw[];',
+        'switch(42){case 42:case[]:}': 'switch(42){case 42:case[]:}',
+        'if(42){}else 42;if(42){}else[];': 'if(42){}else 42;if(42){}else[];',
+        'for(foo in 42);for(foo in[]);': 'for(foo in 42);for(foo in[]);',
+        '!function(){return 42},function(){return[]}': '!function(){return 42;},function(){return[];};',
+
+        '!function foo(){}': '!function foo(){};',
+        '!{get 42(){},set 42(bar){}}': '!{get 42(){},set 42(bar){}};',
+        'foo:while(42)break foo;': 'foo:while(42)break foo;',
+        'foo:while(42)continue foo;': 'foo:while(42)continue foo;',
+        'var foo' : 'var foo;',
+        'for(var foo in 42);': 'for(var foo in 42);',
+        'function foo(){}': 'function foo(){}'
     }
 }];
 
