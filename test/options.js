@@ -297,7 +297,7 @@ var data = [{
         parse: null
     },
     items: {
-        '+\'\'' : '+\'\';',
+        '+\'\'': '+\'\';',
         '+""': '+\'\';',
         '+\'\\\'\'': '+\'\\\'\';',
         '+\'"\'': '+\'"\';',
@@ -334,7 +334,7 @@ var data = [{
         parse: null
     },
     items: {
-        '+\'\'' : '+"";',
+        '+\'\'': '+"";',
         '+""': '+"";',
         '+\'\\\'\'': '+"\'";',
         '+\'"\'': '+"\\"";',
@@ -371,7 +371,7 @@ var data = [{
         parse: null
     },
     items: {
-        '+\'\'' : '+"";',
+        '+\'\'': '+"";',
         '+""': '+"";',
         '+\'\\\'\'': '+"\'";',
         '+\'"\'': '+"\\"";',
@@ -408,7 +408,7 @@ var data = [{
         parse: null
     },
     items: {
-        '+\'\'' : '+\'\';',
+        '+\'\'': '+\'\';',
         '+""': '+\'\';',
         '+\'\\\'\'': '+"\'";',
         '+\'"\'': '+\'"\';',
@@ -445,7 +445,7 @@ var data = [{
         parse: null
     },
     items: {
-        '+\'\'' : '+\'\';',
+        '+\'\'': '+\'\';',
         '+""': '+\'\';',
         '+\'\\\'\'': '+\'\\\'\';',
         '+\'"\'': '+\'"\';',
@@ -482,7 +482,7 @@ var data = [{
         parse: true
     },
     items: {
-        '+\'\'' : '+\'\';',
+        '+\'\'': '+\'\';',
         '+""': '+"";',
         '+\'\\\'\'': '+\'\\\'\';',
         '+\'"\'': '+\'"\';',
@@ -531,7 +531,7 @@ var data = [{
         parse: true
     },
     items: {
-        '+""' : '+"";',
+        '+""': '+"";',
         '+\'\\0\'': '+\'\\0\';'
     }
 }, {
@@ -587,9 +587,12 @@ var data = [{
         '!{get 42(){},set 42(bar){}}': '  !{\n    get 42() {\n    },\n    set 42(bar) {\n    }\n  };',
         'foo:while(42)break foo;': '  foo:\n    while (42)\n      break foo;',
         'foo:while(42)continue foo;': '  foo:\n    while (42)\n      continue foo;',
-        'var foo' : '  var foo;',
+        'var foo': '  var foo;',
         'for(var foo in 42);': '  for (var foo in 42);',
-        'function foo(){}': '  function foo() {\n  }'
+        'function foo(){}': '  function foo() {\n  }',
+
+        '({})': '  ({});',
+        '(function(){})': '  (function () {\n  });'
     }
 }, {
     options: {
@@ -644,9 +647,12 @@ var data = [{
         '!{get 42(){},set 42(bar){}}': '!{get 42(){},set 42(bar){}};',
         'foo:while(42)break foo;': 'foo:while(42)break foo;',
         'foo:while(42)continue foo;': 'foo:while(42)continue foo;',
-        'var foo' : 'var foo;',
+        'var foo': 'var foo;',
         'for(var foo in 42);': 'for(var foo in 42);',
-        'function foo(){}': 'function foo(){}'
+        'function foo(){}': 'function foo(){}',
+
+        '({})': '({});',
+        '(function(){})': '(function(){});'
     }
 }];
 

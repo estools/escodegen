@@ -1000,8 +1000,8 @@
                 allowCall: true
             });
             // 12.4 '{', 'function' is not allowed in this position.
-            // wrap espression with parentheses
-            if (result[0] === '{' || result.indexOf('function ') === 0) {
+            // wrap expression with parentheses
+            if (result.charAt(0) === '{' || result.slice(0, 8) === 'function' && " (".indexOf(result.charAt(8)) >= 0) {
                 result = '(' + result + ');';
             } else {
                 result += ';';
