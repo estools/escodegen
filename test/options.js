@@ -663,8 +663,15 @@ var data = [{
         }
     },
     items: {
+        'new Foo()': 'new Foo();',
         'new Foo(42)': 'new Foo(42);',
-        'new Foo() in bar': 'new Foo() in bar;'
+        'new Foo() in bar': 'new Foo() in bar;',
+        'new Date.constructor()': 'new Date.constructor();',
+        'new Date().constructor': 'new Date().constructor;',
+        'new Date.setUTCMilliseconds(0)': 'new Date.setUTCMilliseconds(0);',
+        'new Date().setUTCMilliseconds(0)': 'new Date().setUTCMilliseconds(0);',
+        'new new Foo()()': 'new new Foo()();',
+        'new new (Foo()())()()': 'new new (Foo()())()();'
     }
 }, {
     options: {
@@ -673,8 +680,15 @@ var data = [{
         }
     },
     items: {
+        'new Foo()': 'new Foo;',
         'new Foo(42)': 'new Foo(42);',
-        'new Foo() in bar': 'new Foo in bar;'
+        'new Foo() in bar': 'new Foo in bar;',
+        'new Date.constructor()': 'new Date.constructor;',
+        'new Date().constructor': 'new Date().constructor;',
+        'new Date.setUTCMilliseconds(0)': 'new Date.setUTCMilliseconds(0);',
+        'new Date().setUTCMilliseconds(0)': 'new Date().setUTCMilliseconds(0);',
+        'new new Foo()()': 'new new Foo;',
+        'new new (Foo()())()()': 'new new (Foo()());'
     }
 }];
 

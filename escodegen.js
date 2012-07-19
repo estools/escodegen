@@ -571,11 +571,12 @@
     }
 
     function generateExpression(expr, option) {
-        var result, precedence, currentPrecedence, previousBase, i, len, raw, allowIn, allowCall;
+        var result, precedence, currentPrecedence, previousBase, i, len, raw, allowIn, allowCall, allowUnparenthesizedNew;
 
         precedence = option.precedence;
         allowIn = option.allowIn;
         allowCall = option.allowCall;
+        allowUnparenthesizedNew  = option.allowUnparenthesizedNew;
 
         switch (expr.type) {
         case Syntax.SequenceExpression:
@@ -585,7 +586,8 @@
                 result += generateExpression(expr.expressions[i], {
                     precedence: Precedence.Assignment,
                     allowIn: allowIn,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 });
                 if (i + 1 < len) {
                     result += ',' + space;
@@ -600,12 +602,14 @@
                 generateExpression(expr.left, {
                     precedence: Precedence.Call,
                     allowIn: allowIn,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 }) + space + expr.operator + space +
                     generateExpression(expr.right, {
                         precedence: Precedence.Assignment,
                         allowIn: allowIn,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     }),
                 Precedence.Assignment,
                 precedence
@@ -618,17 +622,20 @@
                 generateExpression(expr.test, {
                     precedence: Precedence.LogicalOR,
                     allowIn: allowIn,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 }) + space + '?' + space +
                     generateExpression(expr.consequent, {
                         precedence: Precedence.Assignment,
                         allowIn: allowIn,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     }) + space + ':' + space +
                     generateExpression(expr.alternate, {
                         precedence: Precedence.Assignment,
                         allowIn: allowIn,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     }),
                 Precedence.Conditional,
                 precedence
@@ -645,7 +652,8 @@
                 generateExpression(expr.left, {
                     precedence: currentPrecedence,
                     allowIn: allowIn,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 }),
                 expr.operator
             );
@@ -655,7 +663,8 @@
                 generateExpression(expr.right, {
                     precedence: currentPrecedence + 1,
                     allowIn: allowIn,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 })
             );
 
@@ -671,7 +680,8 @@
             result = generateExpression(expr.callee, {
                 precedence: Precedence.Call,
                 allowIn: true,
-                allowCall: true
+                allowCall: true,
+                allowUnparenthesizedNew: false
             });
 
             result += '(';
@@ -679,7 +689,8 @@
                 result += generateExpression(expr['arguments'][i], {
                     precedence: Precedence.Assignment,
                     allowIn: true,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 });
                 if (i + 1 < len) {
                     result += ',' + space;
@@ -695,17 +706,19 @@
             break;
 
         case Syntax.NewExpression:
+            len = expr['arguments'].length;
+
             result = join(
                 'new',
                 generateExpression(expr.callee, {
                     precedence: Precedence.New,
                     allowIn: true,
-                    allowCall: false
+                    allowCall: false,
+                    allowUnparenthesizedNew: allowUnparenthesizedNew && !parentheses && len === 0
                 })
             );
 
-            len = expr['arguments'].length;
-            if (parentheses || len > 0) {
+            if (!allowUnparenthesizedNew || parentheses || len > 0) {
                 result += '(';
                 for (i = 0; i < len; i += 1) {
                     result += generateExpression(expr['arguments'][i], {
@@ -727,14 +740,16 @@
             result = generateExpression(expr.object, {
                 precedence: Precedence.Call,
                 allowIn: true,
-                allowCall: allowCall
+                allowCall: allowCall,
+                allowUnparenthesizedNew: false
             });
 
             if (expr.computed) {
                 result += '[' + generateExpression(expr.property, {
                     precedence: Precedence.Sequence,
                     allowIn: true,
-                    allowCall: allowCall
+                    allowCall: allowCall,
+                    allowUnparenthesizedNew: true
                 }) + ']';
             } else {
                 if (expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
@@ -762,7 +777,8 @@
                                     expr.argument.operator === expr.operator ? 1 : 0
                             ),
                             allowIn: true,
-                            allowCall: true
+                            allowCall: true,
+                            allowUnparenthesizedNew: true
                         })
                     ),
                     Precedence.Unary,
@@ -781,7 +797,8 @@
                                 expr.argument.operator === expr.operator ? 1 : 0
                         ),
                         allowIn: true,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     }),
                     Precedence.Unary,
                     precedence
@@ -797,7 +814,8 @@
                         generateExpression(expr.argument, {
                             precedence: Precedence.Unary,
                             allowIn: true,
-                            allowCall: true
+                            allowCall: true,
+                            allowUnparenthesizedNew: true
                         }),
                     Precedence.Unary,
                     precedence
@@ -807,7 +825,8 @@
                     generateExpression(expr.argument, {
                         precedence: Precedence.Postfix,
                         allowIn: true,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     }) + expr.operator,
                     Precedence.Postfix,
                     precedence
@@ -843,7 +862,8 @@
                     result += addIndent(generateExpression(expr.elements[i], {
                         precedence: Precedence.Assignment,
                         allowIn: true,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     }));
                 }
                 if (i + 1 < len) {
@@ -862,18 +882,21 @@
                 result = expr.kind + ' ' + generateExpression(expr.key, {
                     precedence: Precedence.Sequence,
                     allowIn: true,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 }) + generateFunctionBody(expr.value);
             } else {
                 result =
                     generateExpression(expr.key, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     }) + ':' + space + generateExpression(expr.value, {
                         precedence: Precedence.Assignment,
                         allowIn: true,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     });
             }
             break;
@@ -890,7 +913,8 @@
                 result += addIndent(generateExpression(expr.properties[i], {
                     precedence: Precedence.Sequence,
                     allowIn: true,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 }));
                 if (i + 1 < len) {
                     result += ',' + newline;
@@ -1002,7 +1026,8 @@
             result += 'while' + space + '(' + generateExpression(stmt.test, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
-                allowCall: true
+                allowCall: true,
+                allowUnparenthesizedNew: true
             }) + ');';
             break;
 
@@ -1012,7 +1037,8 @@
             result = 'catch' + space + '(' + generateExpression(stmt.param, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
-                allowCall: true
+                allowCall: true,
+                allowUnparenthesizedNew: true
             }) + ')';
             base = previousBase;
             result += maybeBlock(stmt.body);
@@ -1030,7 +1056,8 @@
             result = generateExpression(stmt.expression, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
-                allowCall: true
+                allowCall: true,
+                allowUnparenthesizedNew: true
             });
             // 12.4 '{', 'function' is not allowed in this position.
             // wrap expression with parentheses
@@ -1046,7 +1073,8 @@
                 result = stmt.id.name + space + '=' + space + generateExpression(stmt.init, {
                     precedence: Precedence.Assignment,
                     allowIn: allowIn,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 });
             } else {
                 result = stmt.id.name;
@@ -1104,7 +1132,8 @@
                 generateExpression(stmt.argument, {
                     precedence: Precedence.Sequence,
                     allowIn: true,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 })
             ) + ';';
             break;
@@ -1129,7 +1158,8 @@
             result = 'switch' + space + '(' + generateExpression(stmt.discriminant, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
-                allowCall: true
+                allowCall: true,
+                allowUnparenthesizedNew: true
             }) + ')' + space + '{' + newline;
             base = previousBase;
             if (stmt.cases) {
@@ -1153,7 +1183,8 @@
                     generateExpression(stmt.test, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     })
                 ) + ':';
             } else {
@@ -1191,7 +1222,8 @@
                     result = 'if' + space + '(' +  generateExpression(stmt.test, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     }) + ')';
                     base = previousBase;
                     result += maybeBlock(stmt.consequent);
@@ -1201,7 +1233,8 @@
                     result = 'if' + space + '(' + generateExpression(stmt.test, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     }) + ')';
                     base = previousBase;
                     result += maybeBlock(stmt.consequent);
@@ -1213,7 +1246,8 @@
                 result = 'if' + space + '(' + generateExpression(stmt.test, {
                     precedence: Precedence.Sequence,
                     allowIn: true,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 }) + ')';
                 base = previousBase;
                 result += maybeBlock(stmt.consequent);
@@ -1233,7 +1267,8 @@
                     result += generateExpression(stmt.init, {
                         precedence: Precedence.Sequence,
                         allowIn: false,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     }) + ';';
                 }
             } else {
@@ -1244,7 +1279,8 @@
                 result += space + generateExpression(stmt.test, {
                     precedence: Precedence.Sequence,
                     allowIn: true,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 }) + ';';
             } else {
                 result += ';';
@@ -1254,7 +1290,8 @@
                 result += space + generateExpression(stmt.update, {
                     precedence: Precedence.Sequence,
                     allowIn: true,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 }) + ')';
             } else {
                 result += ')';
@@ -1279,7 +1316,8 @@
                 result += generateExpression(stmt.left, {
                     precedence: Precedence.Call,
                     allowIn: true,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 });
                 base = previousBase;
             }
@@ -1292,7 +1330,8 @@
                 generateExpression(stmt.right, {
                     precedence: Precedence.Sequence,
                     allowIn: true,
-                    allowCall: true
+                    allowCall: true,
+                    allowUnparenthesizedNew: true
                 })
             ) + ')';
             base = previousBase;
@@ -1329,7 +1368,8 @@
                     generateExpression(stmt.argument, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
-                        allowCall: true
+                        allowCall: true,
+                        allowUnparenthesizedNew: true
                     })
                 ) + ';';
             } else {
@@ -1343,7 +1383,8 @@
             result = 'while' + space + '(' + generateExpression(stmt.test, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
-                allowCall: true
+                allowCall: true,
+                allowUnparenthesizedNew: true
             }) + ')';
             base = previousBase;
             result += maybeBlock(stmt.body);
@@ -1355,7 +1396,8 @@
             result = 'with' + space + '(' + generateExpression(stmt.object, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
-                allowCall: true
+                allowCall: true,
+                allowUnparenthesizedNew: true
             }) + ')';
             base = previousBase;
             result += maybeBlock(stmt.body);
@@ -1513,7 +1555,8 @@
             return generateExpression(node, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
-                allowCall: true
+                allowCall: true,
+                allowUnparenthesizedNew: true
             });
 
         default:
