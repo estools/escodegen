@@ -538,12 +538,12 @@
 
         if (stmt.type === Syntax.EmptyStatement && noLeadingComment) {
             return ';';
-        } else {
-            previousBase = base;
-            base += indent;
-            result = newline + addIndent(generateStatement(stmt));
-            base = previousBase;
         }
+
+        previousBase = base;
+        base += indent;
+        result = newline + addIndent(generateStatement(stmt));
+        base = previousBase;
 
         return result;
     }
