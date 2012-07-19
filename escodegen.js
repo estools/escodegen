@@ -1691,10 +1691,21 @@
 
     function attachComments(tree, providedComments, tokens) {
         // At first, we should calculate extended comment ranges.
-        var comments = [], len, i;
+        var comments = [], comment, len, i;
 
         if (!tree.range) {
             throw new Error('attachComments needs range information');
+        }
+
+        // tokens array is empty, we attach comments to tree as 'leadingComments'
+        if (!tokens.length) {
+            for (i = 0, len = providedComments.length; i < len; i += 1) {
+                comment = deepCopy(providedComments[i]);
+                comment.extendedRange = [0, tree.range[0]];
+                comments.push(comment);
+            }
+            tree.leadingComments = comments;
+            return tree;
         }
 
         for (i = 0, len = providedComments.length; i < len; i += 1) {
