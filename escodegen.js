@@ -571,7 +571,7 @@
     }
 
     function generateExpression(expr, option) {
-        var result, precedence, currentPrecedence, previousBase, i, len, raw, allowIn, allowCall, allowUnparenthesizedNew;
+        var result, precedence, currentPrecedence, previousBase, i, len, raw, fragment, allowIn, allowCall, allowUnparenthesizedNew;
 
         precedence = option.precedence;
         allowIn = option.allowIn;
@@ -756,43 +756,26 @@
             break;
 
         case Syntax.UnaryExpression:
+            fragment = generateExpression(expr.argument, {
+                precedence: Precedence.Unary + (
+                    expr.argument.type === Syntax.UnaryExpression &&
+                        expr.operator.length < 3 &&
+                        expr.argument.operator === expr.operator ? 1 : 0
+                ),
+                allowIn: true,
+                allowCall: true
+            });
+
             if (space === '') {
-                result = parenthesize(
-                    join(
-                        expr.operator,
-                        generateExpression(expr.argument, {
-                            precedence: Precedence.Unary + (
-                                expr.argument.type === Syntax.UnaryExpression &&
-                                    expr.operator.length < 3 &&
-                                    expr.argument.operator === expr.operator ? 1 : 0
-                            ),
-                            allowIn: true,
-                            allowCall: true
-                        })
-                    ),
-                    Precedence.Unary,
-                    precedence
-                );
+                result = join(expr.operator, fragment);
             } else {
                 result = expr.operator;
                 if (result.length > 2) {
                     result += ' ';
                 }
-                result = parenthesize(
-                    result + generateExpression(expr.argument, {
-                        precedence: Precedence.Unary + (
-                            expr.argument.type === Syntax.UnaryExpression &&
-                                expr.operator.length < 3 &&
-                                expr.argument.operator === expr.operator ? 1 : 0
-                        ),
-                        allowIn: true,
-                        allowCall: true
-                    }),
-                    Precedence.Unary,
-                    precedence
-                );
+                result += fragment;
             }
-
+            result = parenthesize(result, Precedence.Unary, precedence);
             break;
 
         case Syntax.UpdateExpression:
