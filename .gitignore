@@ -8,3 +8,5 @@ node_modules/
 # Cover
 .coverage_data/
 cover_html/
+
+npm-debug.log

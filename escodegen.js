@@ -202,8 +202,11 @@
         };
     }
 
-    function endsWithLineTerminator(value) {
-        return (/(?:\r\n|[\n\r])$/).test(value);
+    function endsWithLineTerminator(str) {
+        var len, ch;
+        len = str.length;
+        ch = str.charAt(len - 1);
+        return ch === '\r' || ch === '\n';
     }
 
     function shallowCopy(obj) {
@@ -302,9 +305,8 @@
             temp += 'e' + exponent;
         }
         if ((temp.length < result.length ||
-             hexadecimal && value > 1e12 && Math.floor(value) === value &&
-             (temp = '0x' + value.toString(16)).length < result.length) &&
-            +temp === value) {
+                    (hexadecimal && value > 1e12 && Math.floor(value) === value && (temp = '0x' + value.toString(16)).length < result.length)) &&
+                +temp === value) {
             result = temp;
         }
 
@@ -327,7 +329,7 @@
         default:
             if (json || code > 0xff) {
                 result += 'u' + '0000'.slice(hex.length) + hex;
-            } else if (ch === '\0' && '0123456789'.indexOf(next) < 0) {
+            } else if (ch === '\u0000' && '0123456789'.indexOf(next) < 0) {
                 result += '0';
             } else if (ch === '\v') {
                 result += 'v';
@@ -383,14 +385,14 @@
             } else if ('\\\n\r\u2028\u2029'.indexOf(ch) >= 0) {
                 result += escapeDisallowedCharacter(ch);
                 continue;
-            } else if (json && ch < ' ' || !(json || escapeless || ch >= ' ' && ch <= '~')) {
+            } else if ((json && ch < ' ') || !(json || escapeless || (ch >= ' ' && ch <= '~'))) {
                 result += escapeAllowedCharacter(ch, str[i + 1]);
                 continue;
             }
             result += ch;
         }
 
-        single = !(quotes === 'double' || quotes === 'auto' && doubleQuotes < singleQuotes);
+        single = !(quotes === 'double' || (quotes === 'auto' && doubleQuotes < singleQuotes));
         str = result;
         result = single ? '\'' : '"';
 
@@ -400,7 +402,7 @@
 
         for (i = 0, len = str.length; i < len; i += 1) {
             ch = str[i];
-            if (ch === '\'' && single || ch === '"' && !single) {
+            if ((ch === '\'' && single) || (ch === '"' && !single)) {
                 result += '\\';
             }
             result += ch;
@@ -410,8 +412,7 @@
     }
 
     function isWhiteSpace(ch) {
-        return '\t\v\f \xa0'.indexOf(ch) >= 0 || ch.charCodeAt(0) >= 0x1680 &&
-             '\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff'.indexOf(ch) >= 0;
+        return '\t\v\f \xa0'.indexOf(ch) >= 0 || (ch.charCodeAt(0) >= 0x1680 && '\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff'.indexOf(ch) >= 0);
     }
 
     function isLineTerminator(ch) {
@@ -429,11 +430,9 @@
         var leftChar = left.charAt(left.length - 1),
             rightChar = right.charAt(0);
 
-        if ((leftChar === '+' || leftChar === '-') && leftChar === rightChar ||
-            isIdentifierPart(leftChar) && isIdentifierPart(rightChar)) {
+        if (((leftChar === '+' || leftChar === '-') && leftChar === rightChar) || (isIdentifierPart(leftChar) && isIdentifierPart(rightChar))) {
             return left + ' ' + right;
-        } else if (isWhiteSpace(leftChar) || isLineTerminator(leftChar) ||
-            isWhiteSpace(rightChar) || isLineTerminator(rightChar)) {
+        } else if (isWhiteSpace(leftChar) || isLineTerminator(leftChar) || isWhiteSpace(rightChar) || isLineTerminator(rightChar)) {
             return left + right;
         }
         return left + space + right;
@@ -443,13 +442,14 @@
         return base + stmt;
     }
 
-    function calculateSpaces(code) {
-        var result = code.match(/(?:^|\r\n|[\r\n])([^\r\n]*)$/);
-        if (result) {
-            return result[1].length;
-        } else {
-            return undefined;
+    function calculateSpaces(str) {
+        var i;
+        for (i = str.length - 1; i >= 0; i -= 1) {
+            if (isLineTerminator(str.charAt(i))) {
+                break;
+            }
         }
+        return (str.length - 1) - i;
     }
 
     function adjustMultilineComment(value, specialBase) {
@@ -505,8 +505,12 @@
 
     function generateComment(comment, specialBase) {
         if (comment.type === 'Line') {
-            // Esprima always produce last line comment with LineTerminator
-            return '//' + comment.value;
+            if (endsWithLineTerminator(comment.value)) {
+                return '//' + comment.value;
+            } else {
+                // Always use LineTerminator
+                return '//' + comment.value + '\n';
+            }
         }
         if (extra.format.indent.adjustMultilineComment && /[\n\r]/.test(comment.value)) {
             return adjustMultilineComment('/*' + comment.value + '*/', specialBase);
@@ -521,19 +525,17 @@
         return text;
     }
 
-    function maybeBlock(stmt, suffix) {
-        var previousBase, result;
+    function maybeBlock(stmt) {
+        var previousBase, result, noLeadingComment;
 
-        if (stmt.type === Syntax.BlockStatement && (!extra.comment || !stmt.leadingComments)) {
-            result = space + generateStatement(stmt);
-            if (suffix) {
-                return result + space;
-            }
-            return result;
+        noLeadingComment = !extra.comment || !stmt.leadingComments;
+
+        if (stmt.type === Syntax.BlockStatement && noLeadingComment) {
+            return space + generateStatement(stmt);
         }
 
-        if (stmt.type === Syntax.EmptyStatement && (!extra.comment || !stmt.leadingComments)) {
-            result = ';';
+        if (stmt.type === Syntax.EmptyStatement && noLeadingComment) {
+            return ';';
         } else {
             previousBase = base;
             base += indent;
@@ -541,10 +543,17 @@
             base = previousBase;
         }
 
-        if (suffix) {
-            return result + (newline === '' ? ' ' : newline) + addIndent('');
-        }
         return result;
+    }
+
+    function maybeBlockSuffix(stmt, result) {
+        if (stmt.type === Syntax.BlockStatement && (!extra.comment || !stmt.leadingComments) && !endsWithLineTerminator(result)) {
+            return space;
+        }
+        if (endsWithLineTerminator(result)) {
+            return addIndent('');
+        }
+        return (newline === '' ? ' ' : newline) + addIndent('');
     }
 
     function generateFunctionBody(node) {
@@ -636,14 +645,17 @@
                     allowIn: allowIn,
                     allowCall: true
                 }),
-                expr.operator);
+                expr.operator
+            );
+
             result = join(
                 result,
                 generateExpression(expr.right, {
                     precedence: currentPrecedence + 1,
                     allowIn: allowIn,
                     allowCall: true
-                }));
+                })
+            );
 
             if (expr.operator === 'in' && !allowIn) {
                 result = '(' + result + ')';
@@ -687,7 +699,8 @@
                     precedence: Precedence.New,
                     allowIn: true,
                     allowCall: false
-                }));
+                })
+            );
 
             result += '(';
             for (i = 0, len = expr['arguments'].length; i < len; i += 1) {
@@ -745,7 +758,8 @@
                             ),
                             allowIn: true,
                             allowCall: true
-                        })),
+                        })
+                    ),
                     Precedence.Unary,
                     precedence
                 );
@@ -797,9 +811,11 @@
             break;
 
         case Syntax.FunctionExpression:
-            result = 'function' + space;
+            result = 'function';
             if (expr.id) {
-                result += (space === '' ? ' ' : '') + expr.id.name;
+                result += ' ' + expr.id.name;
+            } else {
+                result += space;
             }
             result += generateFunctionBody(expr);
             break;
@@ -830,7 +846,10 @@
                 }
             }
             base = previousBase;
-            result += newline + addIndent(']');
+            if (!endsWithLineTerminator(result)) {
+                result += newline;
+            }
+            result += addIndent(']');
             break;
 
         case Syntax.Property:
@@ -873,7 +892,10 @@
                 }
             }
             base = previousBase;
-            result += newline + addIndent('}');
+            if (!endsWithLineTerminator(result)) {
+                result += newline;
+            }
+            result += addIndent('}');
             break;
 
         case Syntax.ThisExpression:
@@ -928,7 +950,7 @@
     }
 
     function generateStatement(stmt, option) {
-        var i, len, result, previousBase, comment, save, ret, node, allowIn, tailingToStatement, specialBase;
+        var i, len, result, previousBase, comment, save, ret, node, allowIn, tailingToStatement, specialBase, fragment;
 
         allowIn = true;
         if (option) {
@@ -942,7 +964,11 @@
             previousBase = base;
             base += indent;
             for (i = 0, len = stmt.body.length; i < len; i += 1) {
-                result += addIndent(generateStatement(stmt.body[i])) + newline;
+                fragment = addIndent(generateStatement(stmt.body[i]));
+                result += fragment;
+                if (!endsWithLineTerminator(fragment)) {
+                    result += newline;
+                }
             }
             base = previousBase;
 
@@ -966,7 +992,9 @@
             break;
 
         case Syntax.DoWhileStatement:
-            result = 'do' + maybeBlock(stmt.body, true) + 'while' + space + '(' + generateExpression(stmt.test, {
+            result = 'do' + maybeBlock(stmt.body);
+            result += maybeBlockSuffix(stmt.body, result);
+            result += 'while' + space + '(' + generateExpression(stmt.test, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
                 allowCall: true
@@ -976,7 +1004,7 @@
         case Syntax.CatchClause:
             previousBase = base;
             base += indent;
-            result = space + 'catch' + space + '(' + generateExpression(stmt.param, {
+            result = 'catch' + space + '(' + generateExpression(stmt.param, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
                 allowCall: true
@@ -1001,7 +1029,7 @@
             });
             // 12.4 '{', 'function' is not allowed in this position.
             // wrap expression with parentheses
-            if (result.charAt(0) === '{' || result.slice(0, 8) === 'function' && " (".indexOf(result.charAt(8)) >= 0) {
+            if (result.charAt(0) === '{' || (result.slice(0, 8) === 'function' && " (".indexOf(result.charAt(8)) >= 0)) {
                 result = '(' + result + ');';
             } else {
                 result += ';';
@@ -1072,16 +1100,21 @@
                     precedence: Precedence.Sequence,
                     allowIn: true,
                     allowCall: true
-                })) + ';';
+                })
+            ) + ';';
             break;
 
         case Syntax.TryStatement:
             result = 'try' + maybeBlock(stmt.block);
+            result += maybeBlockSuffix(stmt.block, result);
             for (i = 0, len = stmt.handlers.length; i < len; i += 1) {
                 result += generateStatement(stmt.handlers[i]);
+                if (stmt.finalizer || i + 1 !== len) {
+                    result += maybeBlockSuffix(stmt.handlers[i].body, result);
+                }
             }
             if (stmt.finalizer) {
-                result += space + 'finally' + maybeBlock(stmt.finalizer);
+                result += 'finally' + maybeBlock(stmt.finalizer);
             }
             break;
 
@@ -1096,7 +1129,11 @@
             base = previousBase;
             if (stmt.cases) {
                 for (i = 0, len = stmt.cases.length; i < len; i += 1) {
-                    result += addIndent(generateStatement(stmt.cases[i])) + newline;
+                    fragment = addIndent(generateStatement(stmt.cases[i]));
+                    result += fragment;
+                    if (!endsWithLineTerminator(fragment)) {
+                        result += newline;
+                    }
                 }
             }
             result += addIndent('}');
@@ -1112,7 +1149,8 @@
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
-                    })) + ':';
+                    })
+                ) + ':';
             } else {
                 result = 'default:';
             }
@@ -1120,12 +1158,21 @@
             i = 0;
             len = stmt.consequent.length;
             if (len && stmt.consequent[0].type === Syntax.BlockStatement) {
-                result += maybeBlock(stmt.consequent[0]);
+                fragment = maybeBlock(stmt.consequent[0]);
+                result += fragment;
                 i = 1;
             }
 
+            if (i !== len && !endsWithLineTerminator(result)) {
+                result += newline;
+            }
+
             for (; i < len; i += 1) {
-                result += newline + addIndent(generateStatement(stmt.consequent[i]));
+                fragment = addIndent(generateStatement(stmt.consequent[i]));
+                result += fragment;
+                if (i + 1 !== len && !endsWithLineTerminator(fragment)) {
+                    result += newline;
+                }
             }
 
             base = previousBase;
@@ -1142,7 +1189,9 @@
                         allowCall: true
                     }) + ')';
                     base = previousBase;
-                    result += maybeBlock(stmt.consequent, true) + 'else ' + generateStatement(stmt.alternate);
+                    result += maybeBlock(stmt.consequent);
+                    result += maybeBlockSuffix(stmt.consequent, result);
+                    result += 'else ' + generateStatement(stmt.alternate);
                 } else {
                     result = 'if' + space + '(' + generateExpression(stmt.test, {
                         precedence: Precedence.Sequence,
@@ -1150,7 +1199,9 @@
                         allowCall: true
                     }) + ')';
                     base = previousBase;
-                    result += maybeBlock(stmt.consequent, true) + 'else';
+                    result += maybeBlock(stmt.consequent);
+                    result += maybeBlockSuffix(stmt.consequent, result);
+                    result += 'else';
                     result = join(result, maybeBlock(stmt.alternate));
                 }
             } else {
@@ -1237,7 +1288,8 @@
                     precedence: Precedence.Sequence,
                     allowIn: true,
                     allowCall: true
-                })) + ')';
+                })
+            ) + ')';
             base = previousBase;
             result += maybeBlock(stmt.body);
             break;
@@ -1249,8 +1301,9 @@
         case Syntax.Program:
             result = '';
             for (i = 0, len = stmt.body.length; i < len; i += 1) {
-                result += addIndent(generateStatement(stmt.body[i]));
-                if (i + 1 < len) {
+                fragment = addIndent(generateStatement(stmt.body[i]));
+                result += fragment;
+                if (i + 1 < len && !endsWithLineTerminator(fragment)) {
                     result += newline;
                 }
             }
@@ -1272,7 +1325,8 @@
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
-                    })) + ';';
+                    })
+                ) + ';';
             } else {
                 result = 'return;';
             }
