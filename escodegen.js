@@ -520,6 +520,60 @@
         return '/*' + comment.value + '*/';
     }
 
+    function addCommentsToStatement(stmt, result) {
+        var i, len, comment, save, node, tailingToStatement, specialBase, fragment;
+
+        if (stmt.leadingComments) {
+            save = result;
+
+            comment = stmt.leadingComments[0];
+            result = generateComment(comment);
+            if (!endsWithLineTerminator(result)) {
+                result += '\n';
+            }
+
+            for (i = 1, len = stmt.leadingComments.length; i < len; i += 1) {
+                comment = stmt.leadingComments[i];
+                fragment = generateComment(comment);
+                if (!endsWithLineTerminator(fragment)) {
+                    fragment += '\n';
+                }
+                result += addIndent(fragment);
+            }
+
+            result += addIndent(save);
+        }
+
+        if (stmt.trailingComments) {
+            tailingToStatement = !endsWithLineTerminator(result);
+            specialBase = stringRepeat(' ', calculateSpaces(base + result + indent));
+            for (i = 0, len = stmt.trailingComments.length; i < len; i += 1) {
+                comment = stmt.trailingComments[i];
+                if (tailingToStatement) {
+                    // We assume target like following script
+                    //
+                    // var t = 20;  /**
+                    //               * This is comment of t
+                    //               */
+                    if (i === 0) {
+                        // first case
+                        result += indent;
+                    } else {
+                        result += specialBase;
+                    }
+                    result += generateComment(comment, specialBase);
+                } else {
+                    result += addIndent(generateComment(comment));
+                }
+                if (i !== len - 1 && !endsWithLineTerminator(result)) {
+                    result += '\n';
+                }
+            }
+        }
+
+        return result;
+    }
+
     function parenthesize(text, current, should) {
         if (current < should) {
             return '(' + text + ')';
@@ -943,7 +997,7 @@
     }
 
     function generateStatement(stmt, option) {
-        var i, len, result, previousBase, comment, save, ret, node, allowIn, tailingToStatement, specialBase, fragment;
+        var i, len, result, previousBase, node, allowIn, fragment;
 
         allowIn = true;
         if (option) {
@@ -1360,53 +1414,7 @@
         // Attach comments
 
         if (extra.comment) {
-            if (stmt.leadingComments) {
-                save = result;
-
-                comment = stmt.leadingComments[0];
-                result = generateComment(comment);
-                if (!endsWithLineTerminator(result)) {
-                    result += '\n';
-                }
-
-                for (i = 1, len = stmt.leadingComments.length; i < len; i += 1) {
-                    comment = stmt.leadingComments[i];
-                    ret = generateComment(comment);
-                    if (!endsWithLineTerminator(ret)) {
-                        ret += '\n';
-                    }
-                    result += addIndent(ret);
-                }
-
-                result += addIndent(save);
-            }
-
-            if (stmt.trailingComments) {
-                tailingToStatement = !endsWithLineTerminator(result);
-                specialBase = stringRepeat(' ', calculateSpaces(base + result + indent));
-                for (i = 0, len = stmt.trailingComments.length; i < len; i += 1) {
-                    comment = stmt.trailingComments[i];
-                    if (tailingToStatement) {
-                        // We assume target like following script
-                        //
-                        // var t = 20;  /**
-                        //               * This is comment of t
-                        //               */
-                        if (i === 0) {
-                            // first case
-                            result += indent;
-                        } else {
-                            result += specialBase;
-                        }
-                        result += generateComment(comment, specialBase);
-                    } else {
-                        result += addIndent(generateComment(comment));
-                    }
-                    if (i !== len - 1 && !endsWithLineTerminator(result)) {
-                        result += '\n';
-                    }
-                }
-            }
+            return addCommentsToStatement(stmt, result);
         }
 
         return result;
