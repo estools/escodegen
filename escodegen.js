@@ -1699,12 +1699,14 @@
 
         // tokens array is empty, we attach comments to tree as 'leadingComments'
         if (!tokens.length) {
-            for (i = 0, len = providedComments.length; i < len; i += 1) {
-                comment = deepCopy(providedComments[i]);
-                comment.extendedRange = [0, tree.range[0]];
-                comments.push(comment);
+            if (providedComments.length) {
+                for (i = 0, len = providedComments.length; i < len; i += 1) {
+                    comment = deepCopy(providedComments[i]);
+                    comment.extendedRange = [0, tree.range[0]];
+                    comments.push(comment);
+                }
+                tree.leadingComments = comments;
             }
-            tree.leadingComments = comments;
             return tree;
         }
 
