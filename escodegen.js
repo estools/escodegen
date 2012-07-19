@@ -705,7 +705,7 @@
             );
 
             len = expr['arguments'].length;
-            if (parentheses || len > 0) {
+            if (parentheses || len > 0 || precedence === Precedence.Call) {
                 result += '(';
                 for (i = 0; i < len; i += 1) {
                     result += generateExpression(expr['arguments'][i], {
