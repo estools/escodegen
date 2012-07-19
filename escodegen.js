@@ -52,6 +52,7 @@
         escapeless,
         newline,
         space,
+        parentheses,
         extra,
         parse;
 
@@ -168,7 +169,8 @@
                 hexadecimal: false,
                 quotes: 'single',
                 escapeless: false,
-                compact: false
+                compact: false,
+                parentheses: true
             }
         };
     }
@@ -702,18 +704,21 @@
                 })
             );
 
-            result += '(';
-            for (i = 0, len = expr['arguments'].length; i < len; i += 1) {
-                result += generateExpression(expr['arguments'][i], {
-                    precedence: Precedence.Assignment,
-                    allowIn: true,
-                    allowCall: true
-                });
-                if (i + 1 < len) {
-                    result += ',' + space;
+            len = expr['arguments'].length;
+            if (parentheses || len > 0 || precedence === Precedence.Call) {
+                result += '(';
+                for (i = 0; i < len; i += 1) {
+                    result += generateExpression(expr['arguments'][i], {
+                        precedence: Precedence.Assignment,
+                        allowIn: true,
+                        allowCall: true
+                    });
+                    if (i + 1 < len) {
+                        result += ',' + space;
+                    }
                 }
+                result += ')';
             }
-            result += ')';
 
             result = parenthesize(result, Precedence.New, precedence);
             break;
@@ -1458,6 +1463,7 @@
             newline = '\n';
             space = ' ';
         }
+        parentheses = options.format.parentheses;
         parse = json ? null : options.parse;
         extra = options;
 

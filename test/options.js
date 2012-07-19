@@ -539,7 +539,8 @@ var data = [{
         base: 1,
         indent: '  ',
         format: {
-            compact: false
+            compact: false,
+            parentheses: true
         }
     },
     items: {
@@ -599,7 +600,8 @@ var data = [{
         base: 1,
         indent: '  ',
         format: {
-            compact: true
+            compact: true,
+            parentheses: true
         }
     },
     items: {
@@ -653,6 +655,40 @@ var data = [{
 
         '({})': '({});',
         '(function(){})': '(function(){});'
+    }
+}, {
+    options: {
+        format: {
+            parentheses: true
+        }
+    },
+    items: {
+        'new Foo()': 'new Foo();',
+        'new Foo(42)': 'new Foo(42);',
+        'new Foo() in bar': 'new Foo() in bar;',
+        'new Date.constructor()': 'new Date.constructor();',
+        'new Date().constructor': 'new Date().constructor;',
+        'new Date.setUTCMilliseconds(0)': 'new Date.setUTCMilliseconds(0);',
+        'new Date().setUTCMilliseconds(0)': 'new Date().setUTCMilliseconds(0);',
+        'new new Foo()()': 'new new Foo()();',
+        'new new (Foo()())()()': 'new new (Foo()())()();'
+    }
+}, {
+    options: {
+        format: {
+            parentheses: false
+        }
+    },
+    items: {
+        'new Foo()': 'new Foo;',
+        'new Foo(42)': 'new Foo(42);',
+        'new Foo() in bar': 'new Foo in bar;',
+        'new Date.constructor()': 'new Date.constructor;',
+        'new Date().constructor': 'new Date().constructor;',
+        'new Date.setUTCMilliseconds(0)': 'new Date.setUTCMilliseconds(0);',
+        'new Date().setUTCMilliseconds(0)': 'new Date().setUTCMilliseconds(0);',
+        'new new Foo()': 'new new Foo;',
+        'new new (Foo()())()()': 'new new (Foo()());'
     }
 }];
 
