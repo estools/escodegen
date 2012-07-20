@@ -1787,7 +1787,7 @@
     }
 
     // Sync with package.json.
-    exports.version = '0.0.5-dev';
+    exports.version = '0.0.6-dev';
 
     exports.generate = generate;
     exports.traverse = traverse;
