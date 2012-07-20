@@ -690,6 +690,94 @@ var data = [{
         'new new Foo()()': 'new new Foo;',
         'new new (Foo()())()()': 'new new (Foo()());'
     }
+}, {
+    options: {
+        format: {
+            indent: {
+                base: 1,
+                style: '  '
+            },
+            semicolons: true
+        }
+    },
+    items: {
+        '{}': '  {\n  }',
+        '{;}': '  {\n    ;\n  }',
+        '{42}': '  {\n    42;\n  }',
+        'if(42);': '  if (42);',
+        'if(42)42': '  if (42)\n    42;',
+        'if(42);else;': '  if (42);\n  else ;',
+        'if(42)42;else 42': '  if (42)\n    42;\n  else\n    42;',
+        'do;while(42)': '  do;\n  while (42);',
+        'do 42;while(42)': '  do\n    42;\n  while (42);',
+        'while(42);': '  while (42);',
+        'while(42)42': '  while (42)\n    42;',
+        'for(;;);': '  for (;;);',
+        'for(;;)42': '  for (;;)\n    42;',
+        'for(foo in 42);': '  for (foo in 42);',
+        'for(foo in 42)42': '  for (foo in 42)\n    42;',
+        'with({});': '  with ({});',
+        'with({})42': '  with ({})\n    42;',
+        'switch(42){default:}': '  switch (42) {\n  default:\n  }',
+        'switch(42){default:;}': '  switch (42) {\n  default:\n    ;\n  }',
+        'switch(42){default:42}': '  switch (42) {\n  default:\n    42;\n  }',
+        'foo:;': '  foo:;',
+        'foo:42': '  foo:\n    42;',
+        'try{}catch(foo){}finally{}': '  try {\n  } catch (foo) {\n  } finally {\n  }',
+        'try{;}catch(foo){;}finally{;}': '  try {\n    ;\n  } catch (foo) {\n    ;\n  } finally {\n    ;\n  }',
+        'try{42}catch(foo){42}finally{42}': '  try {\n    42;\n  } catch (foo) {\n    42;\n  } finally {\n    42;\n  }',
+        '!function(){}': '  !function () {\n  };',
+        '!function(){;}': '  !function () {\n    ;\n  };',
+        '!function(){42}': '  !function () {\n    42;\n  };',
+        '': '',
+        ';': '  ;',
+        '42': '  42;',
+        '42;foo': '  42;\n  foo;'
+    }
+}, {
+    options: {
+        format: {
+            indent: {
+                base: 1,
+                style: '  '
+            },
+            semicolons: false
+        }
+    },
+    items: {
+        '{}': '  {\n  }',
+        '{;}': '  {\n    ;\n  }',
+        '{42}': '  {\n    42\n  }',
+        'if(42);': '  if (42);',
+        'if(42)42': '  if (42)\n    42',
+        'if(42);else;': '  if (42);\n  else ;',
+        'if(42)42;else 42': '  if (42)\n    42;\n  else\n    42',
+        'do;while(42)': '  do;\n  while (42)',
+        'do 42;while(42)': '  do\n    42;\n  while (42)',
+        'while(42);': '  while (42);',
+        'while(42)42': '  while (42)\n    42',
+        'for(;;);': '  for (;;);',
+        'for(;;)42': '  for (;;)\n    42',
+        'for(foo in 42);': '  for (foo in 42);',
+        'for(foo in 42)42': '  for (foo in 42)\n    42',
+        'with({});': '  with ({});',
+        'with({})42': '  with ({})\n    42',
+        'switch(42){default:}': '  switch (42) {\n  default:\n  }',
+        'switch(42){default:;}': '  switch (42) {\n  default:\n    ;\n  }',
+        'switch(42){default:42}': '  switch (42) {\n  default:\n    42\n  }',
+        'foo:;': '  foo:;',
+        'foo:42': '  foo:\n    42',
+        'try{}catch(foo){}finally{}': '  try {\n  } catch (foo) {\n  } finally {\n  }',
+        'try{;}catch(foo){;}finally{;}': '  try {\n    ;\n  } catch (foo) {\n    ;\n  } finally {\n    ;\n  }',
+        'try{42}catch(foo){42}finally{42}': '  try {\n    42\n  } catch (foo) {\n    42\n  } finally {\n    42\n  }',
+        '!function(){}': '  !function () {\n  }',
+        '!function(){;}': '  !function () {\n    ;\n  }',
+        '!function(){42}': '  !function () {\n    42\n  }',
+        '': '',
+        ';': '  ;',
+        '42': '  42',
+        '42;foo': '  42;\n  foo'
+    }
 }];
 
 (function () {
