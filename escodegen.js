@@ -53,6 +53,7 @@
         newline,
         space,
         parentheses,
+        semicolons,
         extra,
         parse;
 
@@ -170,7 +171,8 @@
                 quotes: 'single',
                 escapeless: false,
                 compact: false,
-                parentheses: true
+                parentheses: true,
+                semicolons: true
             }
         };
     }
@@ -581,7 +583,7 @@
         return text;
     }
 
-    function maybeBlock(stmt) {
+    function maybeBlock(stmt, semicolonOptional) {
         var previousBase, result, noLeadingComment;
 
         noLeadingComment = !extra.comment || !stmt.leadingComments;
@@ -596,7 +598,7 @@
 
         previousBase = base;
         base += indent;
-        result = newline + addIndent(generateStatement(stmt));
+        result = newline + addIndent(generateStatement(stmt, {semicolonOptional: semicolonOptional}));
         base = previousBase;
 
         return result;
@@ -997,11 +999,15 @@
     }
 
     function generateStatement(stmt, option) {
-        var i, len, result, previousBase, node, allowIn, fragment;
+        var i, len, result, previousBase, node, allowIn, fragment, semicolon;
 
         allowIn = true;
+        semicolon = ';';
         if (option) {
             allowIn = option.allowIn;
+            if (!semicolons && option.semicolonOptional === true) {
+                semicolon = '';
+            }
         }
 
         switch (stmt.type) {
@@ -1011,7 +1017,7 @@
             previousBase = base;
             base += indent;
             for (i = 0, len = stmt.body.length; i < len; i += 1) {
-                fragment = addIndent(generateStatement(stmt.body[i]));
+                fragment = addIndent(generateStatement(stmt.body[i], {semicolonOptional: i === len - 1}));
                 result += fragment;
                 if (!endsWithLineTerminator(fragment)) {
                     result += newline;
@@ -1024,17 +1030,17 @@
 
         case Syntax.BreakStatement:
             if (stmt.label) {
-                result = 'break ' + stmt.label.name + ';';
+                result = 'break ' + stmt.label.name + semicolon;
             } else {
-                result = 'break;';
+                result = 'break' + semicolon;
             }
             break;
 
         case Syntax.ContinueStatement:
             if (stmt.label) {
-                result = 'continue ' + stmt.label.name + ';';
+                result = 'continue ' + stmt.label.name + semicolon;
             } else {
-                result = 'continue;';
+                result = 'continue' + semicolon;
             }
             break;
 
@@ -1045,7 +1051,7 @@
                 precedence: Precedence.Sequence,
                 allowIn: true,
                 allowCall: true
-            }) + ');';
+            }) + ')' + semicolon;
             break;
 
         case Syntax.CatchClause:
@@ -1061,7 +1067,7 @@
             break;
 
         case Syntax.DebuggerStatement:
-            result = 'debugger;';
+            result = 'debugger' + semicolon;
             break;
 
         case Syntax.EmptyStatement:
@@ -1077,9 +1083,9 @@
             // 12.4 '{', 'function' is not allowed in this position.
             // wrap expression with parentheses
             if (result.charAt(0) === '{' || (result.slice(0, 8) === 'function' && " (".indexOf(result.charAt(8)) >= 0)) {
-                result = '(' + result + ');';
+                result = '(' + result + ')' + semicolon;
             } else {
-                result += ';';
+                result += semicolon;
             }
             break;
 
@@ -1137,7 +1143,7 @@
                 }
                 base = previousBase;
             }
-            result += ';';
+            result += semicolon;
             break;
 
         case Syntax.ThrowStatement:
@@ -1148,7 +1154,7 @@
                     allowIn: true,
                     allowCall: true
                 })
-            ) + ';';
+            ) + semicolon;
             break;
 
         case Syntax.TryStatement:
@@ -1176,7 +1182,7 @@
             base = previousBase;
             if (stmt.cases) {
                 for (i = 0, len = stmt.cases.length; i < len; i += 1) {
-                    fragment = addIndent(generateStatement(stmt.cases[i]));
+                    fragment = addIndent(generateStatement(stmt.cases[i], {semicolonOptional: i === len - 1}));
                     result += fragment;
                     if (!endsWithLineTerminator(fragment)) {
                         result += newline;
@@ -1215,7 +1221,7 @@
             }
 
             for (; i < len; i += 1) {
-                fragment = addIndent(generateStatement(stmt.consequent[i]));
+                fragment = addIndent(generateStatement(stmt.consequent[i], {semicolonOptional: i === len - 1}));
                 result += fragment;
                 if (i + 1 !== len && !endsWithLineTerminator(fragment)) {
                     result += newline;
@@ -1249,7 +1255,7 @@
                     result += maybeBlock(stmt.consequent);
                     result += maybeBlockSuffix(stmt.consequent, result);
                     result += 'else';
-                    result = join(result, maybeBlock(stmt.alternate));
+                    result = join(result, maybeBlock(stmt.alternate, semicolon === ''));
                 }
             } else {
                 result = 'if' + space + '(' + generateExpression(stmt.test, {
@@ -1258,7 +1264,7 @@
                     allowCall: true
                 }) + ')';
                 base = previousBase;
-                result += maybeBlock(stmt.consequent);
+                result += maybeBlock(stmt.consequent, semicolon === '');
             }
             break;
 
@@ -1303,7 +1309,7 @@
             }
             base = previousBase;
 
-            result += maybeBlock(stmt.body);
+            result += maybeBlock(stmt.body, semicolon === '');
             break;
 
         case Syntax.ForInStatement:
@@ -1338,17 +1344,17 @@
                 })
             ) + ')';
             base = previousBase;
-            result += maybeBlock(stmt.body);
+            result += maybeBlock(stmt.body, semicolon === '');
             break;
 
         case Syntax.LabeledStatement:
-            result = stmt.label.name + ':' + maybeBlock(stmt.body);
+            result = stmt.label.name + ':' + maybeBlock(stmt.body, semicolon === '');
             break;
 
         case Syntax.Program:
             result = '';
             for (i = 0, len = stmt.body.length; i < len; i += 1) {
-                fragment = addIndent(generateStatement(stmt.body[i]));
+                fragment = addIndent(generateStatement(stmt.body[i], {semicolonOptional: i === len - 1}));
                 result += fragment;
                 if (i + 1 < len && !endsWithLineTerminator(fragment)) {
                     result += newline;
@@ -1373,9 +1379,9 @@
                         allowIn: true,
                         allowCall: true
                     })
-                ) + ';';
+                ) + semicolon;
             } else {
-                result = 'return;';
+                result = 'return' + semicolon;
             }
             break;
 
@@ -1388,7 +1394,7 @@
                 allowCall: true
             }) + ')';
             base = previousBase;
-            result += maybeBlock(stmt.body);
+            result += maybeBlock(stmt.body, semicolon === '');
             break;
 
         case Syntax.WithStatement:
@@ -1400,7 +1406,7 @@
                 allowCall: true
             }) + ')';
             base = previousBase;
-            result += maybeBlock(stmt.body);
+            result += maybeBlock(stmt.body, semicolon === '');
             break;
 
         default:
@@ -1460,6 +1466,7 @@
             space = ' ';
         }
         parentheses = options.format.parentheses;
+        semicolons = options.format.semicolons;
         parse = json ? null : options.parse;
         extra = options;
 
