@@ -598,7 +598,7 @@
 
         previousBase = base;
         base += indent;
-        result = newline + addIndent(generateStatement(stmt, {semicolonOptional: semicolonOptional}));
+        result = newline + addIndent(generateStatement(stmt, { semicolonOptional: semicolonOptional }));
         base = previousBase;
 
         return result;
@@ -1004,7 +1004,7 @@
         allowIn = true;
         semicolon = ';';
         if (option) {
-            allowIn = option.allowIn;
+            allowIn = option.allowIn === undefined || option.allowIn;
             if (!semicolons && option.semicolonOptional === true) {
                 semicolon = '';
             }
