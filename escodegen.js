@@ -1225,7 +1225,7 @@
             }
 
             for (; i < len; i += 1) {
-                fragment = addIndent(generateStatement(stmt.consequent[i], {semicolonOptional: i === len - 1}));
+                fragment = addIndent(generateStatement(stmt.consequent[i], {semicolonOptional: i === len - 1 && semicolon === ''}));
                 result += fragment;
                 if (i + 1 !== len && !endsWithLineTerminator(fragment)) {
                     result += newline;
