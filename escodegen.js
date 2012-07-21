@@ -434,7 +434,7 @@
         var leftChar = left.charAt(left.length - 1),
             rightChar = right.charAt(0);
 
-        if (((leftChar === '+' || leftChar === '-') && leftChar === rightChar) || (isIdentifierPart(leftChar) && isIdentifierPart(rightChar))) {
+        if (((leftChar === '+' || leftChar === '-') && leftChar === rightChar) || (isIdentifierPart(leftChar) && isIdentifierPart(rightChar)) || (leftChar === '/' || rightChar === '/')) {
             return left + ' ' + right;
         } else if (isWhiteSpace(leftChar) || isLineTerminator(leftChar) || isWhiteSpace(rightChar) || isLineTerminator(rightChar)) {
             return left + right;

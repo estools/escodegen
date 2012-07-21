@@ -593,7 +593,8 @@ var data = [{
         'function foo(){}': '  function foo() {\n  }',
 
         '({})': '  ({});',
-        '(function(){})': '  (function () {\n  });'
+        '(function(){})': '  (function () {\n  });',
+        '/ / / / /': '  / / / / /;'
     }
 }, {
     options: {
@@ -654,7 +655,8 @@ var data = [{
         'function foo(){}': 'function foo(){}',
 
         '({})': '({});',
-        '(function(){})': '(function(){});'
+        '(function(){})': '(function(){});',
+        '/ / / / /': '/ / / / /;'
     }
 }, {
     options: {
