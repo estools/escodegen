@@ -780,6 +780,16 @@ var data = [{
         '42': '  42',
         '42;foo': '  42;\n  foo'
     }
+}, {
+    options: {
+        format: {
+            compact: true,
+            semicolons: false
+        }
+    },
+    items: {
+        'switch(42){case 42:42;default:}': 'switch(42){case 42:42;default:}'
+    }
 }];
 
 (function () {
