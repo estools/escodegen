@@ -434,7 +434,7 @@
         var leftChar = left.charAt(left.length - 1),
             rightChar = right.charAt(0);
 
-        if (((leftChar === '+' || leftChar === '-') && leftChar === rightChar) || (isIdentifierPart(leftChar) && isIdentifierPart(rightChar)) || (leftChar === '/' || rightChar === '/')) {
+        if (((leftChar === '+' || leftChar === '-') && leftChar === rightChar) || (isIdentifierPart(leftChar) && isIdentifierPart(rightChar))) {
             return left + ' ' + right;
         } else if (isWhiteSpace(leftChar) || isLineTerminator(leftChar) || isWhiteSpace(rightChar) || isLineTerminator(rightChar)) {
             return left + right;
@@ -706,14 +706,18 @@
                 expr.operator
             );
 
-            result = join(
-                result,
-                generateExpression(expr.right, {
-                    precedence: currentPrecedence + 1,
-                    allowIn: allowIn,
-                    allowCall: true
-                })
-            );
+            fragment = generateExpression(expr.right, {
+                precedence: currentPrecedence + 1,
+                allowIn: allowIn,
+                allowCall: true
+            });
+
+            if (expr.operator === '/' && result.charAt(result.length - 1) === '/') {
+                // If '/' concats with '/', it is interpreted as comment start
+                result += ' ' + fragment;
+            } else {
+                result = join(result, fragment);
+            }
 
             if (expr.operator === 'in' && !allowIn) {
                 result = '(' + result + ')';
