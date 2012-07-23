@@ -54,6 +54,7 @@
         space,
         parentheses,
         semicolons,
+        safe,
         extra,
         parse;
 
@@ -172,7 +173,8 @@
                 escapeless: false,
                 compact: false,
                 parentheses: true,
-                semicolons: true
+                semicolons: true,
+                safe: false
             }
         };
     }
@@ -529,7 +531,11 @@
             save = result;
 
             comment = stmt.leadingComments[0];
-            result = generateComment(comment);
+            result = '';
+            if (safe && stmt.type === Syntax.Program && stmt.body.length === 0) {
+                result += '\n';
+            }
+            result += generateComment(comment);
             if (!endsWithLineTerminator(result)) {
                 result += '\n';
             }
@@ -1356,9 +1362,10 @@
             break;
 
         case Syntax.Program:
-            result = '';
-            for (i = 0, len = stmt.body.length; i < len; i += 1) {
-                fragment = addIndent(generateStatement(stmt.body[i], {semicolonOptional: i === len - 1}));
+            len = stmt.body.length;
+            result = safe && len > 0 ? '\n': '';
+            for (i = 0; i < len; i += 1) {
+                fragment = addIndent(generateStatement(stmt.body[i], {semicolonOptional: !safe && i === len - 1}));
                 result += fragment;
                 if (i + 1 < len && !endsWithLineTerminator(fragment)) {
                     result += newline;
@@ -1424,7 +1431,11 @@
         // Attach comments
 
         if (extra.comment) {
-            return addCommentsToStatement(stmt, result);
+            result = addCommentsToStatement(stmt, result);
+        }
+
+        if (!safe && newline === '' && result.charAt(result.length - 1) === '\n') {
+            return result.slice(0, -1);
         }
 
         return result;
@@ -1471,6 +1482,7 @@
         }
         parentheses = options.format.parentheses;
         semicolons = options.format.semicolons;
+        safe = options.format.safe;
         parse = json ? null : options.parse;
         extra = options;
 

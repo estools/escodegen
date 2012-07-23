@@ -790,6 +790,38 @@ var data = [{
     items: {
         'switch(42){case 42:42;default:}': 'switch(42){case 42:42;default:}'
     }
+}, {
+    options: {
+        comment: true,
+        format: {
+            compact: true,
+            semicolons: false,
+            safe: false
+        }
+    },
+    items: {
+        '': '',
+        '//A': '//A',
+        '{}': '{}',
+        '!{}': '!{}',
+        '{}//A': '{}//A'
+    }
+}, {
+    options: {
+        comment: true,
+        format: {
+            compact: true,
+            semicolons: false,
+            safe: true
+        }
+    },
+    items: {
+        '': '',
+        '//A': '\n//A\n',
+        '{}': '\n{}',
+        '!{}': '\n!{};',
+        '{}//A': '\n{}//A\n'
+    }
 }];
 
 (function () {
@@ -822,11 +854,23 @@ var data = [{
     NotMatchingError.prototype = new Error();
 
     function runTest(options, source, expectedCode) {
-        var tree, actualTree, expectedTree, actualCode;
+        var tree, actualTree, expectedTree, actualCode, optionsParser = {
+            raw: true
+        };
+        if (options.comment) {
+            optionsParser.comment = true;
+            optionsParser.range = true;
+            optionsParser.loc = true;
+            optionsParser.tokens = true;
+        }
         try {
             tree = esprima.parse(source);
             expectedTree = JSON.stringify(tree, adjustRegexLiteral, 4);
-            actualCode = escodegen.generate(esprima.parse(source, {raw: true}), options);
+            tree = esprima.parse(source, optionsParser);
+            if (options.comment) {
+                tree = escodegen.attachComments(tree, tree.comments, tree.tokens);
+            }
+            actualCode = escodegen.generate(tree, options);
             tree = esprima.parse(actualCode);
             actualTree = JSON.stringify(tree, adjustRegexLiteral, 4);
         } catch (e) {
