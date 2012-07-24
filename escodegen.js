@@ -1434,7 +1434,8 @@
             result = addCommentsToStatement(stmt, result);
         }
 
-        if (!safe && newline === '' && result.charAt(result.length - 1) === '\n') {
+        if (stmt.type === Syntax.Program && !safe && newline === '' &&
+            result.charAt(result.length - 1) === '\n') {
             return result.slice(0, -1);
         }
 
