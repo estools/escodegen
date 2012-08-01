@@ -268,7 +268,7 @@
         if (value !== value) {
             throw new Error('Numeric literal whose value is NaN');
         }
-        if (1 / value < 0) {
+        if (value < 0 || 1 / value < 0) {
             throw new Error('Numeric literal whose value is negative');
         }
 
