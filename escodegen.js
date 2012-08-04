@@ -525,7 +525,7 @@
     function addCommentsToStatement(stmt, result) {
         var i, len, comment, save, node, tailingToStatement, specialBase, fragment;
 
-        if (stmt.leadingComments) {
+        if (stmt.leadingComments && stmt.leadingComments.length > 0) {
             save = result;
 
             comment = stmt.leadingComments[0];
