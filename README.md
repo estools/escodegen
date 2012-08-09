@@ -2,6 +2,10 @@ Escodegen ([escodegen](http://github.com/Constellation/escodegen)) is
 [ECMAScript](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
 (also popularly known as [JavaScript](http://en.wikipedia.org/wiki/JavaScript>JavaScript))
 code generator from [Parser API](https://developer.mozilla.org/en/SpiderMonkey/Parser_API) AST.
+See [online generator demo](http://constellation.github.com/escodegen/demo/index.html).
+
+
+### Install
 
 Escodegen can be used in a web browser:
 
@@ -12,7 +16,9 @@ or in a Node.js application via the package manager:
     npm install escodegen
 
 
-simple example:
+### Usage
+
+A simple example: the program
 
     escodegen.generate({
         type: 'BinaryExpression',
@@ -21,13 +27,11 @@ simple example:
         right: { type: 'Literal', value: 2 }
     });
 
-and gets following string
+produces the string `'40 + 2'`
 
-    40 + 2
+See the [API page](https://github.com/Constellation/escodegen/wiki/API) for
+options. To run the tests, execute `npm test` in the root directory.
 
-
-See [API page](https://github.com/Constellation/escodegen/wiki/API) for options.
-And see [online generator demo](http://constellation.github.com/escodegen/demo/index.html).
 
 ### License
 
