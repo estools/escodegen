@@ -817,10 +817,10 @@
 
         case Syntax.UnaryExpression:
             fragment = generateExpression(expr.argument, {
-                precedence: Precedence.Unary + (
-                    expr.argument.type === Syntax.UnaryExpression &&
-                        expr.operator.length < 3 &&
-                        expr.argument.operator === expr.operator ? 1 : 0
+                precedence: Precedence.Unary + +(
+                    expr.argument.type === Syntax.UnaryExpression
+                    && expr.operator.length < 3
+                    && expr.argument.operator === expr.operator
                 ),
                 allowIn: true,
                 allowCall: true
@@ -830,7 +830,11 @@
                 result = join(expr.operator, fragment);
             } else {
                 result = expr.operator;
-                if (result.length > 2) {
+                if (expr.operator.length > 2
+                || expr.argument.type === Syntax.UpdateExpression && expr.argument.prefix &&
+                    ( expr.operator === '+' && expr.argument.operator === '++'
+                    || expr.operator === '-' && expr.argument.operator === '--')
+                ) {
                     result += ' ';
                 }
                 result += fragment;
