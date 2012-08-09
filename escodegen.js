@@ -1372,11 +1372,7 @@
             break;
 
         case Syntax.FunctionDeclaration:
-            result = 'function' + space;
-            if (stmt.id) {
-                result += (space === '' ? ' ' : '') + stmt.id.name;
-            }
-            result += generateFunctionBody(stmt);
+            result = 'function ' + stmt.id.name + generateFunctionBody(stmt);
             break;
 
         case Syntax.ReturnStatement:
