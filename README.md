@@ -29,6 +29,15 @@ and gets following string
 See [API page](https://github.com/Constellation/escodegen/wiki/API) for options.
 And see [online generator demo](http://constellation.github.com/escodegen/demo/index.html).
 
+### How to test
+
+CLI testing using Node.js is available.
+You can run test cases by
+
+`npm test`
+
+on the top of the escodegen directory.
+
 ### License
 
 Copyright (C) 2012 [Yusuke Suzuki](http://github.com/Constellation)
