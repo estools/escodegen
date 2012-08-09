@@ -5625,6 +5625,41 @@ data = {
             }
         },
 
+        '+ ++x': {
+          type: 'Program',
+          body:
+           [ { type: 'ExpressionStatement',
+               expression:
+                { type: 'UnaryExpression',
+                  operator: '+',
+                  argument:
+                   { type: 'UpdateExpression',
+                     operator: '++',
+                     argument:
+                      { type: 'Identifier',
+                        name: 'x',
+                        range: [ 4, 5 ],
+                        loc:
+                         { start: { line: 1, column: 4 },
+                           end: { line: 1, column: 5 } } },
+                     prefix: true,
+                     range: [ 1, 6 ],
+                     loc:
+                      { start: { line: 1, column: 1 },
+                        end: { line: 1, column: 6 } } },
+                  range: [ 0, 6 ],
+                  loc:
+                   { start: { line: 1, column: 0 },
+                     end: { line: 1, column: 6 } } },
+               range: [ 0, 6 ],
+               loc:
+                { start: { line: 1, column: 0 },
+                  end: { line: 1, column: 6 } } } ],
+          range: [ 0, 6 ],
+          loc:
+           { start: { line: 1, column: 0 },
+             end: { line: 1, column: 6 } } },
+
         '--x': {
             type: 'ExpressionStatement',
             expression: {
@@ -5652,6 +5687,41 @@ data = {
                 end: { line: 1, column: 3 }
             }
         },
+
+        '- --x': {
+          type: 'Program',
+          body:
+           [ { type: 'ExpressionStatement',
+               expression:
+                { type: 'UnaryExpression',
+                  operator: '-',
+                  argument:
+                   { type: 'UpdateExpression',
+                     operator: '--',
+                     argument:
+                      { type: 'Identifier',
+                        name: 'x',
+                        range: [ 4, 5 ],
+                        loc:
+                         { start: { line: 1, column: 4 },
+                           end: { line: 1, column: 5 } } },
+                     prefix: true,
+                     range: [ 1, 6 ],
+                     loc:
+                      { start: { line: 1, column: 1 },
+                        end: { line: 1, column: 6 } } },
+                  range: [ 0, 6 ],
+                  loc:
+                   { start: { line: 1, column: 0 },
+                     end: { line: 1, column: 6 } } },
+               range: [ 0, 6 ],
+               loc:
+                { start: { line: 1, column: 0 },
+                  end: { line: 1, column: 6 } } } ],
+          range: [ 0, 6 ],
+          loc:
+           { start: { line: 1, column: 0 },
+             end: { line: 1, column: 6 } } },
 
         '++eval': {
             type: 'ExpressionStatement',
