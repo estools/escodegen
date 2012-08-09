@@ -1,4 +1,5 @@
 /*
+  Copyright (C) 2012 Michael Ficarra <mficarra@groupon.com>
   Copyright (C) 2012 Robert Gust-Bardon <donate@robert.gust-bardon.org>
   Copyright (C) 2012 John Freeman <jfreeman08@gmail.com>
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
