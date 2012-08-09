@@ -827,19 +827,7 @@
                 allowCall: true
             });
 
-            if (space === '') {
-                result = join(expr.operator, fragment);
-            } else {
-                result = expr.operator;
-                if (expr.operator.length > 2
-                || expr.argument.type === Syntax.UpdateExpression && expr.argument.prefix &&
-                    ( expr.operator === '+' && expr.argument.operator === '++'
-                    || expr.operator === '-' && expr.argument.operator === '--')
-                ) {
-                    result += ' ';
-                }
-                result += fragment;
-            }
+            result = join(expr.operator, fragment);
             result = parenthesize(result, Precedence.Unary, precedence);
             break;
 
