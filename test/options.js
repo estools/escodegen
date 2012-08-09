@@ -796,7 +796,7 @@ var data = [{
         format: {
             compact: true,
             semicolons: false,
-            safe: false
+            safeConcatnation: false
         }
     },
     items: {
@@ -812,7 +812,7 @@ var data = [{
         format: {
             compact: true,
             semicolons: false,
-            safe: true
+            safeConcatnation: true
         }
     },
     items: {
