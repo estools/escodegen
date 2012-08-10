@@ -55,7 +55,7 @@
         space,
         parentheses,
         semicolons,
-        safeConcatnation,
+        safeConcatenation,
         extra,
         parse;
 
@@ -175,7 +175,7 @@
                 compact: false,
                 parentheses: true,
                 semicolons: true,
-                safeConcatnation: false
+                safeConcatenation: false
             }
         };
     }
@@ -533,7 +533,7 @@
 
             comment = stmt.leadingComments[0];
             result = '';
-            if (safeConcatnation && stmt.type === Syntax.Program && stmt.body.length === 0) {
+            if (safeConcatenation && stmt.type === Syntax.Program && stmt.body.length === 0) {
                 result += '\n';
             }
             result += generateComment(comment);
@@ -1368,9 +1368,9 @@
 
         case Syntax.Program:
             len = stmt.body.length;
-            result = safeConcatnation && len > 0 ? '\n': '';
+            result = safeConcatenation && len > 0 ? '\n': '';
             for (i = 0; i < len; i += 1) {
-                fragment = addIndent(generateStatement(stmt.body[i], {semicolonOptional: !safeConcatnation && i === len - 1}));
+                fragment = addIndent(generateStatement(stmt.body[i], {semicolonOptional: !safeConcatenation && i === len - 1}));
                 result += fragment;
                 if (i + 1 < len && !endsWithLineTerminator(fragment)) {
                     result += newline;
@@ -1435,7 +1435,7 @@
             result = addCommentsToStatement(stmt, result);
         }
 
-        if (stmt.type === Syntax.Program && !safeConcatnation && newline === '' &&
+        if (stmt.type === Syntax.Program && !safeConcatenation && newline === '' &&
             result.charAt(result.length - 1) === '\n') {
             return result.slice(0, -1);
         }
@@ -1484,7 +1484,7 @@
         }
         parentheses = options.format.parentheses;
         semicolons = options.format.semicolons;
-        safeConcatnation = options.format.safeConcatnation;
+        safeConcatenation = options.format.safeConcatenation;
         parse = json ? null : options.parse;
         extra = options;
 
