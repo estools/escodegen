@@ -1060,7 +1060,7 @@
             break;
 
         case Syntax.DoWhileStatement:
-            result = 'do' + maybeBlock(stmt.body);
+            result = join('do', maybeBlock(stmt.body));
             result += maybeBlockSuffix(stmt.body, result);
             result += 'while' + space + '(' + generateExpression(stmt.test, {
                 precedence: Precedence.Sequence,
