@@ -719,7 +719,7 @@
                 allowCall: true
             });
 
-            if (expr.operator === '/' && result.charAt(result.length - 1) === '/') {
+            if (expr.operator === '/' && fragment.charAt(0) === '/') {
                 // If '/' concats with '/', it is interpreted as comment start
                 result += ' ' + fragment;
             } else {
