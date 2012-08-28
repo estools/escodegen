@@ -646,7 +646,7 @@
             allowIn |= (Precedence.Sequence < precedence);
             for (i = 0, len = expr.expressions.length; i < len; i += 1) {
                 result += generateExpression(expr.expressions[i], {
-                    precedence: Precedence.Assignment,
+                    precedence: Precedence.Sequence,
                     allowIn: allowIn,
                     allowCall: true
                 });
