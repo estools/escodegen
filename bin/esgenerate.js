@@ -32,7 +32,7 @@ var fs = require('fs'),
 
 if (files.length === 0) {
     console.log('Usage:');
-    console.log('   esparse file.js');
+    console.log('   esgenerate file.js');
     process.exit(1);
 }
 
