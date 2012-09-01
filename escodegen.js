@@ -646,7 +646,7 @@
     }
 
     function generateExpression(expr, option) {
-        var result, precedence, currentPrecedence, previousBase, i, len, raw, fragment, allowIn, allowCall, allowUnparenthesizedNew;
+        var result, precedence, currentPrecedence, previousBase, i, len, raw, fragment, leftChar, rightChar, allowIn, allowCall, allowUnparenthesizedNew;
 
         precedence = option.precedence;
         allowIn = option.allowIn;
@@ -836,11 +836,7 @@
 
         case Syntax.UnaryExpression:
             fragment = generateExpression(expr.argument, {
-                precedence: Precedence.Unary + +(
-                    expr.argument.type === Syntax.UnaryExpression
-                    && expr.operator.length < 3
-                    && expr.argument.operator === expr.operator
-                ),
+                precedence: Precedence.Unary,
                 allowIn: true,
                 allowCall: true
             });
@@ -849,14 +845,22 @@
                 result = join(expr.operator, fragment);
             } else {
                 result = expr.operator;
-                if (expr.operator.length > 2
-                || expr.argument.type === Syntax.UpdateExpression && expr.argument.prefix &&
-                    ( expr.operator === '+' && expr.argument.operator === '++'
-                    || expr.operator === '-' && expr.argument.operator === '--')
-                ) {
-                    result += ' ';
+                if (expr.operator.length > 2) {
+                    // delete, void, typeof
+                    // get `typeof []`, not `typeof[]`
+                    result = join(result, fragment);
+                } else {
+                    // Prevent inserting spaces between operator and argument if it is unnecessary
+                    // like, `!cond`
+                    leftChar = result.charAt(result.length - 1);
+                    rightChar = fragment.charAt(0);
+
+                    if (((leftChar === '+' || leftChar === '-') && leftChar === rightChar) || (isIdentifierPart(leftChar) && isIdentifierPart(rightChar))) {
+                        result = result + ' ' + fragment;
+                    } else {
+                        result = result + fragment;
+                    }
                 }
-                result += fragment;
             }
             result = parenthesize(result, Precedence.Unary, precedence);
             break;
@@ -1380,7 +1384,7 @@
 
         case Syntax.Program:
             len = stmt.body.length;
-            result = safeConcatenation && len > 0 ? '\n': '';
+            result = (safeConcatenation && len > 0) ? '\n' : '';
             for (i = 0; i < len; i += 1) {
                 fragment = addIndent(generateStatement(stmt.body[i], {semicolonOptional: !safeConcatenation && i === len - 1}));
                 result += fragment;
@@ -1448,7 +1452,7 @@
         }
 
         if (stmt.type === Syntax.Program && !safeConcatenation && newline === '' &&
-            result.charAt(result.length - 1) === '\n') {
+                result.charAt(result.length - 1) === '\n') {
             return result.slice(0, -1);
         }
 
