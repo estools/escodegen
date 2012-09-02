@@ -34,7 +34,7 @@
 /*jslint bitwise:true */
 /*global escodegen:true, exports:true, generateStatement: true*/
 
-(function (factory) {
+(function (factory, global) {
     'use strict';
 
     // Universal Module Definition (UMD) to support AMD, CommonJS/Node.js,
@@ -43,8 +43,10 @@
         define(['exports'], factory);
     } else if (typeof exports !== 'undefined') {
         factory(exports);
-    } else {
+    } else if (typeof window !== 'undefined') {
         factory((window.escodegen = {}));
+    } else {
+        factory((global.escodegen = {}));
     }
 }(function (exports) {
     'use strict';
@@ -1834,5 +1836,5 @@
     exports.traverse = traverse;
     exports.attachComments = attachComments;
 
-}));
+}, this));
 /* vim: set sw=4 ts=4 et tw=80 : */
