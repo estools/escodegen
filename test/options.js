@@ -793,7 +793,11 @@ var data = [{
         'switch(42){case 42:42;default:}': 'switch(42){case 42:42;default:}',
         'if(cond)stmt;else stmt;': 'if(cond)stmt;else stmt',
         'if(cond){stmt;}else stmt;': 'if(cond){stmt}else stmt',
-        'if(cond){stmt;}else{stmt;}': 'if(cond){stmt}else{stmt}'
+        'if(cond){stmt;}else{stmt;}': 'if(cond){stmt}else{stmt}',
+        'if(cond){stmt;}else if(cond)for(;;)stmt;': 'if(cond){stmt}else if(cond)for(;;)stmt',
+        'if(cond){stmt;}else if(cond);': 'if(cond){stmt}else if(cond);',
+        'do ; while(cond);': 'do;while(cond)',
+        'while(cond);': 'while(cond);'
     }
 }, {
     options: {

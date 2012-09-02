@@ -1079,6 +1079,7 @@
             break;
 
         case Syntax.DoWhileStatement:
+            // Because `do 42 while (cond)` is Syntax Error. We need semicolon.
             result = join('do', maybeBlock(stmt.body));
             result = maybeBlockSuffix(stmt.body, result);
             result = join(result, 'while' + space + '(' + generateExpression(stmt.test, {
@@ -1278,7 +1279,9 @@
                     base = previousBase;
                     result += maybeBlock(stmt.consequent);
                     result = maybeBlockSuffix(stmt.consequent, result);
-                    result = join(result, 'else ' + generateStatement(stmt.alternate));
+                    result = join(result, 'else ' + generateStatement(stmt.alternate, {
+                        semicolonOptional: semicolon === ''
+                    }));
                 } else {
                     result = 'if' + space + '(' + generateExpression(stmt.test, {
                         precedence: Precedence.Sequence,
