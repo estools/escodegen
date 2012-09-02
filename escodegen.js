@@ -626,13 +626,14 @@
     }
 
     function maybeBlockSuffix(stmt, result) {
-        if (stmt.type === Syntax.BlockStatement && (!extra.comment || !stmt.leadingComments) && !endsWithLineTerminator(result)) {
-            return space;
+        var ends = endsWithLineTerminator(result);
+        if (stmt.type === Syntax.BlockStatement && (!extra.comment || !stmt.leadingComments) && !ends) {
+            return result + space;
         }
-        if (endsWithLineTerminator(result)) {
-            return addIndent('');
+        if (ends) {
+            return result + addIndent('');
         }
-        return (newline === '' ? ' ' : newline) + addIndent('');
+        return result + newline + addIndent('');
     }
 
     function generateFunctionBody(node) {
@@ -1079,12 +1080,12 @@
 
         case Syntax.DoWhileStatement:
             result = join('do', maybeBlock(stmt.body));
-            result += maybeBlockSuffix(stmt.body, result);
-            result += 'while' + space + '(' + generateExpression(stmt.test, {
+            result = maybeBlockSuffix(stmt.body, result);
+            result = join(result, 'while' + space + '(' + generateExpression(stmt.test, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
                 allowCall: true
-            }) + ')' + semicolon;
+            }) + ')' + semicolon);
             break;
 
         case Syntax.CatchClause:
@@ -1192,15 +1193,15 @@
 
         case Syntax.TryStatement:
             result = 'try' + maybeBlock(stmt.block);
-            result += maybeBlockSuffix(stmt.block, result);
+            result = maybeBlockSuffix(stmt.block, result);
             for (i = 0, len = stmt.handlers.length; i < len; i += 1) {
-                result += generateStatement(stmt.handlers[i]);
+                result = join(result, generateStatement(stmt.handlers[i]));
                 if (stmt.finalizer || i + 1 !== len) {
-                    result += maybeBlockSuffix(stmt.handlers[i].body, result);
+                    result = maybeBlockSuffix(stmt.handlers[i].body, result);
                 }
             }
             if (stmt.finalizer) {
-                result += 'finally' + maybeBlock(stmt.finalizer);
+                result = join(result, 'finally' + maybeBlock(stmt.finalizer));
             }
             break;
 
@@ -1276,8 +1277,8 @@
                     }) + ')';
                     base = previousBase;
                     result += maybeBlock(stmt.consequent);
-                    result += maybeBlockSuffix(stmt.consequent, result);
-                    result += 'else ' + generateStatement(stmt.alternate);
+                    result = maybeBlockSuffix(stmt.consequent, result);
+                    result = join(result, 'else ' + generateStatement(stmt.alternate));
                 } else {
                     result = 'if' + space + '(' + generateExpression(stmt.test, {
                         precedence: Precedence.Sequence,
@@ -1286,9 +1287,8 @@
                     }) + ')';
                     base = previousBase;
                     result += maybeBlock(stmt.consequent);
-                    result += maybeBlockSuffix(stmt.consequent, result);
-                    result += 'else';
-                    result = join(result, maybeBlock(stmt.alternate, semicolon === ''));
+                    result = maybeBlockSuffix(stmt.consequent, result);
+                    result = join(result, join('else', maybeBlock(stmt.alternate, semicolon === '')));
                 }
             } else {
                 result = 'if' + space + '(' + generateExpression(stmt.test, {

@@ -790,7 +790,10 @@ var data = [{
         }
     },
     items: {
-        'switch(42){case 42:42;default:}': 'switch(42){case 42:42;default:}'
+        'switch(42){case 42:42;default:}': 'switch(42){case 42:42;default:}',
+        'if(cond)stmt;else stmt;': 'if(cond)stmt;else stmt',
+        'if(cond){stmt;}else stmt;': 'if(cond){stmt}else stmt',
+        'if(cond){stmt;}else{stmt;}': 'if(cond){stmt}else{stmt}'
     }
 }, {
     options: {
