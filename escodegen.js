@@ -40,18 +40,16 @@
     // Universal Module Definition (UMD) to support AMD, CommonJS/Node.js,
     // and plain browser loading,
     if (typeof define === 'function' && define.amd) {
-        define(['exports'], factory);
+        define(['exports'], function(exports) {
+            factory(exports, global);
+        });
     } else if (typeof exports !== 'undefined') {
-        factory(exports);
-    } else if (typeof window !== 'undefined') {
-        factory((window.escodegen = {}));
+        factory(exports, global);
     } else {
-        factory((global.escodegen = {}));
+        factory((global.escodegen = {}), global);
     }
-}(function (exports) {
+}(function (exports, global) {
     'use strict';
-
-    var SourceNode = require('source-map').SourceNode;
 
     var Syntax,
         Precedence,
@@ -59,6 +57,7 @@
         Regex,
         VisitorKeys,
         VisitorOption,
+        SourceNode,
         isArray,
         base,
         indent,
@@ -225,6 +224,66 @@
             return Object.prototype.toString.call(array) === '[object Array]';
         };
     }
+
+    // Fallback for the non SourceMap environment
+    function SourceNodeMock(line, column, filename, chunk) {
+        var result = [];
+
+        function flatten(input) {
+            var i, iz;
+            if (isArray(input)) {
+                for (i = 0, iz = input.length; i < iz; ++i) {
+                    flatten(input[i]);
+                }
+            } else if (input instanceof SourceNodeMock) {
+                result.push(input);
+            } else if (typeof input === 'string' && input) {
+                result.push(input);
+            }
+        }
+
+        flatten(chunk);
+        this.children = result;
+    }
+
+    SourceNodeMock.prototype.toString = function toString() {
+        var res = '', i, iz, node;
+        for (i = 0, iz = this.children.length; i < iz; ++i) {
+            node = this.children[i];
+            if (node instanceof SourceNodeMock) {
+                res += node.toString();
+            } else {
+                res += node;
+            }
+        }
+        return res;
+    };
+
+    SourceNodeMock.prototype.replaceRight = function replaceRight(pattern, replacement) {
+        var last = this.children[this.children.length - 1];
+        if (last instanceof SourceNodeMock) {
+          last.replaceRight(pattern, replacement);
+        } else if (typeof last === 'string') {
+          this.children[this.children.length - 1] = last.replace(pattern, replacement);
+        } else {
+          this.children.push(''.replace(pattern, replacement));
+        }
+        return this;
+    };
+
+    SourceNodeMock.prototype.join = function join(sep) {
+        var i, iz, result;
+        result = [];
+        iz = this.children.length;
+        if (iz > 0) {
+            for (i = 0, iz -= 1; i < iz; ++i) {
+                result.push(this.children[i], sep);
+            }
+            result.push(this.children[iz]);
+            this.children = result;
+        }
+        return this;
+    };
 
     function endsWithLineTerminator(str) {
         var ch = str.charAt(str.length - 1);
@@ -477,10 +536,16 @@
     }
 
     function toSourceNode(generated, node) {
-        if(node == null)
-            if(generated instanceof SourceNode) return generated;
-            else node = {};
-        if(node.loc == null) return new SourceNode(null, null, sourceMap, generated);
+        if (node == null) {
+            if (generated instanceof SourceNode) {
+                return generated;
+            } else {
+                node = {};
+            }
+        }
+        if (node.loc == null) {
+            return new SourceNode(null, null, sourceMap, generated);
+        }
         return new SourceNode(node.loc.start.line, node.loc.start.column, sourceMap, generated);
     }
 
@@ -1565,6 +1630,17 @@
         parse = json ? null : options.parse;
         sourceMap = options.sourceMap;
         extra = options;
+
+        if (sourceMap) {
+            if (typeof process !== 'undefined') {
+                // We assume environment is node.js
+                SourceNode = require('source-map').SourceNode;
+            } else {
+                SourceNode = global.sourceMap.SourceNode;
+            }
+        } else {
+            SourceNode = SourceNodeMock;
+        }
 
         switch (node.type) {
         case Syntax.BlockStatement:
