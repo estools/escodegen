@@ -19,6 +19,9 @@
         "type": "git",
         "url": "http://github.com/Constellation/escodegen.git"
     },
+    "optionalDependencies": {
+        "source-map": ">= 0.1.2"
+    },
     "licenses": [{
         "type": "BSD",
         "url": "http://github.com/Constellation/escodegen/raw/master/LICENSE.BSD"
