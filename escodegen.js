@@ -1969,7 +1969,7 @@
     }
 
     // Sync with package.json.
-    exports.version = '0.0.8-dev';
+    exports.version = '0.0.9-dev';
 
     exports.generate = generate;
     exports.traverse = traverse;
