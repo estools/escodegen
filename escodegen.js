@@ -1732,7 +1732,7 @@
         Property: ['key', 'value'],
         ReturnStatement: ['argument'],
         SequenceExpression: ['expressions'],
-        SwitchStatement: ['descriminant', 'cases'],
+        SwitchStatement: ['discriminant', 'cases'],
         SwitchCase: ['test', 'consequent'],
         ThisExpression: [],
         ThrowStatement: ['argument'],
