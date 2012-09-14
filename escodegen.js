@@ -1734,17 +1734,27 @@
     };
 
     function traverse(top, visitor) {
-        var worklist, leavelist, node, ret, current, current2, candidates, candidate;
+        var worklist, leavelist, node, ret, current, current2, candidates, candidate, marker = {};
 
         worklist = [ top ];
-        leavelist = [];
+        leavelist = [ null ];
 
         while (worklist.length) {
             node = worklist.pop();
 
-            if (node) {
+            if (node === marker) {
+                node = leavelist.pop();
+                if (visitor.leave) {
+                    ret = visitor.leave(node, leavelist[leavelist.length - 1]);
+                } else {
+                    ret = undefined;
+                }
+                if (ret === VisitorOption.Break) {
+                    return;
+                }
+            } else if (node) {
                 if (visitor.enter) {
-                    ret = visitor.enter(node);
+                    ret = visitor.enter(node, leavelist[leavelist.length - 1]);
                 } else {
                     ret = undefined;
                 }
@@ -1753,7 +1763,7 @@
                     return;
                 }
 
-                worklist.push(null);
+                worklist.push(marker);
                 leavelist.push(node);
 
                 if (ret !== VisitorOption.Skip) {
@@ -1775,20 +1785,9 @@
                         }
                     }
                 }
-            } else {
-                node = leavelist.pop();
-                if (visitor.leave) {
-                    ret = visitor.leave(node);
-                } else {
-                    ret = undefined;
-                }
-                if (ret === VisitorOption.Break) {
-                    return;
-                }
             }
         }
     }
-
 
     // based on LLVM libc++ upper_bound / lower_bound
     // MIT License
