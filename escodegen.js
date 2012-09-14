@@ -704,7 +704,7 @@
             return ';';
         }
 
-        withIndent(function (indent) {
+        withIndent(function () {
             result = [newline, addIndent(generateStatement(stmt, { semicolonOptional: semicolonOptional }))];
         });
 
@@ -1013,12 +1013,14 @@
             withIndent(function (indent) {
                 for (i = 0, len = expr.elements.length; i < len; i += 1) {
                     if (!expr.elements[i]) {
-                        if(multiline) result.push(base);
+                        if(multiline) {
+                            result.push(indent);
+                        }
                         if (i + 1 === len) {
                             result.push(',');
                         }
                     } else {
-                        result.push(multiline ? base : '', generateExpression(expr.elements[i], {
+                        result.push(multiline ? indent: '', generateExpression(expr.elements[i], {
                             precedence: Precedence.Assignment,
                             allowIn: true,
                             allowCall: true
@@ -1073,7 +1075,7 @@
 
             withIndent(function (indent) {
                 for (i = 0, len = expr.properties.length; i < len; i += 1) {
-                    result.push(multiline ? base : '', generateExpression(expr.properties[i], {
+                    result.push(multiline ? indent : '', generateExpression(expr.properties[i], {
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
@@ -1154,7 +1156,7 @@
         case Syntax.BlockStatement:
             result = ['{', newline];
 
-            withIndent(function (indent) {
+            withIndent(function () {
                 for (i = 0, len = stmt.body.length; i < len; i += 1) {
                     fragment = addIndent(generateStatement(stmt.body[i], {semicolonOptional: i === len - 1}));
                     result.push(fragment);
@@ -1199,7 +1201,7 @@
             break;
 
         case Syntax.CatchClause:
-            withIndent(function (indent) {
+            withIndent(function () {
                 result = [
                     'catch' + space + '(',
                     generateExpression(stmt.param, {
@@ -1265,7 +1267,7 @@
                 // VariableDeclarator is typed as Statement,
                 // but joined with comma (not LineTerminator).
                 // So if comment is attached to target node, we should specialize.
-                withIndent(function (indent) {
+                withIndent(function () {
                     node = stmt.declarations[0];
                     if (extra.comment && node.leadingComments) {
                         result.push('\n', addIndent(generateStatement(node, {
@@ -1320,7 +1322,7 @@
             break;
 
         case Syntax.SwitchStatement:
-            withIndent(function (indent) {
+            withIndent(function () {
                 result = [
                     'switch' + space + '(',
                     generateExpression(stmt.discriminant, {
@@ -1344,7 +1346,7 @@
             break;
 
         case Syntax.SwitchCase:
-            withIndent(function (indent) {
+            withIndent(function () {
                 if (stmt.test) {
                     result = [
                         join('case', generateExpression(stmt.test, {
@@ -1381,7 +1383,7 @@
             break;
 
         case Syntax.IfStatement:
-            withIndent(function (indent) {
+            withIndent(function () {
                 result = [
                     'if'+ space + '(',
                     generateExpression(stmt.test, {
@@ -1406,7 +1408,7 @@
             break;
 
         case Syntax.ForStatement:
-            withIndent(function (indent) {
+            withIndent(function () {
                 result = ['for' + space + '('];
                 if (stmt.init) {
                     if (stmt.init.type === Syntax.VariableDeclaration) {
@@ -1448,9 +1450,9 @@
 
         case Syntax.ForInStatement:
             result = ['for' + space + '('];
-            withIndent(function (indent) {
+            withIndent(function () {
                 if (stmt.left.type === Syntax.VariableDeclaration) {
-                    withIndent(function (indent) {
+                    withIndent(function () {
                         result.push(stmt.left.kind + ' ', generateStatement(stmt.left.declarations[0], {
                             allowIn: false
                         }));
@@ -1512,7 +1514,7 @@
             break;
 
         case Syntax.WhileStatement:
-            withIndent(function (indent) {
+            withIndent(function () {
                 result = [
                     'while' + space + '(',
                     generateExpression(stmt.test, {
@@ -1527,7 +1529,7 @@
             break;
 
         case Syntax.WithStatement:
-            withIndent(function (indent) {
+            withIndent(function () {
                 result = [
                     'with' + space + '(',
                     generateExpression(stmt.object, {
