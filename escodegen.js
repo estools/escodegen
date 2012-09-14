@@ -1531,7 +1531,7 @@
                     })
                 ), semicolon];
             } else {
-                result = 'return' + semicolon;
+                result = ['return' + semicolon];
             }
             break;
 
