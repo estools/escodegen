@@ -192,7 +192,9 @@
                 parentheses: true,
                 semicolons: true,
                 safeConcatenation: false
-            }
+            },
+            sourceMap: null,
+            sourceMapWithCode: false
         };
     }
 
@@ -1588,9 +1590,9 @@
     }
 
     function generate(node, options) {
-        var defaultOptions = getDefaultOptions(), result;
+        var defaultOptions = getDefaultOptions(), result, pair;
 
-        if (typeof options !== 'undefined') {
+        if (options != null) {
             // Obsolete options
             //
             //   `options.indent`
@@ -1699,7 +1701,16 @@
             throw new Error('Unknown node type: ' + node.type);
         }
 
-        return sourceMap ? result.toStringWithSourceMap({file: options.sourceMap}).map.toString() : result.toString();
+        if (!sourceMap) {
+            return result.toString();
+        }
+
+        pair = result.toStringWithSourceMap({file: options.sourceMap});
+
+        if (options.sourceMapWithCode) {
+            return pair;
+        }
+        return pair.map.toString();
     }
 
     // simple visitor implementation
