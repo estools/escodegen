@@ -709,9 +709,9 @@
             return [result, space];
         }
         if (ends) {
-            return [result, addIndent('')];
+            return [result, base];
         }
-        return [result, newline, addIndent('')];
+        return [result, newline, base];
     }
 
     function generateFunctionBody(node) {
@@ -1006,12 +1006,12 @@
             base += indent;
             for (i = 0, len = expr.elements.length; i < len; i += 1) {
                 if (!expr.elements[i]) {
-                    if(multiline) result.push(addIndent(''));
+                    if(multiline) result.push(base);
                     if (i + 1 === len) {
                         result.push(',');
                     }
                 } else {
-                    result.push(multiline ? addIndent('') : '', generateExpression(expr.elements[i], {
+                    result.push(multiline ? base : '', generateExpression(expr.elements[i], {
                         precedence: Precedence.Assignment,
                         allowIn: true,
                         allowCall: true
@@ -1025,7 +1025,7 @@
             if (multiline && !endsWithLineTerminator(toSourceNode(result).toString())) {
                 result.push(newline);
             }
-            result.push(multiline ? addIndent('') : '', ']');
+            result.push(multiline ? base : '', ']');
             break;
 
         case Syntax.Property:
@@ -1066,7 +1066,7 @@
             previousBase = base;
             base += indent;
             for (i = 0, len = expr.properties.length; i < len; i += 1) {
-                result.push(multiline ? addIndent('') : '', generateExpression(expr.properties[i], {
+                result.push(multiline ? base : '', generateExpression(expr.properties[i], {
                     precedence: Precedence.Sequence,
                     allowIn: true,
                     allowCall: true
@@ -1079,7 +1079,7 @@
             if (multiline && !endsWithLineTerminator(toSourceNode(result).toString())) {
                 result.push(newline);
             }
-            result.push(multiline ? addIndent('') : '', '}');
+            result.push(multiline ? base : '', '}');
             break;
 
         case Syntax.ThisExpression:
