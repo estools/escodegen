@@ -726,7 +726,7 @@
     }
 
     function generateExpression(expr, option) {
-        var result, precedence, currentPrecedence, previousBase, i, len, raw, fragment, leftChar, leftSource, rightChar, rightSource, allowIn, allowCall, allowUnparenthesizedNew;
+        var result, precedence, currentPrecedence, previousBase, i, len, raw, fragment, multiline, leftChar, leftSource, rightChar, rightSource, allowIn, allowCall, allowUnparenthesizedNew;
 
         precedence = option.precedence;
         allowIn = option.allowIn;
@@ -998,31 +998,32 @@
                 result = '[]';
                 break;
             }
-            result = ['[', newline];
+            multiline = expr.elements.length > 1;
+            result = ['[', multiline ? newline : ''];
             previousBase = base;
             base += indent;
             for (i = 0, len = expr.elements.length; i < len; i += 1) {
                 if (!expr.elements[i]) {
-                    result.push(addIndent(''));
+                    if(multiline) result.push(addIndent(''));
                     if (i + 1 === len) {
                         result.push(',');
                     }
                 } else {
-                    result.push(addIndent(generateExpression(expr.elements[i], {
+                    result.push(multiline ? addIndent('') : '', generateExpression(expr.elements[i], {
                         precedence: Precedence.Assignment,
                         allowIn: true,
                         allowCall: true
-                    })));
+                    }));
                 }
                 if (i + 1 < len) {
-                    result.push(',' + newline);
+                    result.push(',' + (multiline ? newline : space));
                 }
             }
             base = previousBase;
-            if (!endsWithLineTerminator(toSourceNode(result).toString())) {
+            if (multiline && !endsWithLineTerminator(toSourceNode(result).toString())) {
                 result.push(newline);
             }
-            result.push(addIndent(']'));
+            result.push(multiline ? addIndent('') : '', ']');
             break;
 
         case Syntax.Property:
@@ -1058,24 +1059,25 @@
                 result = '{}';
                 break;
             }
-            result = ['{', newline];
+            multiline = expr.properties.length > 1;
+            result = ['{', multiline ? newline : ''];
             previousBase = base;
             base += indent;
             for (i = 0, len = expr.properties.length; i < len; i += 1) {
-                result.push(addIndent(generateExpression(expr.properties[i], {
+                result.push(multiline ? addIndent('') : '', generateExpression(expr.properties[i], {
                     precedence: Precedence.Sequence,
                     allowIn: true,
                     allowCall: true
-                })));
+                }));
                 if (i + 1 < len) {
-                    result.push(',' + newline);
+                    result.push(',' + (multiline ? newline : space));
                 }
             }
             base = previousBase;
-            if (!endsWithLineTerminator(toSourceNode(result).toString())) {
+            if (multiline && !endsWithLineTerminator(toSourceNode(result).toString())) {
                 result.push(newline);
             }
-            result.push(addIndent('}'));
+            result.push(multiline ? addIndent('') : '', '}');
             break;
 
         case Syntax.ThisExpression:
