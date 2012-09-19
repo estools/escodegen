@@ -1442,6 +1442,10 @@
         case Syntax.TryStatement:
             result = ['try', maybeBlock(stmt.block)];
             result = maybeBlockSuffix(stmt.block, result);
+
+            // spidermonkey puts it in 'handler' not handlers
+            if (stmt.handlers === undefined) stmt.handlers = [stmt.handler];
+
             for (i = 0, len = stmt.handlers.length; i < len; i += 1) {
                 result = join(result, generateStatement(stmt.handlers[i]));
                 if (stmt.finalizer || i + 1 !== len) {
