@@ -732,6 +732,7 @@
 
     function generateExpression(expr, option) {
         var result, precedence, currentPrecedence, previousBase, i, len, raw, fragment, leftChar, leftSource, rightChar, rightSource, allowIn, allowCall, allowUnparenthesizedNew;
+        var k,v;
 
         precedence = option.precedence;
         allowIn = option.allowIn;
@@ -1125,7 +1126,15 @@
             previousBase = base;
             base += indent;
             for (i = 0, len = expr.properties.length; i < len; i += 1) {
-                result.push(expr.properties[i].key.name);
+                k = expr.properties[i].key.name;
+                v = expr.properties[i].value.name;
+                if (k == v) {
+                    result.push(k);
+                } else {
+                    result.push(k);
+                    result.push(':');
+                    result.push(v);
+                }
                 if (i + 1 < len) {
                     result.push(',');
                 }
