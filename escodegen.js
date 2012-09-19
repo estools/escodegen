@@ -1010,7 +1010,25 @@
             } else {
                 result += space;
             }
-            result = [result, generateFunctionBody(expr)];
+
+            if (expr.expression) {
+                result = [result,];
+                result.push('(');
+                for (i = 0, len = expr.params.length; i < len; i += 1) {
+                    result.push(expr.params[i].name);
+                    if (i + 1 < len) {
+                        result.push(',' + space);
+                    }
+                }
+                result.push(')');
+                result = [result, space, generateExpression(expr.body,{
+                    precedence: Precedence.Sequence,
+                    allowIn: allowIn,
+                    allowCall: true
+                })];
+            } else {
+                result = [result, generateFunctionBody(expr)];
+            }
             break;
 
         case Syntax.ArrayExpression:
@@ -1846,7 +1864,7 @@
         ForStatement: ['init', 'test', 'update', 'body'],
         ForInStatement: ['left', 'right', 'body'],
         FunctionDeclaration: ['id', 'params', 'body'],
-        FunctionExpression: ['id', 'params', 'body'],
+        FunctionExpression: ['id', 'params', 'body','expression'],
         Identifier: [],
         IfStatement: ['test', 'consequent', 'alternate'],
         Literal: [],
