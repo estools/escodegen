@@ -83,6 +83,8 @@
         BreakStatement: 'BreakStatement',
         CallExpression: 'CallExpression',
         CatchClause: 'CatchClause',
+        ComprehensionBlock: 'ComprehensionBlock',
+        ComprehensionExpression: 'ComprehensionExpression',
         ConditionalExpression: 'ConditionalExpression',
         ContinueStatement: 'ContinueStatement',
         DoWhileStatement: 'DoWhileStatement',
@@ -1153,6 +1155,77 @@
             }
 
             result = expr.value.toString();
+            break;
+
+
+        case Syntax.ComprehensionExpression:
+
+            result = ['['];
+            result.push((generateExpression(expr.body, {  // ArrayExpression
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                }))
+            );
+
+            if (expr.blocks){
+                for (i = 0, len = expr.blocks.length; i < len; i += 1) {
+                    fragment = (generateExpression(expr.blocks[i], {  // ArrayExpression
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }));
+                    result.push(fragment);
+                }
+            }
+
+            if (expr.filter) {
+                result.push(space + 'if' + space);
+                // should this be a call to parenthesize?
+                result.push('(');
+                result.push(generateExpression(expr.filter,{
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                }));
+                result.push(')')
+            }
+            result.push(']');
+            break;
+
+        case Syntax.ComprehensionBlock:
+            // see ForIn
+            result = [space + 'for' + space + '('];
+            if (expr.left.type === Syntax.VariableDeclaration) {
+                previousBase = base;
+                base += indent + indent;
+                result.push(expr.left.kind + ' ', generateStatement(expr.left.declarations[0], {
+                    allowIn: false
+                }));
+                base = previousBase;
+            } else {
+                previousBase = base;
+                base += indent;
+                result.push(generateExpression(expr.left, {
+                    precedence: Precedence.Call,
+                    allowIn: true,
+                    allowCall: true
+                }));
+                base = previousBase;
+            }
+
+            previousBase = base;
+            base += indent;
+            result = join(result, 'in');
+            result = [join(
+                result,
+                generateExpression(expr.right, {
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                })
+            ), ')'];
+            base = previousBase;
             break;
 
         default:
