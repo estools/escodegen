@@ -83,6 +83,8 @@
         BreakStatement: 'BreakStatement',
         CallExpression: 'CallExpression',
         CatchClause: 'CatchClause',
+        ComprehensionBlock: 'ComprehensionBlock',
+        ComprehensionExpression: 'ComprehensionExpression',
         ConditionalExpression: 'ConditionalExpression',
         ContinueStatement: 'ContinueStatement',
         DoWhileStatement: 'DoWhileStatement',
@@ -101,6 +103,7 @@
         MemberExpression: 'MemberExpression',
         NewExpression: 'NewExpression',
         ObjectExpression: 'ObjectExpression',
+        ObjectPattern: 'ObjectPattern',
         Program: 'Program',
         Property: 'Property',
         ReturnStatement: 'ReturnStatement',
@@ -115,7 +118,9 @@
         VariableDeclaration: 'VariableDeclaration',
         VariableDeclarator: 'VariableDeclarator',
         WhileStatement: 'WhileStatement',
-        WithStatement: 'WithStatement'
+        WithStatement: 'WithStatement',
+        YieldExpression: 'YieldExpression',
+
     };
 
     Precedence = {
@@ -963,6 +968,21 @@
             result = parenthesize(result, Precedence.Unary, precedence);
             break;
 
+        case Syntax.YieldExpression:  // nearly same as Return
+            if (expr.argument) {
+                result = [join(
+                    'yield',
+                    generateExpression(expr.argument, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    })
+                )];
+            } else {
+                result = 'yield';
+            }
+            break;
+
         case Syntax.UpdateExpression:
             if (expr.prefix) {
                 result = parenthesize(
@@ -1000,7 +1020,25 @@
             } else {
                 result += space;
             }
-            result = [result, generateFunctionBody(expr)];
+
+            if (expr.expression) {
+                result = [result,];
+                result.push('(');
+                for (i = 0, len = expr.params.length; i < len; i += 1) {
+                    result.push(expr.params[i].name);
+                    if (i + 1 < len) {
+                        result.push(',' + space);
+                    }
+                }
+                result.push(')');
+                result = [result, space, generateExpression(expr.body,{
+                    precedence: Precedence.Sequence,
+                    allowIn: allowIn,
+                    allowCall: true
+                })];
+            } else {
+                result = [result, generateFunctionBody(expr)];
+            }
             break;
 
         case Syntax.ArrayExpression:
@@ -1092,6 +1130,24 @@
             result.push(multiline ? base : '', '}');
             break;
 
+        case Syntax.ObjectPattern:
+            if (!expr.properties.length) {
+                result = '{}';
+                break;
+            }
+            result = ['{', ];
+            previousBase = base;
+            base += indent;
+            for (i = 0, len = expr.properties.length; i < len; i += 1) {
+                result.push(expr.properties[i].key.name);
+                if (i + 1 < len) {
+                    result.push(',');
+                }
+            }
+            base = previousBase;
+            result.push('}');
+            break;
+
         case Syntax.ThisExpression:
             result = 'this';
             break;
@@ -1131,6 +1187,77 @@
             }
 
             result = expr.value.toString();
+            break;
+
+
+        case Syntax.ComprehensionExpression:
+
+            result = ['['];
+            result.push((generateExpression(expr.body, {  // ArrayExpression
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                }))
+            );
+
+            if (expr.blocks){
+                for (i = 0, len = expr.blocks.length; i < len; i += 1) {
+                    fragment = (generateExpression(expr.blocks[i], {  // ArrayExpression
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }));
+                    result.push(fragment);
+                }
+            }
+
+            if (expr.filter) {
+                result.push(space + 'if' + space);
+                // should this be a call to parenthesize?
+                result.push('(');
+                result.push(generateExpression(expr.filter,{
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                }));
+                result.push(')')
+            }
+            result.push(']');
+            break;
+
+        case Syntax.ComprehensionBlock:
+            // see ForIn
+            result = [space + 'for' + space + '('];
+            if (expr.left.type === Syntax.VariableDeclaration) {
+                previousBase = base;
+                base += indent + indent;
+                result.push(expr.left.kind + ' ', generateStatement(expr.left.declarations[0], {
+                    allowIn: false
+                }));
+                base = previousBase;
+            } else {
+                previousBase = base;
+                base += indent;
+                result.push(generateExpression(expr.left, {
+                    precedence: Precedence.Call,
+                    allowIn: true,
+                    allowCall: true
+                }));
+                base = previousBase;
+            }
+
+            previousBase = base;
+            base += indent;
+            result = join(result, 'in');
+            result = [join(
+                result,
+                generateExpression(expr.right, {
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                })
+            ), ')'];
+            base = previousBase;
             break;
 
         default:
@@ -1240,14 +1367,29 @@
 
         case Syntax.VariableDeclarator:
             if (stmt.init) {
-                result = [
-                    stmt.id.name + space + '=' + space,
-                    generateExpression(stmt.init, {
-                        precedence: Precedence.Assignment,
-                        allowIn: allowIn,
-                        allowCall: true
-                    })
-                ];
+                if (stmt.id.type === "ObjectPattern") {
+                    result = [
+                        generateExpression(stmt.id,{
+                              precedence: Precedence.Assignment,
+                              allowIn: allowIn,
+                              allowCall: true
+                        }) + space + '=' + space,
+                        generateExpression(stmt.init, {
+                              precedence: Precedence.Assignment,
+                              allowIn: allowIn,
+                              allowCall: true
+                          })
+                    ];
+                } else { // id.type = Identifier
+                    result = [
+                        stmt.id.name + space + '=' + space,
+                        generateExpression(stmt.init, {
+                            precedence: Precedence.Assignment,
+                            allowIn: allowIn,
+                            allowCall: true
+                        })
+                    ];
+                }
             } else {
                 result = stmt.id.name;
             }
@@ -1310,6 +1452,10 @@
         case Syntax.TryStatement:
             result = ['try', maybeBlock(stmt.block)];
             result = maybeBlockSuffix(stmt.block, result);
+
+            // spidermonkey puts it in 'handler' not handlers
+            if (stmt.handlers === undefined) stmt.handlers = [stmt.handler];
+
             for (i = 0, len = stmt.handlers.length; i < len; i += 1) {
                 result = join(result, generateStatement(stmt.handlers[i]));
                 if (stmt.finalizer || i + 1 !== len) {
@@ -1657,11 +1803,14 @@
         case Syntax.MemberExpression:
         case Syntax.NewExpression:
         case Syntax.ObjectExpression:
+        case Syntax.ObjectPattern:
         case Syntax.Property:
         case Syntax.SequenceExpression:
         case Syntax.ThisExpression:
         case Syntax.UnaryExpression:
         case Syntax.UpdateExpression:
+        case Syntax.YieldExpression:
+
             result = generateExpression(node, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
@@ -1704,7 +1853,7 @@
         ForStatement: ['init', 'test', 'update', 'body'],
         ForInStatement: ['left', 'right', 'body'],
         FunctionDeclaration: ['id', 'params', 'body'],
-        FunctionExpression: ['id', 'params', 'body'],
+        FunctionExpression: ['id', 'params', 'body','expression'],
         Identifier: [],
         IfStatement: ['test', 'consequent', 'alternate'],
         Literal: [],
@@ -1713,6 +1862,7 @@
         MemberExpression: ['object', 'property'],
         NewExpression: ['callee', 'arguments'],
         ObjectExpression: ['properties'],
+        ObjectPattern: ['properties'],
         Program: ['body'],
         Property: ['key', 'value'],
         ReturnStatement: ['argument'],
@@ -1727,7 +1877,9 @@
         VariableDeclaration: ['declarations'],
         VariableDeclarator: ['id', 'init'],
         WhileStatement: ['test', 'body'],
-        WithStatement: ['object', 'body']
+        WithStatement: ['object', 'body'],
+        YieldExpression: ['argument'],
+
     };
 
     VisitorOption = {
