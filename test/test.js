@@ -14698,6 +14698,264 @@ data = {
             },
             tokens: []
         }
+    },
+
+    'Object destructuring (and aliasing)':  {
+        'var {a,b:C} = {};' : {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'VariableDeclaration',
+                    declarations: [{
+                        type: 'VariableDeclarator',
+                        id: {
+                            type: 'ObjectPattern',
+                            properties: [{
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    range: [5, 6],
+                                    loc: {
+                                        start: { line: 1, column: 5 },
+                                        end: { line: 1, column: 6 }
+                                    }
+                                },
+                                value: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    range: [5, 6],
+                                    loc: {
+                                        start: { line: 1, column: 5 },
+                                        end: { line: 1, column: 6 }
+                                    }
+                                },
+                                kind: 'init',
+                                shorthand: true,
+                                range: [5, 6],
+                                loc: {
+                                    start: { line: 1, column: 5 },
+                                    end: { line: 1, column: 6 }
+                                }
+                            }, {
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'b',
+                                    range: [8, 9],
+                                    loc: {
+                                        start: { line: 1, column: 8 },
+                                        end: { line: 1, column: 9 }
+                                    }
+                                },
+                                value: {
+                                    type: 'Identifier',
+                                    name: 'C',
+                                    range: [10, 11],
+                                    loc: {
+                                        start: { line: 1, column: 10 },
+                                        end: { line: 1, column: 11 }
+                                    }
+                                },
+                                kind: 'init',
+                                range: [8, 11],
+                                loc: {
+                                    start: { line: 1, column: 8 },
+                                    end: { line: 1, column: 11 }
+                                }
+                            }]
+                        },
+                        init: {
+                            type: 'ObjectExpression',
+                            properties: [],
+                            range: [15, 17],
+                            loc: {
+                                start: { line: 1, column: 15 },
+                                end: { line: 1, column: 17 }
+                            }
+                        },
+                        range: [4, 17],
+                        loc: {
+                            start: { line: 1, column: 4 },
+                            end: { line: 1, column: 17 }
+                        }
+                    }],
+                    kind: 'var',
+                    range: [0, 17],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 17 }
+                    }
+                }],
+                range: [0, 17],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 17 }
+                }
+            }
+        },
+        'var {a,b} = {};':  {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'VariableDeclaration',
+                    declarations: [{
+                        type: 'VariableDeclarator',
+                        id: {
+                            type: 'ObjectPattern',
+                            properties: [{
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    range: [5, 6],
+                                    loc: {
+                                        start: { line: 1, column: 5 },
+                                        end: { line: 1, column: 6 }
+                                    }
+                                },
+                                value: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    range: [5, 6],
+                                    loc: {
+                                        start: { line: 1, column: 5 },
+                                        end: { line: 1, column: 6 }
+                                    }
+                                },
+                                kind: 'init',
+                                shorthand: true,
+                                range: [5, 6],
+                                loc: {
+                                    start: { line: 1, column: 5 },
+                                    end: { line: 1, column: 6 }
+                                }
+                            }, {
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'b',
+                                    range: [7, 8],
+                                    loc: {
+                                        start: { line: 1, column: 7 },
+                                        end: { line: 1, column: 8 }
+                                    }
+                                },
+                                value: {
+                                    type: 'Identifier',
+                                    name: 'b',
+                                    range: [7, 8],
+                                    loc: {
+                                        start: { line: 1, column: 7 },
+                                        end: { line: 1, column: 8 }
+                                    }
+                                },
+                                kind: 'init',
+                                shorthand: true,
+                                range: [7, 8],
+                                loc: {
+                                    start: { line: 1, column: 7 },
+                                    end: { line: 1, column: 8 }
+                                }
+                            }]
+                        },
+                        init: {
+                            type: 'ObjectExpression',
+                            properties: [],
+                            range: [12, 14],
+                            loc: {
+                                start: { line: 1, column: 12 },
+                                end: { line: 1, column: 14 }
+                            }
+                        },
+                        range: [4, 14],
+                        loc: {
+                            start: { line: 1, column: 4 },
+                            end: { line: 1, column: 14 }
+                        }
+                    }],
+                    kind: 'var',
+                    range: [0, 14],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 14 }
+                    }
+                }],
+                range: [0, 14],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 14 }
+                }
+            }
+
+        },
+        'var {a} = {};': {
+            generateFrom:  {
+                type: 'Program',
+                body: [{
+                    type: 'VariableDeclaration',
+                    declarations: [{
+                        type: 'VariableDeclarator',
+                        id: {
+                            type: 'ObjectPattern',
+                            properties: [{
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    range: [5, 6],
+                                    loc: {
+                                        start: { line: 1, column: 5 },
+                                        end: { line: 1, column: 6 }
+                                    }
+                                },
+                                value: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    range: [5, 6],
+                                    loc: {
+                                        start: { line: 1, column: 5 },
+                                        end: { line: 1, column: 6 }
+                                    }
+                                },
+                                kind: 'init',
+                                shorthand: true,
+                                range: [5, 6],
+                                loc: {
+                                    start: { line: 1, column: 5 },
+                                    end: { line: 1, column: 6 }
+                                }
+                            }]
+                        },
+                        init: {
+                            type: 'ObjectExpression',
+                            properties: [],
+                            range: [10, 12],
+                            loc: {
+                                start: { line: 1, column: 10 },
+                                end: { line: 1, column: 12 }
+                            }
+                        },
+                        range: [4, 12],
+                        loc: {
+                            start: { line: 1, column: 4 },
+                            end: { line: 1, column: 12 }
+                        }
+                    }],
+                    kind: 'var',
+                    range: [0, 12],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 12 }
+                    }
+                }],
+                range: [0, 12],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 12 }
+                }
+            }
+        }
     }
 };
 
