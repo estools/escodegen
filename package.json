@@ -6,7 +6,7 @@
     "bin": {
         "escodegen": "./bin/esgenerate.js"
     },
-    "version": "0.0.11-dev",
+    "version": "0.0.12-dev",
     "engines": {
         "node": ">=0.4.0"
     },
