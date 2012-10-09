@@ -40,6 +40,7 @@
         'options',
         'comment',
         'compare',
+        'directive',
         'identity',
     ];
 

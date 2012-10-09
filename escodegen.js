@@ -71,6 +71,7 @@
         parentheses,
         semicolons,
         safeConcatenation,
+        directive,
         extra,
         parse,
         sourceMap;
@@ -85,6 +86,7 @@
         CatchClause: 'CatchClause',
         ConditionalExpression: 'ConditionalExpression',
         ContinueStatement: 'ContinueStatement',
+        DirectiveStatement: 'DirectiveStatement',
         DoWhileStatement: 'DoWhileStatement',
         DebuggerStatement: 'DebuggerStatement',
         EmptyStatement: 'EmptyStatement',
@@ -194,7 +196,8 @@
                 safeConcatenation: false
             },
             sourceMap: null,
-            sourceMapWithCode: false
+            sourceMapWithCode: false,
+            directive: false
         };
     }
 
@@ -691,13 +694,13 @@
         return text;
     }
 
-    function maybeBlock(stmt, semicolonOptional) {
+    function maybeBlock(stmt, semicolonOptional, functionBody) {
         var result, noLeadingComment;
 
         noLeadingComment = !extra.comment || !stmt.leadingComments;
 
         if (stmt.type === Syntax.BlockStatement && noLeadingComment) {
-            return [space, generateStatement(stmt)];
+            return [space, generateStatement(stmt, { functionBody: functionBody })];
         }
 
         if (stmt.type === Syntax.EmptyStatement && noLeadingComment) {
@@ -705,7 +708,7 @@
         }
 
         withIndent(function () {
-            result = [newline, addIndent(generateStatement(stmt, { semicolonOptional: semicolonOptional }))];
+            result = [newline, addIndent(generateStatement(stmt, { semicolonOptional: semicolonOptional, functionBody: functionBody }))];
         });
 
         return result;
@@ -731,7 +734,7 @@
                 result.push(',' + space);
             }
         }
-        result.push(')', maybeBlock(node.body));
+        result.push(')', maybeBlock(node.body, false, true));
         return result;
     }
 
@@ -1141,15 +1144,19 @@
     }
 
     function generateStatement(stmt, option) {
-        var i, len, result, node, allowIn, fragment, semicolon;
+        var i, len, result, node, allowIn, functionBody, directiveContext, fragment, semicolon;
 
         allowIn = true;
         semicolon = ';';
+        functionBody = false;
+        directiveContext = false;
         if (option) {
             allowIn = option.allowIn === undefined || option.allowIn;
             if (!semicolons && option.semicolonOptional === true) {
                 semicolon = '';
             }
+            functionBody = option.functionBody;
+            directiveContext = option.directiveContext;
         }
 
         switch (stmt.type) {
@@ -1158,7 +1165,10 @@
 
             withIndent(function () {
                 for (i = 0, len = stmt.body.length; i < len; i += 1) {
-                    fragment = addIndent(generateStatement(stmt.body[i], {semicolonOptional: i === len - 1}));
+                    fragment = addIndent(generateStatement(stmt.body[i], {
+                        semicolonOptional: i === len - 1,
+                        directiveContext: functionBody
+                    }));
                     result.push(fragment);
                     if (!endsWithLineTerminator(toSourceNode(fragment).toString())) {
                         result.push(newline);
@@ -1183,6 +1193,10 @@
             } else {
                 result = 'continue' + semicolon;
             }
+            break;
+
+        case Syntax.DirectiveStatement:
+            result = escapeString(stmt.directive.value) + semicolon;
             break;
 
         case Syntax.DoWhileStatement:
@@ -1231,7 +1245,7 @@
             })];
             // 12.4 '{', 'function' is not allowed in this position.
             // wrap expression with parentheses
-            if (result.toString().charAt(0) === '{' || (result.toString().slice(0, 8) === 'function' && " (".indexOf(result.toString().charAt(8)) >= 0)) {
+            if (result.toString().charAt(0) === '{' || (result.toString().slice(0, 8) === 'function' && " (".indexOf(result.toString().charAt(8)) >= 0) || (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
                 result = ['(', result, ')' + semicolon];
             } else {
                 result.push(semicolon);
@@ -1486,7 +1500,12 @@
             len = stmt.body.length;
             result = [safeConcatenation && len > 0 ? '\n' : ''];
             for (i = 0; i < len; i += 1) {
-                fragment = addIndent(generateStatement(stmt.body[i], {semicolonOptional: !safeConcatenation && i === len - 1}));
+                fragment = addIndent(
+                    generateStatement(stmt.body[i], {
+                        semicolonOptional: !safeConcatenation && i === len - 1,
+                        directiveContext: true
+                    })
+                );
                 result.push(fragment);
                 if (i + 1 < len && !endsWithLineTerminator(toSourceNode(fragment).toString())) {
                     result.push(newline);
@@ -1603,6 +1622,7 @@
         parentheses = options.format.parentheses;
         semicolons = options.format.semicolons;
         safeConcatenation = options.format.safeConcatenation;
+        directive = options.directive;
         parse = json ? null : options.parse;
         sourceMap = options.sourceMap;
         extra = options;
@@ -1623,6 +1643,7 @@
         case Syntax.BreakStatement:
         case Syntax.CatchClause:
         case Syntax.ContinueStatement:
+        case Syntax.DirectiveStatement:
         case Syntax.DoWhileStatement:
         case Syntax.DebuggerStatement:
         case Syntax.EmptyStatement:
