@@ -32,7 +32,7 @@
 */
 
 /*jslint bitwise:true */
-/*global escodegen:true, exports:true, generateStatement: true*/
+/*global escodegen:true, exports:true, generateStatement:true, process:true, require:true, define:true*/
 
 (function (factory, global) {
     'use strict';
@@ -512,6 +512,20 @@
             ((ch.charCodeAt(0) >= 0x80) && Regex.NonAsciiIdentifierPart.test(ch));
     }
 
+    function toSourceNode(generated, node) {
+        if (node == null) {
+            if (generated instanceof SourceNode) {
+                return generated;
+            } else {
+                node = {};
+            }
+        }
+        if (node.loc == null) {
+            return new SourceNode(null, null, sourceMap, generated);
+        }
+        return new SourceNode(node.loc.start.line, node.loc.start.column, (sourceMap === true ? node.loc.source || null : sourceMap), generated);
+    }
+
     function join(left, right) {
         var leftSource = toSourceNode(left).toString(),
             rightSource = toSourceNode(right).toString(),
@@ -547,20 +561,6 @@
             }
         }
         return (str.length - 1) - i;
-    }
-
-    function toSourceNode(generated, node) {
-        if (node == null) {
-            if (generated instanceof SourceNode) {
-                return generated;
-            } else {
-                node = {};
-            }
-        }
-        if (node.loc == null) {
-            return new SourceNode(null, null, sourceMap, generated);
-        }
-        return new SourceNode(node.loc.start.line, node.loc.start.column, (sourceMap === true ? node.loc.source || null : sourceMap), generated);
     }
 
     function adjustMultilineComment(value, specialBase) {
