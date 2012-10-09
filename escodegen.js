@@ -40,7 +40,7 @@
     // Universal Module Definition (UMD) to support AMD, CommonJS/Node.js,
     // and plain browser loading,
     if (typeof define === 'function' && define.amd) {
-        define(['exports'], function(exports) {
+        define(['exports'], function (exports) {
             factory(exports, global);
         });
     } else if (typeof exports !== 'undefined') {
@@ -264,11 +264,11 @@
     SourceNodeMock.prototype.replaceRight = function replaceRight(pattern, replacement) {
         var last = this.children[this.children.length - 1];
         if (last instanceof SourceNodeMock) {
-          last.replaceRight(pattern, replacement);
+            last.replaceRight(pattern, replacement);
         } else if (typeof last === 'string') {
-          this.children[this.children.length - 1] = last.replace(pattern, replacement);
+            this.children[this.children.length - 1] = last.replace(pattern, replacement);
         } else {
-          this.children.push(''.replace(pattern, replacement));
+            this.children.push(''.replace(pattern, replacement));
         }
         return this;
     };
@@ -528,10 +528,10 @@
     }
 
     function withIndent(fn) {
-        var previousBase;
+        var previousBase, result;
         previousBase = base;
         base += indent;
-        var result = fn.call(this, base);
+        result = fn.call(this, base);
         base = previousBase;
         return result;
     }
@@ -1013,14 +1013,14 @@
             withIndent(function (indent) {
                 for (i = 0, len = expr.elements.length; i < len; i += 1) {
                     if (!expr.elements[i]) {
-                        if(multiline) {
+                        if (multiline) {
                             result.push(indent);
                         }
                         if (i + 1 === len) {
                             result.push(',');
                         }
                     } else {
-                        result.push(multiline ? indent: '', generateExpression(expr.elements[i], {
+                        result.push(multiline ? indent : '', generateExpression(expr.elements[i], {
                             precedence: Precedence.Assignment,
                             allowIn: true,
                             allowCall: true
@@ -1385,7 +1385,7 @@
         case Syntax.IfStatement:
             withIndent(function () {
                 result = [
-                    'if'+ space + '(',
+                    'if' + space + '(',
                     generateExpression(stmt.test, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
@@ -1553,7 +1553,7 @@
             result = addCommentsToStatement(stmt, result);
         }
 
-        var fragment = toSourceNode(result).toString();
+        fragment = toSourceNode(result).toString();
         if (stmt.type === Syntax.Program && !safeConcatenation && newline === '' &&  fragment.charAt(fragment.length - 1) === '\n') {
             result = toSourceNode(result).replaceRight(/\s+$/, '');
         }
