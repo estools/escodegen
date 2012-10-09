@@ -1196,7 +1196,7 @@
             break;
 
         case Syntax.DirectiveStatement:
-            result = escapeString(stmt.directive.value) + semicolon;
+            result = escapeString(stmt.directive) + semicolon;
             break;
 
         case Syntax.DoWhileStatement:
