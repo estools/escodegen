@@ -1718,6 +1718,7 @@
         CatchClause: ['param', 'body'],
         ConditionalExpression: ['test', 'consequent', 'alternate'],
         ContinueStatement: ['label'],
+        DirectiveStatement: ['directive'],
         DoWhileStatement: ['body', 'test'],
         DebuggerStatement: [],
         EmptyStatement: [],
