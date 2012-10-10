@@ -453,6 +453,31 @@
         return result;
     }
 
+    function escapeDirective(str) {
+        var i, iz, ch, single, buf, quote;
+
+        buf = str;
+        if (typeof buf[0] === 'undefined') {
+            buf = stringToArray(buf);
+        }
+
+        quote = quotes === 'double' ? '"' : '\'';
+        for (i = 0, iz = buf.length; i < iz; i += 1) {
+            ch = buf[i];
+            if (ch === '\'') {
+                quote = '"';
+                break;
+            } else if (ch === '"') {
+                quote = '\'';
+                break;
+            } else if (ch === '\\') {
+                i += 1;
+            }
+        }
+
+        return quote + str + quote;
+    }
+
     function escapeString(str) {
         var result = '', i, len, ch, next, singleQuotes = 0, doubleQuotes = 0, single;
 
@@ -1196,7 +1221,11 @@
             break;
 
         case Syntax.DirectiveStatement:
-            result = escapeString(stmt.directive) + semicolon;
+            if (stmt.raw) {
+                result = stmt.raw + semicolon;
+            } else {
+                result = escapeDirective(stmt.directive) + semicolon;
+            }
             break;
 
         case Syntax.DoWhileStatement:

@@ -38,10 +38,7 @@ data = {
             type: 'Program',
             body: [{
                 type: 'DirectiveStatement',
-                directive: {
-                    type: 'Literal',
-                    value: 'use strict',
-                }
+                directive: 'use strict',
             }]
         },
 
@@ -104,10 +101,65 @@ data = {
                         type: 'BlockStatement',
                         body: [{
                             type: 'DirectiveStatement',
-                            directive: {
-                                type: 'Literal',
-                                value: 'use strict',
-                            }
+                            directive: 'use strict',
+                        }]
+                    }
+                }
+            }]
+        },
+
+        '(function () {\n    "use strict";\n});': {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [{
+                            type: 'DirectiveStatement',
+                            directive: 'use strict',
+                            raw: '"use strict"'
+                        }]
+                    }
+                }
+            }]
+        },
+
+        '(function () {\n    \'use\\u0020strict\';\n});': {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [{
+                            type: 'DirectiveStatement',
+                            directive: 'use\\u0020strict',
+                        }]
+                    }
+                }
+            }]
+        },
+
+        '(function () {\n    "use\\u0020strict\'";\n});': {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'FunctionExpression',
+                    id: null,
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [{
+                            type: 'DirectiveStatement',
+                            directive: 'use\\u0020strict\'',
                         }]
                     }
                 }
