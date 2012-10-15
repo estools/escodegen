@@ -726,7 +726,15 @@
                 result.push(',' + space);
             }
         }
-        result.push(')', maybeBlock(node.body));
+
+        if (node.expression) {
+            result.push(')', space, generateExpression(node.body, {
+                precedence: Precedence.Sequence,
+                allowIn: true,
+                allowCall: true}));
+        } else {
+            result.push(')', maybeBlock(node.body));
+        }
         return result;
     }
 
