@@ -1680,7 +1680,7 @@
             break;
 
         case Syntax.FunctionDeclaration:
-            result = ['function ' + stmt.id.name, generateFunctionBody(stmt)];
+            result = [( stmt.generator ? 'function* ':'function ' ) + stmt.id.name, generateFunctionBody(stmt)];
             break;
 
         case Syntax.ReturnStatement:
