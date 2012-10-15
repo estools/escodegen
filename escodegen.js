@@ -759,7 +759,15 @@
                 result.push(',' + space);
             }
         }
-        result.push(')', maybeBlock(node.body, false, true));
+
+        if (node.expression) {
+            result.push(')', space, generateExpression(node.body, {
+                precedence: Precedence.Sequence,
+                allowIn: true,
+                allowCall: true}));
+        } else {
+            result.push(')', maybeBlock(node.body, false, true));
+        }
         return result;
     }
 
@@ -1028,7 +1036,25 @@
             } else {
                 result += space;
             }
-            result = [result, generateFunctionBody(expr)];
+
+            if (expr.expression) {
+                result = [result,];
+                result.push('(');
+                for (i = 0, len = expr.params.length; i < len; i += 1) {
+                    result.push(expr.params[i].name);
+                    if (i + 1 < len) {
+                        result.push(',' + space);
+                    }
+                }
+                result.push(')');
+                result = [result, space, generateExpression(expr.body,{
+                    precedence: Precedence.Sequence,
+                    allowIn: allowIn,
+                    allowCall: true
+                })];
+            } else {
+                result = [result, generateFunctionBody(expr)];
+            }
             break;
 
         case Syntax.ArrayExpression:
