@@ -32,12 +32,12 @@ var fs = require('fs'),
 
 if (files.length === 0) {
     console.log('Usage:');
-    console.log('   esgenerate file.json');
+    console.log('   escodegen file.js');
     process.exit(1);
 }
 
 files.forEach(function (filename) {
     var content = fs.readFileSync(filename, 'utf-8');
-    console.log(escodegen.generate(JSON.parse(content)));
+    console.log(escodegen.generate(esprima.parse(content)));
 });
 /* vim: set sw=4 ts=4 et tw=80 : */
