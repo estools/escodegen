@@ -15414,6 +15414,75 @@ data = {
                 }
             }
         }
+    },
+    'Yield (with star, harmony proposed)': {
+        'function* a() {\n    yield 1;\n}': {
+            generateFrom:           {
+                type: 'Program',
+                body: [{
+                    type: 'FunctionDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'a',
+                        range: [10, 11],
+                        loc: {
+                            start: { line: 1, column: 10 },
+                            end: { line: 1, column: 11 }
+                        }
+                    },
+                    params: [],
+                    defaults: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [{
+                            type: 'ExpressionStatement',
+                            expression: {
+                                type: 'YieldExpression',
+                                argument: {
+                                    type: 'Literal',
+                                    value: 1,
+                                    raw: '1',
+                                    range: [21, 22],
+                                    loc: {
+                                        start: { line: 1, column: 21 },
+                                        end: { line: 1, column: 22 }
+                                    }
+                                },
+                                delegate: false,
+                                range: [15, 22],
+                                loc: {
+                                    start: { line: 1, column: 15 },
+                                    end: { line: 1, column: 22 }
+                                }
+                            },
+                            range: [15, 22],
+                            loc: {
+                                start: { line: 1, column: 15 },
+                                end: { line: 1, column: 22 }
+                            }
+                        }],
+                        range: [14, 23],
+                        loc: {
+                            start: { line: 1, column: 14 },
+                            end: { line: 1, column: 23 }
+                        }
+                    },
+                    rest: null,
+                    generator: true,
+                    expression: false,
+                    range: [0, 23],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 23 }
+                    }
+                }],
+                range: [0, 23],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 23 }
+                }
+            }
+        }
     }
 };
 
