@@ -753,7 +753,7 @@
     }
 
     function generateFunctionBody(node) {
-        var result, i, len;
+        var result, i, len, expr;
         result = ['('];
         for (i = 0, len = node.params.length; i < len; i += 1) {
             result.push(node.params[i].name);
@@ -761,14 +761,21 @@
                 result.push(',' + space);
             }
         }
+        result.push(')');
 
         if (node.expression) {
-            result.push(')', space, generateExpression(node.body, {
-                precedence: Precedence.Sequence,
+            result.push(space);
+            expr = generateExpression(node.body, {
+                precedence: Precedence.Assignment,
                 allowIn: true,
-                allowCall: true}));
+                allowCall: true
+            });
+            if (expr.toString().charAt(0) === '{') {
+                expr = ['(', expr, ')'];
+            }
+            result.push(expr);
         } else {
-            result.push(')', maybeBlock(node.body, false, true));
+            result.push(maybeBlock(node.body, false, true));
         }
         return result;
     }
@@ -1054,24 +1061,7 @@
                 result += space;
             }
 
-            if (expr.expression) {
-                result = [result,];
-                result.push('(');
-                for (i = 0, len = expr.params.length; i < len; i += 1) {
-                    result.push(expr.params[i].name);
-                    if (i + 1 < len) {
-                        result.push(',' + space);
-                    }
-                }
-                result.push(')');
-                result = [result, space, generateExpression(expr.body,{
-                    precedence: Precedence.Sequence,
-                    allowIn: allowIn,
-                    allowCall: true
-                })];
-            } else {
-                result = [result, generateFunctionBody(expr)];
-            }
+            result = [result, generateFunctionBody(expr)];
             break;
 
         case Syntax.ArrayExpression:
