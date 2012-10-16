@@ -1025,6 +1025,130 @@ data = {
                 start: { line: 1, column: 0 },
                 end: { line: 1, column: 13 }
             }
+        },
+
+        '({test: { obj }, ok } = obj)': {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                        type: 'ObjectPattern',
+                        properties: [{
+                            type: 'Property',
+                            key: {
+                                type: 'Identifier',
+                                name: 'test',
+                                range: [2, 6],
+                                loc: {
+                                    start: { line: 1, column: 2 },
+                                    end: { line: 1, column: 6 }
+                                }
+                            },
+                            value: {
+                                type: 'ObjectPattern',
+                                properties: [{
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Identifier',
+                                        name: 'obj',
+                                        range: [10, 13],
+                                        loc: {
+                                            start: { line: 1, column: 10 },
+                                            end: { line: 1, column: 13 }
+                                        }
+                                    },
+                                    value: {
+                                        type: 'Identifier',
+                                        name: 'obj',
+                                        range: [10, 13],
+                                        loc: {
+                                            start: { line: 1, column: 10 },
+                                            end: { line: 1, column: 13 }
+                                        }
+                                    },
+                                    kind: 'init',
+                                    shorthand: true,
+                                    range: [10, 13],
+                                    loc: {
+                                        start: { line: 1, column: 10 },
+                                        end: { line: 1, column: 13 }
+                                    }
+                                }],
+                                range: [8, 15],
+                                loc: {
+                                    start: { line: 1, column: 8 },
+                                    end: { line: 1, column: 15 }
+                                }
+                            },
+                            kind: 'init',
+                            range: [2, 15],
+                            loc: {
+                                start: { line: 1, column: 2 },
+                                end: { line: 1, column: 15 }
+                            }
+                        }, {
+                            type: 'Property',
+                            key: {
+                                type: 'Identifier',
+                                name: 'ok',
+                                range: [17, 19],
+                                loc: {
+                                    start: { line: 1, column: 17 },
+                                    end: { line: 1, column: 19 }
+                                }
+                            },
+                            value: {
+                                type: 'Identifier',
+                                name: 'ok',
+                                range: [17, 19],
+                                loc: {
+                                    start: { line: 1, column: 17 },
+                                    end: { line: 1, column: 19 }
+                                }
+                            },
+                            kind: 'init',
+                            shorthand: true,
+                            range: [17, 19],
+                            loc: {
+                                start: { line: 1, column: 17 },
+                                end: { line: 1, column: 19 }
+                            }
+                        }],
+                        range: [1, 21],
+                        loc: {
+                            start: { line: 1, column: 1 },
+                            end: { line: 1, column: 21 }
+                        }
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'obj',
+                        range: [24, 27],
+                        loc: {
+                            start: { line: 1, column: 24 },
+                            end: { line: 1, column: 27 }
+                        }
+                    },
+                    range: [1, 27],
+                    loc: {
+                        start: { line: 1, column: 1 },
+                        end: { line: 1, column: 27 }
+                    }
+                },
+                range: [0, 28],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 28 }
+                }
+            }],
+            range: [0, 28],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 28 }
+            }
         }
     },
 
@@ -1193,6 +1317,82 @@ data = {
             loc: {
                 start: { line: 1, column: 0 },
                 end: { line: 1, column: 15 }
+            }
+        },
+
+        '[[a],b,c] = array': {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                        type: 'ArrayPattern',
+                        elements: [{
+                            type: 'ArrayPattern',
+                            elements: [{
+                                type: 'Identifier',
+                                name: 'a',
+                                range: [2, 3],
+                                loc: {
+                                    start: { line: 1, column: 2 },
+                                    end: { line: 1, column: 3 }
+                                }
+                            }],
+                            range: [1, 4],
+                            loc: {
+                                start: { line: 1, column: 1 },
+                                end: { line: 1, column: 4 }
+                            }
+                        }, {
+                            type: 'Identifier',
+                            name: 'b',
+                            range: [5, 6],
+                            loc: {
+                                start: { line: 1, column: 5 },
+                                end: { line: 1, column: 6 }
+                            }
+                        }, {
+                            type: 'Identifier',
+                            name: 'c',
+                            range: [7, 8],
+                            loc: {
+                                start: { line: 1, column: 7 },
+                                end: { line: 1, column: 8 }
+                            }
+                        }],
+                        range: [0, 9],
+                        loc: {
+                            start: { line: 1, column: 0 },
+                            end: { line: 1, column: 9 }
+                        }
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'array',
+                        range: [12, 17],
+                        loc: {
+                            start: { line: 1, column: 12 },
+                            end: { line: 1, column: 17 }
+                        }
+                    },
+                    range: [0, 17],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 17 }
+                    }
+                },
+                range: [0, 17],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 17 }
+                }
+            }],
+            range: [0, 17],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 17 }
             }
         }
     }
