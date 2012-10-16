@@ -1954,6 +1954,84 @@ data = {
                 }
             }
         }
+    },
+
+    'Harmony egal operators': {
+        'a is b': {
+            generateFrom: {
+                type: 'BinaryExpression',
+                operator: 'is',
+                left: {
+                    type: 'Identifier',
+                    name: 'a'
+                },
+                right: {
+                    type: 'Identifier',
+                    name: 'b'
+                }
+            }
+        },
+
+        'a isnt b': {
+            generateFrom: {
+                type: 'BinaryExpression',
+                operator: 'isnt',
+                left: {
+                    type: 'Identifier',
+                    name: 'a'
+                },
+                right: {
+                    type: 'Identifier',
+                    name: 'b'
+                }
+            }
+        },
+
+        'a is b < c': {
+            generateFrom: {
+                type: 'BinaryExpression',
+                operator: 'is',
+                left: {
+                    type: 'Identifier',
+                    name: 'a'
+                },
+                right: {
+                    type: 'BinaryExpression',
+                    operator: '<',
+                    left: {
+                        type: 'Identifier',
+                        name: 'b'
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'c'
+                    }
+                }
+            }
+        },
+
+        'a < (b is c)': {
+            generateFrom: {
+                type: 'BinaryExpression',
+                operator: '<',
+                left: {
+                    type: 'Identifier',
+                    name: 'a'
+                },
+                right: {
+                    type: 'BinaryExpression',
+                    operator: 'is',
+                    left: {
+                        type: 'Identifier',
+                        name: 'b'
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'c'
+                    }
+                }
+            }
+        }
     }
 };
 

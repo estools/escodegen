@@ -158,6 +158,8 @@
         '!=': Precedence.Equality,
         '===': Precedence.Equality,
         '!==': Precedence.Equality,
+        'is': Precedence.Equality,
+        'isnt': Precedence.Equality,
         '<': Precedence.Relational,
         '>': Precedence.Relational,
         '<=': Precedence.Relational,
