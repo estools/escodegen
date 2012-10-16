@@ -633,6 +633,7 @@ data = {
         }
     },
 
+
     'Object destructuring (and aliasing)':  {
         'var {\n        a,\n        b: C\n    } = {};' : {
             generateFrom: {
@@ -943,6 +944,245 @@ data = {
                     }
                 }],
                 kind: 'var',
+                range: [0, 15],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 15 }
+                }
+            }],
+            range: [0, 15],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 15 }
+            }
+        },
+
+        '({a:C} = obj);': {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                        type: 'ObjectPattern',
+                        properties: [{
+                            type: 'Property',
+                            key: {
+                                type: 'Identifier',
+                                name: 'a',
+                                range: [2, 3],
+                                loc: {
+                                    start: { line: 1, column: 2 },
+                                    end: { line: 1, column: 3 }
+                                }
+                            },
+                            value: {
+                                type: 'Identifier',
+                                name: 'C',
+                                range: [4, 5],
+                                loc: {
+                                    start: { line: 1, column: 4 },
+                                    end: { line: 1, column: 5 }
+                                }
+                            },
+                            kind: 'init',
+                            range: [2, 5],
+                            loc: {
+                                start: { line: 1, column: 2 },
+                                end: { line: 1, column: 5 }
+                            }
+                        }],
+                        range: [1, 6],
+                        loc: {
+                            start: { line: 1, column: 1 },
+                            end: { line: 1, column: 6 }
+                        }
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'obj',
+                        range: [10, 13],
+                        loc: {
+                            start: { line: 1, column: 10 },
+                            end: { line: 1, column: 13 }
+                        }
+                    },
+                    range: [0, 13],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 13 }
+                    }
+                },
+                range: [0, 13],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 13 }
+                }
+            }],
+            range: [0, 13],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 13 }
+            }
+        }
+    },
+
+    'Array destructuring (and aliasing)':  {
+        '[a] = obj': {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                        type: 'ArrayPattern',
+                        elements: [{
+                            type: 'Identifier',
+                            name: 'a',
+                            range: [1, 2],
+                            loc: {
+                                start: { line: 1, column: 1 },
+                                end: { line: 1, column: 2 }
+                            }
+                        }],
+                        range: [0, 3],
+                        loc: {
+                            start: { line: 1, column: 0 },
+                            end: { line: 1, column: 3 }
+                        }
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'obj',
+                        range: [6, 9],
+                        loc: {
+                            start: { line: 1, column: 6 },
+                            end: { line: 1, column: 9 }
+                        }
+                    },
+                    range: [0, 9],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 9 }
+                    }
+                },
+                range: [0, 9],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 9 }
+                }
+            }],
+            range: [0, 9],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 9 }
+            }
+        },
+
+        'var [a] = obj': {
+            type: 'Program',
+            body: [{
+                type: 'VariableDeclaration',
+                declarations: [{
+                    type: 'VariableDeclarator',
+                    id: {
+                        type: 'ArrayPattern',
+                        elements: [{
+                            type: 'Identifier',
+                            name: 'a',
+                            range: [5, 6],
+                            loc: {
+                                start: { line: 1, column: 5 },
+                                end: { line: 1, column: 6 }
+                            }
+                        }]
+                    },
+                    init: {
+                        type: 'Identifier',
+                        name: 'obj',
+                        range: [10, 13],
+                        loc: {
+                            start: { line: 1, column: 10 },
+                            end: { line: 1, column: 13 }
+                        }
+                    },
+                    range: [4, 13],
+                    loc: {
+                        start: { line: 1, column: 4 },
+                        end: { line: 1, column: 13 }
+                    }
+                }],
+                kind: 'var',
+                range: [0, 13],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 13 }
+                }
+            }],
+            range: [0, 13],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 13 }
+            }
+        },
+
+        '[a,b,c] = array': {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                        type: 'ArrayPattern',
+                        elements: [{
+                            type: 'Identifier',
+                            name: 'a',
+                            range: [1, 2],
+                            loc: {
+                                start: { line: 1, column: 1 },
+                                end: { line: 1, column: 2 }
+                            }
+                        }, {
+                            type: 'Identifier',
+                            name: 'b',
+                            range: [3, 4],
+                            loc: {
+                                start: { line: 1, column: 3 },
+                                end: { line: 1, column: 4 }
+                            }
+                        }, {
+                            type: 'Identifier',
+                            name: 'c',
+                            range: [5, 6],
+                            loc: {
+                                start: { line: 1, column: 5 },
+                                end: { line: 1, column: 6 }
+                            }
+                        }],
+                        range: [0, 7],
+                        loc: {
+                            start: { line: 1, column: 0 },
+                            end: { line: 1, column: 7 }
+                        }
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'array',
+                        range: [10, 15],
+                        loc: {
+                            start: { line: 1, column: 10 },
+                            end: { line: 1, column: 15 }
+                        }
+                    },
+                    range: [0, 15],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 15 }
+                    }
+                },
                 range: [0, 15],
                 loc: {
                     start: { line: 1, column: 0 },

@@ -79,6 +79,7 @@
     Syntax = {
         AssignmentExpression: 'AssignmentExpression',
         ArrayExpression: 'ArrayExpression',
+        ArrayPattern: 'ArrayPattern',
         BlockStatement: 'BlockStatement',
         BinaryExpression: 'BinaryExpression',
         BreakStatement: 'BreakStatement',
@@ -1068,6 +1069,7 @@
             result = [result, generateFunctionBody(expr)];
             break;
 
+        case Syntax.ArrayPattern:
         case Syntax.ArrayExpression:
             if (!expr.elements.length) {
                 result = '[]';
@@ -1784,6 +1786,7 @@
 
         case Syntax.AssignmentExpression:
         case Syntax.ArrayExpression:
+        case Syntax.ArrayPattern:
         case Syntax.BinaryExpression:
         case Syntax.CallExpression:
         case Syntax.ConditionalExpression:
@@ -1830,6 +1833,7 @@
     VisitorKeys = {
         AssignmentExpression: ['left', 'right'],
         ArrayExpression: ['elements'],
+        ArrayPattern: ['elements'],
         BlockStatement: ['body'],
         BinaryExpression: ['left', 'right'],
         BreakStatement: ['label'],
