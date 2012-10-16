@@ -1366,29 +1366,18 @@
 
         case Syntax.VariableDeclarator:
             if (stmt.init) {
-                if (stmt.id.type === "ObjectPattern") {
-                    result = [
-                        generateExpression(stmt.id, {
-                            precedence: Precedence.Assignment,
-                            allowIn: allowIn,
-                            allowCall: true
-                        }) + space + '=' + space,
-                        generateExpression(stmt.init, {
-                            precedence: Precedence.Assignment,
-                            allowIn: allowIn,
-                            allowCall: true
-                        })
-                    ];
-                } else { // id.type = Identifier
-                    result = [
-                        stmt.id.name + space + '=' + space,
-                        generateExpression(stmt.init, {
-                            precedence: Precedence.Assignment,
-                            allowIn: allowIn,
-                            allowCall: true
-                        })
-                    ];
-                }
+                result = [
+                    generateExpression(stmt.id, {
+                        precedence: Precedence.Assignment,
+                        allowIn: allowIn,
+                        allowCall: true
+                    }) + space + '=' + space,
+                    generateExpression(stmt.init, {
+                        precedence: Precedence.Assignment,
+                        allowIn: allowIn,
+                        allowCall: true
+                    })
+                ];
             } else {
                 result = stmt.id.name;
             }
