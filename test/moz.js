@@ -838,7 +838,7 @@ NotMatchingError.prototype = new Error();
 
 function testIdentity(code, syntax) {
     'use strict';
-    var expected, tree, actual, options, StringObject;
+    var expected, tree, actual, actual2, options, StringObject;
 
     // alias, so that JSLint does not complain.
     StringObject = String;
@@ -856,11 +856,16 @@ function testIdentity(code, syntax) {
         expected = JSON.stringify(tree, adjustRegexLiteral, 4);
         tree = esprima.parse(escodegen.generate(tree), options);
         actual = JSON.stringify(tree, adjustRegexLiteral, 4);
+        tree = esprima.parse(escodegen.generate(syntax), options);
+        actual2 = JSON.stringify(tree, adjustRegexLiteral, 4);
     } catch (e) {
         throw new NotMatchingError(expected, e.toString());
     }
     if (expected !== actual) {
         throw new NotMatchingError(expected, actual);
+    }
+    if (expected !== actual2) {
+        throw new NotMatchingError(expected, actual2);
     }
 }
 

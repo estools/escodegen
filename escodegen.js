@@ -1130,6 +1130,16 @@
                         allowIn: true,
                         allowCall: true
                     });
+                } else if (expr.method) {
+                    result = [];
+                    if (expr.value.generator) {
+                        result.push('*');
+                    }
+                    result.push(generateExpression(expr.key, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }), generateFunctionBody(expr.value));
                 } else {
                     result = [
                         generateExpression(expr.key, {

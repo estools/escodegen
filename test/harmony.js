@@ -1742,6 +1742,378 @@ data = {
                 }
             }
         }
+    },
+
+
+    'Harmony method property': {
+        'var obj = { test() { } }': {
+            type: 'Program',
+            body: [{
+                type: 'VariableDeclaration',
+                declarations: [{
+                    type: 'VariableDeclarator',
+                    id: {
+                        type: 'Identifier',
+                        name: 'obj',
+                        range: [4, 7],
+                        loc: {
+                            start: { line: 1, column: 4 },
+                            end: { line: 1, column: 7 }
+                        }
+                    },
+                    init: {
+                        type: 'ObjectExpression',
+                        properties: [{
+                            type: 'Property',
+                            key: {
+                                type: 'Identifier',
+                                name: 'test',
+                                range: [12, 16],
+                                loc: {
+                                    start: { line: 1, column: 12 },
+                                    end: { line: 1, column: 16 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [19, 22],
+                                    loc: {
+                                        start: { line: 1, column: 19 },
+                                        end: { line: 1, column: 22 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [19, 22],
+                                loc: {
+                                    start: { line: 1, column: 19 },
+                                    end: { line: 1, column: 22 }
+                                }
+                            },
+                            kind: 'init',
+                            method: true,
+                            range: [12, 22],
+                            loc: {
+                                start: { line: 1, column: 12 },
+                                end: { line: 1, column: 22 }
+                            }
+                        }],
+                        range: [10, 24],
+                        loc: {
+                            start: { line: 1, column: 10 },
+                            end: { line: 1, column: 24 }
+                        }
+                    },
+                    range: [4, 24],
+                    loc: {
+                        start: { line: 1, column: 4 },
+                        end: { line: 1, column: 24 }
+                    }
+                }],
+                kind: 'var',
+                range: [0, 24],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 24 }
+                }
+            }],
+            range: [0, 24],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 24 }
+            }
+        },
+
+        'var obj = { test() 42 }': {
+            type: 'Program',
+            body: [{
+                type: 'VariableDeclaration',
+                declarations: [{
+                    type: 'VariableDeclarator',
+                    id: {
+                        type: 'Identifier',
+                        name: 'obj',
+                        range: [4, 7],
+                        loc: {
+                            start: { line: 1, column: 4 },
+                            end: { line: 1, column: 7 }
+                        }
+                    },
+                    init: {
+                        type: 'ObjectExpression',
+                        properties: [{
+                            type: 'Property',
+                            key: {
+                                type: 'Identifier',
+                                name: 'test',
+                                range: [12, 16],
+                                loc: {
+                                    start: { line: 1, column: 12 },
+                                    end: { line: 1, column: 16 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'Literal',
+                                    value: 42,
+                                    raw: '42',
+                                    range: [19, 21],
+                                    loc: {
+                                        start: { line: 1, column: 19 },
+                                        end: { line: 1, column: 21 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: true,
+                                range: [19, 21],
+                                loc: {
+                                    start: { line: 1, column: 19 },
+                                    end: { line: 1, column: 21 }
+                                }
+                            },
+                            kind: 'init',
+                            method: true,
+                            range: [12, 21],
+                            loc: {
+                                start: { line: 1, column: 12 },
+                                end: { line: 1, column: 21 }
+                            }
+                        }],
+                        range: [10, 23],
+                        loc: {
+                            start: { line: 1, column: 10 },
+                            end: { line: 1, column: 23 }
+                        }
+                    },
+                    range: [4, 23],
+                    loc: {
+                        start: { line: 1, column: 4 },
+                        end: { line: 1, column: 23 }
+                    }
+                }],
+                kind: 'var',
+                range: [0, 23],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 23 }
+                }
+            }],
+            range: [0, 23],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 23 }
+            }
+        },
+
+        'var obj = { 42() 42 }': {
+            type: 'Program',
+            body: [{
+                type: 'VariableDeclaration',
+                declarations: [{
+                    type: 'VariableDeclarator',
+                    id: {
+                        type: 'Identifier',
+                        name: 'obj',
+                        range: [4, 7],
+                        loc: {
+                            start: { line: 1, column: 4 },
+                            end: { line: 1, column: 7 }
+                        }
+                    },
+                    init: {
+                        type: 'ObjectExpression',
+                        properties: [{
+                            type: 'Property',
+                            key: {
+                                type: 'Literal',
+                                value: 42,
+                                raw: '42',
+                                range: [12, 14],
+                                loc: {
+                                    start: { line: 1, column: 12 },
+                                    end: { line: 1, column: 14 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'Literal',
+                                    value: 42,
+                                    raw: '42',
+                                    range: [17, 19],
+                                    loc: {
+                                        start: { line: 1, column: 17 },
+                                        end: { line: 1, column: 19 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: true,
+                                range: [17, 19],
+                                loc: {
+                                    start: { line: 1, column: 17 },
+                                    end: { line: 1, column: 19 }
+                                }
+                            },
+                            kind: 'init',
+                            method: true,
+                            range: [12, 19],
+                            loc: {
+                                start: { line: 1, column: 12 },
+                                end: { line: 1, column: 19 }
+                            }
+                        }],
+                        range: [10, 21],
+                        loc: {
+                            start: { line: 1, column: 10 },
+                            end: { line: 1, column: 21 }
+                        }
+                    },
+                    range: [4, 21],
+                    loc: {
+                        start: { line: 1, column: 4 },
+                        end: { line: 1, column: 21 }
+                    }
+                }],
+                kind: 'var',
+                range: [0, 21],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 21 }
+                }
+            }],
+            range: [0, 21],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 21 }
+            }
+        },
+
+        'var obj = { *42() { yield test } }': {
+            type: 'Program',
+            body: [{
+                type: 'VariableDeclaration',
+                declarations: [{
+                    type: 'VariableDeclarator',
+                    id: {
+                        type: 'Identifier',
+                        name: 'obj',
+                        range: [4, 7],
+                        loc: {
+                            start: { line: 1, column: 4 },
+                            end: { line: 1, column: 7 }
+                        }
+                    },
+                    init: {
+                        type: 'ObjectExpression',
+                        properties: [{
+                            type: 'Property',
+                            key: {
+                                type: 'Literal',
+                                value: 42,
+                                raw: '42',
+                                range: [13, 15],
+                                loc: {
+                                    start: { line: 1, column: 13 },
+                                    end: { line: 1, column: 15 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [{
+                                        type: 'ExpressionStatement',
+                                        expression: {
+                                            type: 'YieldExpression',
+                                            argument: {
+                                                type: 'Identifier',
+                                                name: 'test',
+                                                range: [26, 30],
+                                                loc: {
+                                                    start: { line: 1, column: 26 },
+                                                    end: { line: 1, column: 30 }
+                                                }
+                                            },
+                                            delegate: false,
+                                            range: [20, 30],
+                                            loc: {
+                                                start: { line: 1, column: 20 },
+                                                end: { line: 1, column: 30 }
+                                            }
+                                        },
+                                        range: [20, 31],
+                                        loc: {
+                                            start: { line: 1, column: 20 },
+                                            end: { line: 1, column: 31 }
+                                        }
+                                    }],
+                                    range: [18, 32],
+                                    loc: {
+                                        start: { line: 1, column: 18 },
+                                        end: { line: 1, column: 32 }
+                                    }
+                                },
+                                rest: null,
+                                generator: true,
+                                expression: false,
+                                range: [18, 32],
+                                loc: {
+                                    start: { line: 1, column: 18 },
+                                    end: { line: 1, column: 32 }
+                                }
+                            },
+                            kind: 'init',
+                            method: true,
+                            range: [12, 32],
+                            loc: {
+                                start: { line: 1, column: 12 },
+                                end: { line: 1, column: 32 }
+                            }
+                        }],
+                        range: [10, 34],
+                        loc: {
+                            start: { line: 1, column: 10 },
+                            end: { line: 1, column: 34 }
+                        }
+                    },
+                    range: [4, 34],
+                    loc: {
+                        start: { line: 1, column: 4 },
+                        end: { line: 1, column: 34 }
+                    }
+                }],
+                kind: 'var',
+                range: [0, 34],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 34 }
+                }
+            }],
+            range: [0, 34],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 34 }
+            }
+        }
     }
 };
 
@@ -1771,7 +2143,7 @@ NotMatchingError.prototype = new Error();
 
 function testIdentity(code, syntax) {
     'use strict';
-    var expected, tree, actual, options, StringObject;
+    var expected, tree, actual, actual2, options, StringObject;
 
     // alias, so that JSLint does not complain.
     StringObject = String;
@@ -1789,11 +2161,16 @@ function testIdentity(code, syntax) {
         expected = JSON.stringify(tree, adjustRegexLiteral, 4);
         tree = esprima.parse(escodegen.generate(tree), options);
         actual = JSON.stringify(tree, adjustRegexLiteral, 4);
+        tree = esprima.parse(escodegen.generate(syntax), options);
+        actual2 = JSON.stringify(tree, adjustRegexLiteral, 4);
     } catch (e) {
         throw new NotMatchingError(expected, e.toString());
     }
     if (expected !== actual) {
         throw new NotMatchingError(expected, actual);
+    }
+    if (expected !== actual2) {
+        throw new NotMatchingError(expected, actual2);
     }
 }
 
