@@ -15043,148 +15043,42 @@ function runTest(code, result) {
     }
 }
 
-if (typeof window !== 'undefined') {
-    // Run all tests in a browser environment.
-    runTests = function () {
-        'use strict';
-        var total = 0,
-            failures = 0,
-            category,
-            fixture,
-            source,
-            tick,
-            expected,
-            index,
-            len;
+(function () {
+    'use strict';
 
-        function setText(el, str) {
-            if (typeof el.innerText === 'string') {
-                el.innerText = str;
-            } else {
-                el.textContent = str;
+    var total = 0,
+        failures = [],
+        tick = new Date(),
+        expected,
+        header;
+
+    Object.keys(data).forEach(function (category) {
+        Object.keys(data[category]).forEach(function (source) {
+            total += 1;
+            expected = data[category][source];
+            try {
+                runTest(source, expected);
+            } catch (e) {
+                e.source = source;
+                failures.push(e);
             }
-        }
-
-        function startCategory(category) {
-            var report, e;
-            report = document.getElementById('report');
-            e = document.createElement('h4');
-            setText(e, category);
-            report.appendChild(e);
-        }
-
-        function reportSuccess(code) {
-            var report, e;
-            report = document.getElementById('report');
-            e = document.createElement('pre');
-            e.setAttribute('class', 'code');
-            setText(e, code);
-            report.appendChild(e);
-        }
-
-        function reportFailure(code, expected, actual) {
-            var report, e;
-
-            report = document.getElementById('report');
-
-            e = document.createElement('p');
-            setText(e, 'Code:');
-            report.appendChild(e);
-
-            e = document.createElement('pre');
-            e.setAttribute('class', 'code');
-            setText(e, code);
-            report.appendChild(e);
-
-            e = document.createElement('p');
-            setText(e, 'Expected');
-            report.appendChild(e);
-
-            e = document.createElement('pre');
-            e.setAttribute('class', 'expected');
-            setText(e, expected);
-            report.appendChild(e);
-
-            e = document.createElement('p');
-            setText(e, 'Actual');
-            report.appendChild(e);
-
-            e = document.createElement('pre');
-            e.setAttribute('class', 'actual');
-            setText(e, actual);
-            report.appendChild(e);
-        }
-
-        setText(document.getElementById('version'), esprima.version);
-
-        tick = new Date();
-        for (category in data) {
-            if (data.hasOwnProperty(category)) {
-                startCategory(category);
-                fixture = data[category];
-                for (source in fixture) {
-                    if (fixture.hasOwnProperty(source)) {
-                        expected = fixture[source];
-                        total += 1;
-                        try {
-                            runTest(source, expected);
-                            reportSuccess(source, JSON.stringify(expected, null, 4));
-                        } catch (e) {
-                            failures += 1;
-                            reportFailure(source, e.expected, e.actual);
-                        }
-                    }
-                }
-            }
-        }
-        tick = (new Date()) - tick;
-
-        if (failures > 0) {
-            setText(document.getElementById('status'), total + ' tests. ' +
-                'Failures: ' + failures + '. ' + tick + ' ms');
-        } else {
-            setText(document.getElementById('status'), total + ' tests. ' +
-                'No failure. ' + tick + ' ms');
-        }
-    };
-} else {
-    (function () {
-        'use strict';
-
-        var total = 0,
-            failures = [],
-            tick = new Date(),
-            expected,
-            header;
-
-        Object.keys(data).forEach(function (category) {
-            Object.keys(data[category]).forEach(function (source) {
-                total += 1;
-                expected = data[category][source];
-                try {
-                    runTest(source, expected);
-                } catch (e) {
-                    e.source = source;
-                    failures.push(e);
-                }
-            });
         });
-        tick = (new Date()) - tick;
+    });
+    tick = (new Date()) - tick;
 
-        header = total + ' tests. ' + failures.length + ' failures. ' +
-            tick + ' ms';
-        if (failures.length) {
-            console.error(header);
-            failures.forEach(function (failure) {
-                console.log(failure);
-                console.error(failure.source + ': Expected\n    ' +
-                    failure.source.split('\n').join('\n    ') +
-                    '\nto match\n    ' + failure.actual);
-            });
-        } else {
-            console.log(header);
-        }
-        process.exit(failures.length === 0 ? 0 : 1);
-    }());
-}
+    header = total + ' tests. ' + failures.length + ' failures. ' +
+        tick + ' ms';
+    if (failures.length) {
+        console.error(header);
+        failures.forEach(function (failure) {
+            console.log(failure);
+            console.error(failure.source + ': Expected\n    ' +
+                failure.source.split('\n').join('\n    ') +
+                '\nto match\n    ' + failure.actual);
+        });
+    } else {
+        console.log(header);
+    }
+    process.exit(failures.length === 0 ? 0 : 1);
+}());
 /* vim: set sw=4 ts=4 et tw=80 : */
