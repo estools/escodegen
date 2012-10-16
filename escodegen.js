@@ -1248,45 +1248,43 @@
             result = expr.value.toString();
             break;
 
-
         case Syntax.ComprehensionExpression:
-
-            result = ['['];
-            result.push((generateExpression(expr.body, {  // ArrayExpression
-                    precedence: Precedence.Sequence,
+            result = [
+                '[',
+                generateExpression(expr.body, {
+                    precedence: Precedence.Assignment,
                     allowIn: true,
                     allowCall: true
-                }))
-            );
+                })
+            ];
 
-            if (expr.blocks){
+            if (expr.blocks) {
                 for (i = 0, len = expr.blocks.length; i < len; i += 1) {
-                    fragment = (generateExpression(expr.blocks[i], {  // ArrayExpression
+                    fragment = generateExpression(expr.blocks[i], {
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
-                    }));
-                    result.push(fragment);
+                    });
+                    result = join(result, fragment);
                 }
             }
 
             if (expr.filter) {
-                result.push(space + 'if' + space);
-                // should this be a call to parenthesize?
-                result.push('(');
-                result.push(generateExpression(expr.filter,{
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }));
-                result.push(')')
+                result = join(result, [
+                    'if' + space + '(',
+                    generateExpression(expr.filter, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }),
+                    ')'
+                ]);
             }
             result.push(']');
             break;
 
         case Syntax.ComprehensionBlock:
-            // see ForIn
-            result = [space + 'for' + space + '('];
+            result = ['for' + space + '('];
             if (expr.left.type === Syntax.VariableDeclaration) {
                 result.push(expr.left.kind + ' ', generateStatement(expr.left.declarations[0], {
                     allowIn: false
@@ -1299,15 +1297,15 @@
                 }));
             }
 
-            result = join(result, 'in');
-            result = [join(
-                result,
+            result = join(result, expr.of ? 'of' : 'in');
+            result = join(result, [
                 generateExpression(expr.right, {
                     precedence: Precedence.Sequence,
                     allowIn: true,
                     allowCall: true
-                })
-            ), ')'];
+                }),
+                ')'
+            ]);
             break;
 
         default:
