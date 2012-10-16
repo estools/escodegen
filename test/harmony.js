@@ -1399,7 +1399,7 @@ data = {
 
     'Array Comprehension': {
 
-        '[x for (x in [])];':{
+        '[x for x in []];':{
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1411,55 +1411,25 @@ data = {
                             type: 'ComprehensionBlock',
                             left: {
                                 type: 'Identifier',
-                                name: 'x',
-                                range: [8, 9],
-                                loc: {
-                                    start: { line: 1, column: 8 },
-                                    end: { line: 1, column: 9 }
-                                }
+                                name: 'x'
                             },
                             right: {
                                 type: 'ArrayExpression',
-                                elements: [],
-                                range: [13, 15],
-                                loc: {
-                                    start: { line: 1, column: 13 },
-                                    end: { line: 1, column: 15 }
-                                }
+                                elements: []
                             },
                             each: false,
                             of: false
                         }],
                         body: {
                             type: 'Identifier',
-                            name: 'x',
-                            range: [1, 2],
-                            loc: {
-                                start: { line: 1, column: 1 },
-                                end: { line: 1, column: 2 }
-                            }
-                        },
-                        range: [0, 17],
-                        loc: {
-                            start: { line: 1, column: 0 },
-                            end: { line: 1, column: 17 }
+                            name: 'x'
                         }
-                    },
-                    range: [0, 17],
-                    loc: {
-                        start: { line: 1, column: 0 },
-                        end: { line: 1, column: 17 }
                     }
-                }],
-                range: [0, 17],
-                loc: {
-                    start: { line: 1, column: 0 },
-                    end: { line: 1, column: 17 }
-                }
+                }]
             }
         },
 
-        '[x for (x of [])];': {
+        '[x for x of []];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1471,55 +1441,25 @@ data = {
                             type: 'ComprehensionBlock',
                             left: {
                                 type: 'Identifier',
-                                name: 'x',
-                                range: [8, 9],
-                                loc: {
-                                    start: { line: 1, column: 8 },
-                                    end: { line: 1, column: 9 }
-                                }
+                                name: 'x'
                             },
                             right: {
                                 type: 'ArrayExpression',
-                                elements: [],
-                                range: [13, 15],
-                                loc: {
-                                    start: { line: 1, column: 13 },
-                                    end: { line: 1, column: 15 }
-                                }
+                                elements: []
                             },
                             each: false,
                             of: true
                         }],
                         body: {
                             type: 'Identifier',
-                            name: 'x',
-                            range: [1, 2],
-                            loc: {
-                                start: { line: 1, column: 1 },
-                                end: { line: 1, column: 2 }
-                            }
-                        },
-                        range: [0, 17],
-                        loc: {
-                            start: { line: 1, column: 0 },
-                            end: { line: 1, column: 17 }
+                            name: 'x'
                         }
-                    },
-                    range: [0, 17],
-                    loc: {
-                        start: { line: 1, column: 0 },
-                        end: { line: 1, column: 17 }
                     }
-                }],
-                range: [0, 17],
-                loc: {
-                    start: { line: 1, column: 0 },
-                    end: { line: 1, column: 17 }
-                }
+                }]
             }
         },
 
-        '[1 for (x in y) if (f(x))];': {
+        '[1 for x in y if f(x)];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1530,47 +1470,22 @@ data = {
                             type: 'CallExpression',
                             callee: {
                                 type: 'Identifier',
-                                name: 'f',
-                                range: [20, 21],
-                                loc: {
-                                    start: { line: 1, column: 20 },
-                                    end: { line: 1, column: 21 }
-                                }
+                                name: 'f'
                             },
                             'arguments': [{
                                 type: 'Identifier',
-                                name: 'x',
-                                range: [22, 23],
-                                loc: {
-                                    start: { line: 1, column: 22 },
-                                    end: { line: 1, column: 23 }
-                                }
-                            }],
-                            range: [20, 24],
-                            loc: {
-                                start: { line: 1, column: 20 },
-                                end: { line: 1, column: 24 }
-                            }
+                                name: 'x'
+                            }]
                         },
                         blocks: [{
                             type: 'ComprehensionBlock',
                             left: {
                                 type: 'Identifier',
-                                name: 'x',
-                                range: [8, 9],
-                                loc: {
-                                    start: { line: 1, column: 8 },
-                                    end: { line: 1, column: 9 }
-                                }
+                                name: 'x'
                             },
                             right: {
                                 type: 'Identifier',
-                                name: 'y',
-                                range: [13, 14],
-                                loc: {
-                                    start: { line: 1, column: 13 },
-                                    end: { line: 1, column: 14 }
-                                }
+                                name: 'y'
                             },
                             each: false,
                             of: false
@@ -1578,34 +1493,14 @@ data = {
                         body: {
                             type: 'Literal',
                             value: 1,
-                            raw: '1',
-                            range: [1, 2],
-                            loc: {
-                                start: { line: 1, column: 1 },
-                                end: { line: 1, column: 2 }
-                            }
-                        },
-                        range: [0, 26],
-                        loc: {
-                            start: { line: 1, column: 0 },
-                            end: { line: 1, column: 26 }
+                            raw: '1'
                         }
-                    },
-                    range: [0, 26],
-                    loc: {
-                        start: { line: 1, column: 0 },
-                        end: { line: 1, column: 26 }
                     }
-                }],
-                range: [0, 26],
-                loc: {
-                    start: { line: 1, column: 0 },
-                    end: { line: 1, column: 26 }
-                }
+                }]
             }
         },
 
-        '[1 for (x of y) if (f(x))];': {
+        '[1 for x of y if f(x)];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1616,47 +1511,22 @@ data = {
                             type: 'CallExpression',
                             callee: {
                                 type: 'Identifier',
-                                name: 'f',
-                                range: [20, 21],
-                                loc: {
-                                    start: { line: 1, column: 20 },
-                                    end: { line: 1, column: 21 }
-                                }
+                                name: 'f'
                             },
                             'arguments': [{
                                 type: 'Identifier',
-                                name: 'x',
-                                range: [22, 23],
-                                loc: {
-                                    start: { line: 1, column: 22 },
-                                    end: { line: 1, column: 23 }
-                                }
-                            }],
-                            range: [20, 24],
-                            loc: {
-                                start: { line: 1, column: 20 },
-                                end: { line: 1, column: 24 }
-                            }
+                                name: 'x'
+                            }]
                         },
                         blocks: [{
                             type: 'ComprehensionBlock',
                             left: {
                                 type: 'Identifier',
-                                name: 'x',
-                                range: [8, 9],
-                                loc: {
-                                    start: { line: 1, column: 8 },
-                                    end: { line: 1, column: 9 }
-                                }
+                                name: 'x'
                             },
                             right: {
                                 type: 'Identifier',
-                                name: 'y',
-                                range: [13, 14],
-                                loc: {
-                                    start: { line: 1, column: 13 },
-                                    end: { line: 1, column: 14 }
-                                }
+                                name: 'y'
                             },
                             each: false,
                             of: true
@@ -1664,34 +1534,14 @@ data = {
                         body: {
                             type: 'Literal',
                             value: 1,
-                            raw: '1',
-                            range: [1, 2],
-                            loc: {
-                                start: { line: 1, column: 1 },
-                                end: { line: 1, column: 2 }
-                            }
-                        },
-                        range: [0, 26],
-                        loc: {
-                            start: { line: 1, column: 0 },
-                            end: { line: 1, column: 26 }
+                            raw: '1'
                         }
-                    },
-                    range: [0, 26],
-                    loc: {
-                        start: { line: 1, column: 0 },
-                        end: { line: 1, column: 26 }
                     }
-                }],
-                range: [0, 26],
-                loc: {
-                    start: { line: 1, column: 0 },
-                    end: { line: 1, column: 26 }
-                }
+                }]
             }
         },
 
-        '[[\n    x,\n    b,\n    c\n] for (x in []) for (b in []) if (b && c)];': {
+        '[[\n    x,\n    b,\n    c\n] for x in [] for b in [] if b && c];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1703,47 +1553,22 @@ data = {
                             operator: '&&',
                             left: {
                                 type: 'Identifier',
-                                name: 'b',
-                                range: [41, 42],
-                                loc: {
-                                    start: { line: 1, column: 41 },
-                                    end: { line: 1, column: 42 }
-                                }
+                                name: 'b'
                             },
                             right: {
                                 type: 'Identifier',
-                                name: 'c',
-                                range: [46, 47],
-                                loc: {
-                                    start: { line: 1, column: 46 },
-                                    end: { line: 1, column: 47 }
-                                }
-                            },
-                            range: [41, 47],
-                            loc: {
-                                start: { line: 1, column: 41 },
-                                end: { line: 1, column: 47 }
+                                name: 'c'
                             }
                         },
                         blocks: [{
                             type: 'ComprehensionBlock',
                             left: {
                                 type: 'Identifier',
-                                name: 'x',
-                                range: [14, 15],
-                                loc: {
-                                    start: { line: 1, column: 14 },
-                                    end: { line: 1, column: 15 }
-                                }
+                                name: 'x'
                             },
                             right: {
                                 type: 'ArrayExpression',
-                                elements: [],
-                                range: [19, 21],
-                                loc: {
-                                    start: { line: 1, column: 19 },
-                                    end: { line: 1, column: 21 }
-                                }
+                                elements: []
                             },
                             each: false,
                             of: false
@@ -1751,21 +1576,11 @@ data = {
                             type: 'ComprehensionBlock',
                             left: {
                                 type: 'Identifier',
-                                name: 'b',
-                                range: [28, 29],
-                                loc: {
-                                    start: { line: 1, column: 28 },
-                                    end: { line: 1, column: 29 }
-                                }
+                                name: 'b'
                             },
                             right: {
                                 type: 'ArrayExpression',
-                                elements: [],
-                                range: [33, 35],
-                                loc: {
-                                    start: { line: 1, column: 33 },
-                                    end: { line: 1, column: 35 }
-                                }
+                                elements: []
                             },
                             each: false,
                             of: false
@@ -1774,56 +1589,21 @@ data = {
                             type: 'ArrayExpression',
                             elements: [{
                                 type: 'Identifier',
-                                name: 'x',
-                                range: [2, 3],
-                                loc: {
-                                    start: { line: 1, column: 2 },
-                                    end: { line: 1, column: 3 }
-                                }
+                                name: 'x'
                             }, {
                                 type: 'Identifier',
-                                name: 'b',
-                                range: [4, 5],
-                                loc: {
-                                    start: { line: 1, column: 4 },
-                                    end: { line: 1, column: 5 }
-                                }
+                                name: 'b'
                             }, {
                                 type: 'Identifier',
-                                name: 'c',
-                                range: [6, 7],
-                                loc: {
-                                    start: { line: 1, column: 6 },
-                                    end: { line: 1, column: 7 }
-                                }
-                            }],
-                            range: [1, 8],
-                            loc: {
-                                start: { line: 1, column: 1 },
-                                end: { line: 1, column: 8 }
-                            }
-                        },
-                        range: [0, 49],
-                        loc: {
-                            start: { line: 1, column: 0 },
-                            end: { line: 1, column: 49 }
+                                name: 'c'
+                            }]
                         }
-                    },
-                    range: [0, 49],
-                    loc: {
-                        start: { line: 1, column: 0 },
-                        end: { line: 1, column: 49 }
                     }
-                }],
-                range: [0, 49],
-                loc: {
-                    start: { line: 1, column: 0 },
-                    end: { line: 1, column: 49 }
-                }
+                }]
             }
         },
 
-        '[[\n    x,\n    b,\n    c\n] for (x of []) for (b of []) if (b && c)];': {
+        '[[\n    x,\n    b,\n    c\n] for x of [] for b of [] if b && c];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1835,47 +1615,22 @@ data = {
                             operator: '&&',
                             left: {
                                 type: 'Identifier',
-                                name: 'b',
-                                range: [41, 42],
-                                loc: {
-                                    start: { line: 1, column: 41 },
-                                    end: { line: 1, column: 42 }
-                                }
+                                name: 'b'
                             },
                             right: {
                                 type: 'Identifier',
-                                name: 'c',
-                                range: [46, 47],
-                                loc: {
-                                    start: { line: 1, column: 46 },
-                                    end: { line: 1, column: 47 }
-                                }
-                            },
-                            range: [41, 47],
-                            loc: {
-                                start: { line: 1, column: 41 },
-                                end: { line: 1, column: 47 }
+                                name: 'c'
                             }
                         },
                         blocks: [{
                             type: 'ComprehensionBlock',
                             left: {
                                 type: 'Identifier',
-                                name: 'x',
-                                range: [14, 15],
-                                loc: {
-                                    start: { line: 1, column: 14 },
-                                    end: { line: 1, column: 15 }
-                                }
+                                name: 'x'
                             },
                             right: {
                                 type: 'ArrayExpression',
-                                elements: [],
-                                range: [19, 21],
-                                loc: {
-                                    start: { line: 1, column: 19 },
-                                    end: { line: 1, column: 21 }
-                                }
+                                elements: []
                             },
                             each: false,
                             of: true
@@ -1883,21 +1638,11 @@ data = {
                             type: 'ComprehensionBlock',
                             left: {
                                 type: 'Identifier',
-                                name: 'b',
-                                range: [28, 29],
-                                loc: {
-                                    start: { line: 1, column: 28 },
-                                    end: { line: 1, column: 29 }
-                                }
+                                name: 'b'
                             },
                             right: {
                                 type: 'ArrayExpression',
-                                elements: [],
-                                range: [33, 35],
-                                loc: {
-                                    start: { line: 1, column: 33 },
-                                    end: { line: 1, column: 35 }
-                                }
+                                elements: []
                             },
                             each: false,
                             of: true
@@ -1906,52 +1651,17 @@ data = {
                             type: 'ArrayExpression',
                             elements: [{
                                 type: 'Identifier',
-                                name: 'x',
-                                range: [2, 3],
-                                loc: {
-                                    start: { line: 1, column: 2 },
-                                    end: { line: 1, column: 3 }
-                                }
+                                name: 'x'
                             }, {
                                 type: 'Identifier',
-                                name: 'b',
-                                range: [4, 5],
-                                loc: {
-                                    start: { line: 1, column: 4 },
-                                    end: { line: 1, column: 5 }
-                                }
+                                name: 'b'
                             }, {
                                 type: 'Identifier',
-                                name: 'c',
-                                range: [6, 7],
-                                loc: {
-                                    start: { line: 1, column: 6 },
-                                    end: { line: 1, column: 7 }
-                                }
-                            }],
-                            range: [1, 8],
-                            loc: {
-                                start: { line: 1, column: 1 },
-                                end: { line: 1, column: 8 }
-                            }
-                        },
-                        range: [0, 49],
-                        loc: {
-                            start: { line: 1, column: 0 },
-                            end: { line: 1, column: 49 }
+                                name: 'c'
+                            }]
                         }
-                    },
-                    range: [0, 49],
-                    loc: {
-                        start: { line: 1, column: 0 },
-                        end: { line: 1, column: 49 }
                     }
-                }],
-                range: [0, 49],
-                loc: {
-                    start: { line: 1, column: 0 },
-                    end: { line: 1, column: 49 }
-                }
+                }]
             }
         }
     },

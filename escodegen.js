@@ -204,7 +204,8 @@
                 safeConcatenation: false
             },
             moz: {
-                starlessGenerator: false
+                starlessGenerator: false,
+                parenthesizedComprehensionBlock: false
             },
             sourceMap: null,
             sourceMapWithCode: false,
@@ -1275,42 +1276,49 @@
             }
 
             if (expr.filter) {
-                result = join(result, [
-                    'if' + space + '(',
-                    generateExpression(expr.filter, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }),
-                    ')'
-                ]);
+                result = join(result, 'if' + space);
+                fragment = generateExpression(expr.filter, {
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                });
+                if (extra.moz.parenthesizedComprehensionBlock) {
+                    result = join(result, [ '(', fragment, ')' ]);
+                } else {
+                    result = join(result, fragment);
+                }
             }
             result.push(']');
             break;
 
         case Syntax.ComprehensionBlock:
-            result = ['for' + space + '('];
             if (expr.left.type === Syntax.VariableDeclaration) {
-                result.push(expr.left.kind + ' ', generateStatement(expr.left.declarations[0], {
-                    allowIn: false
-                }));
+                fragment = [
+                    expr.left.kind + ' ',
+                    generateStatement(expr.left.declarations[0], {
+                        allowIn: false
+                    })
+                ];
             } else {
-                result.push(generateExpression(expr.left, {
+                fragment = generateExpression(expr.left, {
                     precedence: Precedence.Call,
                     allowIn: true,
                     allowCall: true
-                }));
+                });
             }
 
-            result = join(result, expr.of ? 'of' : 'in');
-            result = join(result, [
-                generateExpression(expr.right, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }),
-                ')'
-            ]);
+            fragment = join(fragment, expr.of ? 'of' : 'in');
+            fragment = join(fragment, generateExpression(expr.right, {
+                precedence: Precedence.Sequence,
+                allowIn: true,
+                allowCall: true
+            }));
+
+            if (extra.moz.parenthesizedComprehensionBlock) {
+                result = [ 'for' + space + '(', fragment, ')' ];
+            } else {
+                result = join('for' + space, fragment);
+            }
             break;
 
         default:
