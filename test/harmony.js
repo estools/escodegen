@@ -35,6 +35,154 @@ var runTests, data;
 
 data = {
     'Yield (with star, harmony proposed)': {
+        'function* a() { yield* test; }': {
+            type: 'Program',
+            body: [{
+                type: 'FunctionDeclaration',
+                id: {
+                    type: 'Identifier',
+                    name: 'a',
+                    range: [10, 11],
+                    loc: {
+                        start: { line: 1, column: 10 },
+                        end: { line: 1, column: 11 }
+                    }
+                },
+                params: [],
+                defaults: [],
+                body: {
+                    type: 'BlockStatement',
+                    body: [{
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'YieldExpression',
+                            argument: {
+                                type: 'Identifier',
+                                name: 'test',
+                                range: [23, 27],
+                                loc: {
+                                    start: { line: 1, column: 23 },
+                                    end: { line: 1, column: 27 }
+                                }
+                            },
+                            delegate: true,
+                            range: [16, 27],
+                            loc: {
+                                start: { line: 1, column: 16 },
+                                end: { line: 1, column: 27 }
+                            }
+                        },
+                        range: [16, 28],
+                        loc: {
+                            start: { line: 1, column: 16 },
+                            end: { line: 1, column: 28 }
+                        }
+                    }],
+                    range: [14, 30],
+                    loc: {
+                        start: { line: 1, column: 14 },
+                        end: { line: 1, column: 30 }
+                    }
+                },
+                rest: null,
+                generator: true,
+                expression: false,
+                range: [0, 30],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 30 }
+                }
+            }],
+            range: [0, 30],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 30 }
+            }
+        },
+
+        'function* a() { yield* (42,42); }': {
+            type: 'Program',
+            body: [{
+                type: 'FunctionDeclaration',
+                id: {
+                    type: 'Identifier',
+                    name: 'a',
+                    range: [10, 11],
+                    loc: {
+                        start: { line: 1, column: 10 },
+                        end: { line: 1, column: 11 }
+                    }
+                },
+                params: [],
+                defaults: [],
+                body: {
+                    type: 'BlockStatement',
+                    body: [{
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'YieldExpression',
+                            argument: {
+                                type: 'SequenceExpression',
+                                expressions: [{
+                                    type: 'Literal',
+                                    value: 42,
+                                    raw: '42',
+                                    range: [24, 26],
+                                    loc: {
+                                        start: { line: 1, column: 24 },
+                                        end: { line: 1, column: 26 }
+                                    }
+                                }, {
+                                    type: 'Literal',
+                                    value: 42,
+                                    raw: '42',
+                                    range: [27, 29],
+                                    loc: {
+                                        start: { line: 1, column: 27 },
+                                        end: { line: 1, column: 29 }
+                                    }
+                                }],
+                                range: [24, 29],
+                                loc: {
+                                    start: { line: 1, column: 24 },
+                                    end: { line: 1, column: 29 }
+                                }
+                            },
+                            delegate: true,
+                            range: [16, 30],
+                            loc: {
+                                start: { line: 1, column: 16 },
+                                end: { line: 1, column: 30 }
+                            }
+                        },
+                        range: [16, 31],
+                        loc: {
+                            start: { line: 1, column: 16 },
+                            end: { line: 1, column: 31 }
+                        }
+                    }],
+                    range: [14, 33],
+                    loc: {
+                        start: { line: 1, column: 14 },
+                        end: { line: 1, column: 33 }
+                    }
+                },
+                rest: null,
+                generator: true,
+                expression: false,
+                range: [0, 33],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 33 }
+                }
+            }],
+            range: [0, 33],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 33 }
+            }
+        },
+
         'function* a() {\n    yield 1;\n}': {
             generateFrom:           {
                 type: 'Program',

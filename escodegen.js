@@ -1008,18 +1008,21 @@
             result = parenthesize(result, Precedence.Unary, precedence);
             break;
 
-        case Syntax.YieldExpression:  // nearly same as Return
+        case Syntax.YieldExpression:
+            if (expr.delegate) {
+                result = 'yield*';
+            } else {
+                result = 'yield';
+            }
             if (expr.argument) {
-                result = [join(
-                    'yield',
+                result = join(
+                    result,
                     generateExpression(expr.argument, {
-                        precedence: Precedence.Sequence,
+                        precedence: Precedence.Assignment,
                         allowIn: true,
                         allowCall: true
                     })
-                )];
-            } else {
-                result = 'yield';
+                );
             }
             break;
 
