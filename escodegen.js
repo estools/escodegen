@@ -32,7 +32,7 @@
 */
 
 /*jslint bitwise:true */
-/*global escodegen:true, exports:true, generateStatement:true, generateFunctionBody:true, process:true, require:true, define:true*/
+/*global escodegen:true, exports:true, generateStatement:true, generateExpression:true, generateFunctionBody:true, process:true, require:true, define:true*/
 
 (function (factory, global) {
     'use strict';
@@ -1368,16 +1368,16 @@
             if (stmt.init) {
                 if (stmt.id.type === "ObjectPattern") {
                     result = [
-                        generateExpression(stmt.id,{
-                              precedence: Precedence.Assignment,
-                              allowIn: allowIn,
-                              allowCall: true
+                        generateExpression(stmt.id, {
+                            precedence: Precedence.Assignment,
+                            allowIn: allowIn,
+                            allowCall: true
                         }) + space + '=' + space,
                         generateExpression(stmt.init, {
-                              precedence: Precedence.Assignment,
-                              allowIn: allowIn,
-                              allowCall: true
-                          })
+                            precedence: Precedence.Assignment,
+                            allowIn: allowIn,
+                            allowCall: true
+                        })
                     ];
                 } else { // id.type = Identifier
                     result = [
