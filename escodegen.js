@@ -782,8 +782,7 @@
     }
 
     function generateExpression(expr, option) {
-        var result, precedence, currentPrecedence, i, len, raw, fragment, multiline, leftChar, leftSource, rightChar, rightSource, allowIn, allowCall, allowUnparenthesizedNew;
-        var k,v;
+        var result, precedence, currentPrecedence, i, len, raw, fragment, multiline, leftChar, leftSource, rightChar, rightSource, allowIn, allowCall, allowUnparenthesizedNew, property, key, value;
 
         precedence = option.precedence;
         allowIn = option.allowIn;
@@ -1115,19 +1114,27 @@
                     generateFunctionBody(expr.value)
                 ];
             } else {
-                result = [
-                    generateExpression(expr.key, {
+                if (expr.shorthand) {
+                    result = generateExpression(expr.key, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
-                    }),
-                    ':' + space,
-                    generateExpression(expr.value, {
-                        precedence: Precedence.Assignment,
-                        allowIn: true,
-                        allowCall: true
-                    })
-                ];
+                    });
+                } else {
+                    result = [
+                        generateExpression(expr.key, {
+                            precedence: Precedence.Sequence,
+                            allowIn: true,
+                            allowCall: true
+                        }),
+                        ':' + space,
+                        generateExpression(expr.value, {
+                            precedence: Precedence.Assignment,
+                            allowIn: true,
+                            allowCall: true
+                        })
+                    ];
+                }
             }
             break;
 
@@ -1159,29 +1166,41 @@
             break;
 
         case Syntax.ObjectPattern:
+            // A little different from ObjectExpression
+            // And for future difference, we split this.
             if (!expr.properties.length) {
                 result = '{}';
                 break;
             }
-            result = ['{', ];
-            //previousBase = base;
-            //base += indent;
-            for (i = 0, len = expr.properties.length; i < len; i += 1) {
-                k = expr.properties[i].key.name;
-                v = expr.properties[i].value.name;
-                if (k == v) {
-                    result.push(k);
-                } else {
-                    result.push(k);
-                    result.push(':');
-                    result.push(v);
-                }
-                if (i + 1 < len) {
-                    result.push(',');
+            multiline = false;
+            if (expr.properties.length > 1) {
+                for (i = 0, len = expr.properties.length; i < len; i += 1) {
+                    property = expr.properties[i];
+                    if (!property.shorthand) {
+                        multiline = true;
+                        break;
+                    }
                 }
             }
-            //base = previousBase;
-            result.push('}');
+            result = ['{', multiline ? newline : ''];
+
+            withIndent(function (indent) {
+                for (i = 0, len = expr.properties.length; i < len; i += 1) {
+                    result.push(multiline ? indent : '', generateExpression(expr.properties[i], {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }));
+                    if (i + 1 < len) {
+                        result.push(',' + (multiline ? newline : space));
+                    }
+                }
+            });
+
+            if (multiline && !endsWithLineTerminator(toSourceNode(result).toString())) {
+                result.push(newline);
+            }
+            result.push(multiline ? base : '', '}');
             break;
 
         case Syntax.ThisExpression:
