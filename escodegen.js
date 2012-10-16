@@ -32,7 +32,7 @@
 */
 
 /*jslint bitwise:true */
-/*global escodegen:true, exports:true, generateStatement:true, process:true, require:true, define:true*/
+/*global escodegen:true, exports:true, generateStatement:true, generateFunctionBody:true, process:true, require:true, define:true*/
 
 (function (factory, global) {
     'use strict';
@@ -1576,7 +1576,7 @@
             break;
 
         case Syntax.FunctionDeclaration:
-            result = [( stmt.generator ? 'function* ':'function ' ) + stmt.id.name, generateFunctionBody(stmt)];
+            result = [(stmt.generator ? 'function* ' : 'function ') + stmt.id.name, generateFunctionBody(stmt)];
             break;
 
         case Syntax.ReturnStatement:
@@ -1814,8 +1814,7 @@
         VariableDeclarator: ['id', 'init'],
         WhileStatement: ['test', 'body'],
         WithStatement: ['object', 'body'],
-        YieldExpression: ['argument'],
-
+        YieldExpression: ['argument']
     };
 
     VisitorOption = {
