@@ -103,6 +103,7 @@
         MemberExpression: 'MemberExpression',
         NewExpression: 'NewExpression',
         ObjectExpression: 'ObjectExpression',
+        ObjectPattern: 'ObjectPattern',
         Program: 'Program',
         Property: 'Property',
         ReturnStatement: 'ReturnStatement',
@@ -782,6 +783,7 @@
 
     function generateExpression(expr, option) {
         var result, precedence, currentPrecedence, i, len, raw, fragment, multiline, leftChar, leftSource, rightChar, rightSource, allowIn, allowCall, allowUnparenthesizedNew;
+        var k,v;
 
         precedence = option.precedence;
         allowIn = option.allowIn;
@@ -1156,6 +1158,32 @@
             result.push(multiline ? base : '', '}');
             break;
 
+        case Syntax.ObjectPattern:
+            if (!expr.properties.length) {
+                result = '{}';
+                break;
+            }
+            result = ['{', ];
+            //previousBase = base;
+            //base += indent;
+            for (i = 0, len = expr.properties.length; i < len; i += 1) {
+                k = expr.properties[i].key.name;
+                v = expr.properties[i].value.name;
+                if (k == v) {
+                    result.push(k);
+                } else {
+                    result.push(k);
+                    result.push(':');
+                    result.push(v);
+                }
+                if (i + 1 < len) {
+                    result.push(',');
+                }
+            }
+            //base = previousBase;
+            result.push('}');
+            break;
+
         case Syntax.ThisExpression:
             result = 'this';
             break;
@@ -1319,14 +1347,29 @@
 
         case Syntax.VariableDeclarator:
             if (stmt.init) {
-                result = [
-                    stmt.id.name + space + '=' + space,
-                    generateExpression(stmt.init, {
-                        precedence: Precedence.Assignment,
-                        allowIn: allowIn,
-                        allowCall: true
-                    })
-                ];
+                if (stmt.id.type === "ObjectPattern") {
+                    result = [
+                        generateExpression(stmt.id,{
+                              precedence: Precedence.Assignment,
+                              allowIn: allowIn,
+                              allowCall: true
+                        }) + space + '=' + space,
+                        generateExpression(stmt.init, {
+                              precedence: Precedence.Assignment,
+                              allowIn: allowIn,
+                              allowCall: true
+                          })
+                    ];
+                } else { // id.type = Identifier
+                    result = [
+                        stmt.id.name + space + '=' + space,
+                        generateExpression(stmt.init, {
+                            precedence: Precedence.Assignment,
+                            allowIn: allowIn,
+                            allowCall: true
+                        })
+                    ];
+                }
             } else {
                 result = stmt.id.name;
             }
@@ -1743,6 +1786,7 @@
         case Syntax.MemberExpression:
         case Syntax.NewExpression:
         case Syntax.ObjectExpression:
+        case Syntax.ObjectPattern:
         case Syntax.Property:
         case Syntax.SequenceExpression:
         case Syntax.ThisExpression:
@@ -1802,6 +1846,7 @@
         MemberExpression: ['object', 'property'],
         NewExpression: ['callee', 'arguments'],
         ObjectExpression: ['properties'],
+        ObjectPattern: ['properties'],
         Program: ['body'],
         Property: ['key', 'value'],
         ReturnStatement: ['argument'],
