@@ -14698,7 +14698,6 @@ data = {
             },
             tokens: []
         }
-
     },
 
     'Yield (with star, harmony proposed)': {
@@ -14766,6 +14765,192 @@ data = {
                 loc: {
                     start: { line: 1, column: 0 },
                     end: { line: 1, column: 23 }
+                }
+            }
+        }
+    },
+
+    'Expression Closures': {  // these all break right now
+        'function a() 1': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'FunctionDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'a',
+                        range: [9, 10],
+                        loc: {
+                            start: { line: 1, column: 9 },
+                            end: { line: 1, column: 10 }
+                        }
+                    },
+                    params: [],
+                    defaults: [],
+                    body: {
+                        type: 'Literal',
+                        value: 1,
+                        raw: '1',
+                        range: [13, 14],
+                        loc: {
+                            start: { line: 1, column: 13 },
+                            end: { line: 1, column: 14 }
+                        }
+                    },
+                    rest: null,
+                    generator: false,
+                    expression: true,
+                    range: [0, 14],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 14 }
+                    }
+                }],
+                range: [0, 14],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 14 }
+                }
+            }
+        },
+        'function a() {\n}': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'FunctionDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'a',
+                        range: [9, 10],
+                        loc: {
+                            start: { line: 1, column: 9 },
+                            end: { line: 1, column: 10 }
+                        }
+                    },
+                    params: [],
+                    defaults: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [],
+                        range: [13, 15],
+                        loc: {
+                            start: { line: 1, column: 13 },
+                            end: { line: 1, column: 15 }
+                        }
+                    },
+                    rest: null,
+                    generator: false,
+                    expression: false,
+                    range: [0, 15],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 15 }
+                    }
+                }],
+                range: [0, 15],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 15 }
+                }
+            }
+        },
+        'function a() my()': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'FunctionDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'a',
+                        range: [9, 10],
+                        loc: {
+                            start: { line: 1, column: 9 },
+                            end: { line: 1, column: 10 }
+                        }
+                    },
+                    params: [],
+                    defaults: [],
+                    body: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Identifier',
+                            name: 'my',
+                            range: [13, 15],
+                            loc: {
+                                start: { line: 1, column: 13 },
+                                end: { line: 1, column: 15 }
+                            }
+                        },
+                        'arguments': [],
+                        range: [13, 17],
+                        loc: {
+                            start: { line: 1, column: 13 },
+                            end: { line: 1, column: 17 }
+                        }
+                    },
+                    rest: null,
+                    generator: false,
+                    expression: true,
+                    range: [0, 17],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 17 }
+                    }
+                }],
+                range: [0, 17],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 17 }
+                }
+            }
+        },
+        '[function () 1];': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrayExpression',
+                        elements: [{
+                            type: 'FunctionExpression',
+                            id: null,
+                            params: [],
+                            defaults: [],
+                            body: {
+                                type: 'Literal',
+                                value: 1,
+                                raw: '1',
+                                range: [13, 14],
+                                loc: {
+                                    start: { line: 1, column: 13 },
+                                    end: { line: 1, column: 14 }
+                                }
+                            },
+                            rest: null,
+                            generator: false,
+                            expression: true,
+                            range: [1, 14],
+                            loc: {
+                                start: { line: 1, column: 1 },
+                                end: { line: 1, column: 14 }
+                            }
+                        }],
+                        range: [0, 15],
+                        loc: {
+                            start: { line: 1, column: 0 },
+                            end: { line: 1, column: 15 }
+                        }
+                    },
+                    range: [0, 15],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 15 }
+                    }
+                }],
+                range: [0, 15],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 15 }
                 }
             }
         }
