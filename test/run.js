@@ -37,6 +37,7 @@
     suites = [
         'test',
         'harmony',
+        'moz',
         'api',
         'options',
         'comment',

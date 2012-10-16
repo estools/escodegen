@@ -203,6 +203,9 @@
                 semicolons: true,
                 safeConcatenation: false
             },
+            moz: {
+                starlessGenerator: false
+            },
             sourceMap: null,
             sourceMapWithCode: false,
             directive: false
@@ -1696,7 +1699,7 @@
             break;
 
         case Syntax.FunctionDeclaration:
-            result = [(stmt.generator ? 'function* ' : 'function ') + stmt.id.name, generateFunctionBody(stmt)];
+            result = [(stmt.generator && !extra.moz.starlessGenerator ? 'function* ' : 'function ') + stmt.id.name, generateFunctionBody(stmt)];
             break;
 
         case Syntax.ReturnStatement:

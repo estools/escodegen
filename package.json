@@ -26,6 +26,9 @@
     "optionalDependencies": {
         "source-map": ">= 0.1.2"
     },
+    "devDependencies": {
+        "esprima-moz": "*"
+    },
     "licenses": [{
         "type": "BSD",
         "url": "http://github.com/Constellation/escodegen/raw/master/LICENSE.BSD"
