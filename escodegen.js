@@ -117,7 +117,9 @@
         VariableDeclaration: 'VariableDeclaration',
         VariableDeclarator: 'VariableDeclarator',
         WhileStatement: 'WhileStatement',
-        WithStatement: 'WithStatement'
+        WithStatement: 'WithStatement',
+        YieldExpression: 'YieldExpression',
+
     };
 
     Precedence = {
@@ -991,6 +993,21 @@
             result = parenthesize(result, Precedence.Unary, precedence);
             break;
 
+        case Syntax.YieldExpression:  // nearly same as Return
+            if (expr.argument) {
+                result = [join(
+                    'yield',
+                    generateExpression(expr.argument, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    })
+                )];
+            } else {
+                result = 'yield';
+            }
+            break;
+
         case Syntax.UpdateExpression:
             if (expr.prefix) {
                 result = parenthesize(
@@ -1543,7 +1560,7 @@
             break;
 
         case Syntax.FunctionDeclaration:
-            result = ['function ' + stmt.id.name, generateFunctionBody(stmt)];
+            result = [( stmt.generator ? 'function* ':'function ' ) + stmt.id.name, generateFunctionBody(stmt)];
             break;
 
         case Syntax.ReturnStatement:
@@ -1712,6 +1729,8 @@
         case Syntax.ThisExpression:
         case Syntax.UnaryExpression:
         case Syntax.UpdateExpression:
+        case Syntax.YieldExpression:
+
             result = generateExpression(node, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
@@ -1778,7 +1797,9 @@
         VariableDeclaration: ['declarations'],
         VariableDeclarator: ['id', 'init'],
         WhileStatement: ['test', 'body'],
-        WithStatement: ['object', 'body']
+        WithStatement: ['object', 'body'],
+        YieldExpression: ['argument'],
+
     };
 
     VisitorOption = {
