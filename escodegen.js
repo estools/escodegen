@@ -764,7 +764,7 @@
     }
 
     function generateVerbatim(expr) {
-        return expr[extra.verbatim];
+        return '(' + expr[extra.verbatim] + ')';
     }
 
     function generateFunctionBody(node) {
