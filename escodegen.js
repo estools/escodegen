@@ -209,7 +209,8 @@
             },
             sourceMap: null,
             sourceMapWithCode: false,
-            directive: false
+            directive: false,
+            verbatim: null
         };
     }
 
@@ -762,6 +763,10 @@
         return [result, newline, base];
     }
 
+    function generateVerbatim(expr) {
+        return expr[extra.verbatim];
+    }
+
     function generateFunctionBody(node) {
         var result, i, len, expr;
         result = ['('];
@@ -796,6 +801,10 @@
         precedence = option.precedence;
         allowIn = option.allowIn;
         allowCall = option.allowCall;
+
+        if (extra.verbatim && expr.hasOwnProperty(extra.verbatim)) {
+            return generateVerbatim(expr);
+        }
 
         switch (expr.type) {
         case Syntax.SequenceExpression:
