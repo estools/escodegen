@@ -44,6 +44,7 @@
         'compare',
         'directive',
         'identity',
+        'verbatim'
     ];
 
     function nextTest() {
