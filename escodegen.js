@@ -763,8 +763,15 @@
         return [result, newline, base];
     }
 
-    function generateVerbatim(expr) {
-        return '(' + expr[extra.verbatim] + ')';
+    function generateVerbatim(expr, option) {
+        var i, result;
+        result = expr[extra.verbatim].split(/\r\n|\n/);
+        for (i = 1; i < result.length; i++) {
+            result[i] = newline + base + result[i];
+        }
+
+        result = parenthesize(result, Precedence.Assignment, option.precedence);
+        return toSourceNode(result, expr);
     }
 
     function generateFunctionBody(node) {
@@ -803,7 +810,7 @@
         allowCall = option.allowCall;
 
         if (extra.verbatim && expr.hasOwnProperty(extra.verbatim)) {
-            return generateVerbatim(expr);
+            return generateVerbatim(expr, option);
         }
 
         switch (expr.type) {
