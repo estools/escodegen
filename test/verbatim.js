@@ -71,7 +71,7 @@ data = {
             left: { type: 'Literal', value: true },
             right: make_eval('foo')
         },
-        "var a = window.location.href;": {
+        "var a = (window.location.href);": {
             type: 'VariableDeclaration',
             kind: 'var',
             declarations: [{
@@ -91,6 +91,20 @@ data = {
                     expression: make_eval("foo('bar');\nfoo('baz')")
                 }]
             }
+        },
+        // Embedded into sequences
+        "foo(a, (10, 20), b)": {
+            type: 'CallExpression',
+            callee: { type: 'Identifier', name: 'foo' },
+            arguments: [{
+                type: 'Identifier',
+                name: 'a'
+            },
+            make_eval('10, 20'),
+            {
+                type: 'Identifier',
+                name: 'b'
+            }]
         }
     }
 };

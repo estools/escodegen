@@ -770,7 +770,7 @@
             result[i] = newline + base + result[i];
         }
 
-        result = parenthesize(result, Precedence.Assignment, option.precedence);
+        result = parenthesize(result, Precedence.Sequence, option.precedence);
         return toSourceNode(result, expr);
     }
 
