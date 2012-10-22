@@ -21,7 +21,7 @@
         "url": "http://github.com/Constellation/escodegen.git"
     },
     "dependencies": {
-        "esprima": ">= 0.9.9"
+        "esprima": ">= 1.0.0"
     },
     "optionalDependencies": {
         "source-map": ">= 0.1.2"
