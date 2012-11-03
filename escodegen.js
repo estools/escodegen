@@ -1237,8 +1237,14 @@
                 result = '{}';
                 break;
             }
+
             multiline = false;
-            if (expr.properties.length > 1) {
+            if (expr.properties.length === 1) {
+                property = expr.properties[0];
+                if (property.value.type !== Syntax.Identifier) {
+                    multiline = true;
+                }
+            } else {
                 for (i = 0, len = expr.properties.length; i < len; i += 1) {
                     property = expr.properties[i];
                     if (!property.shorthand) {
@@ -1247,7 +1253,7 @@
                     }
                 }
             }
-            result = ['{', multiline ? newline : ''];
+            result = ['{', multiline ? newline : '' ];
 
             withIndent(function (indent) {
                 for (i = 0, len = expr.properties.length; i < len; i += 1) {

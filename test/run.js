@@ -42,6 +42,7 @@
         'options',
         'comment',
         'compare',
+        'compare-harmony',
         'directive',
         'identity',
         'verbatim'
