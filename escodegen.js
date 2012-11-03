@@ -303,6 +303,10 @@
         return this;
     };
 
+    function hasLineTerminator(str) {
+        return /[\r\n]/g.test(str);
+    }
+
     function endsWithLineTerminator(str) {
         var ch = str.charAt(str.length - 1);
         return ch === '\r' || ch === '\n';
@@ -1180,30 +1184,55 @@
                 break;
             }
             multiline = expr.properties.length > 1;
-            result = ['{', multiline ? newline : ''];
 
             withIndent(function (indent) {
-                for (i = 0, len = expr.properties.length; i < len; i += 1) {
-                    result.push(multiline ? indent : '', generateExpression(expr.properties[i], {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }));
-                    if (i + 1 < len) {
-                        result.push(',' + (multiline ? newline : space));
+                fragment = generateExpression(expr.properties[0], {
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                });
+            });
+
+            if (!multiline) {
+                // issues 4
+                // Do not transform from
+                //   dejavu.Class.declare({
+                //       method2: function () {}
+                //   });
+                // to
+                //   dejavu.Class.declare({method2: function () {
+                //       }});
+                if (!hasLineTerminator(toSourceNode(fragment).toString())) {
+                    result = [ '{', space, fragment, space, '}' ];
+                    break;
+                }
+            }
+
+            withIndent(function (indent) {
+                result = [ '{', newline, indent, fragment ];
+
+                if (multiline) {
+                    result.push(',' + newline);
+                    for (i = 1, len = expr.properties.length; i < len; i += 1) {
+                        result.push(indent, generateExpression(expr.properties[i], {
+                            precedence: Precedence.Sequence,
+                            allowIn: true,
+                            allowCall: true
+                        }));
+                        if (i + 1 < len) {
+                            result.push(',' + newline);
+                        }
                     }
                 }
             });
 
-            if (multiline && !endsWithLineTerminator(toSourceNode(result).toString())) {
+            if (!endsWithLineTerminator(toSourceNode(result).toString())) {
                 result.push(newline);
             }
-            result.push(multiline ? base : '', '}');
+            result.push(base, '}');
             break;
 
         case Syntax.ObjectPattern:
-            // A little different from ObjectExpression
-            // And for future difference, we split this.
             if (!expr.properties.length) {
                 result = '{}';
                 break;
