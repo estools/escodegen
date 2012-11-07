@@ -701,7 +701,6 @@
         if (stmt.trailingComments) {
             tailingToStatement = !endsWithLineTerminator(toSourceNode(result).toString());
             specialBase = stringRepeat(' ', calculateSpaces(toSourceNode([base, result, indent]).toString()));
-            result = isArray(result) ? result : [result];
             for (i = 0, len = stmt.trailingComments.length; i < len; i += 1) {
                 comment = stmt.trailingComments[i];
                 if (tailingToStatement) {
@@ -712,16 +711,16 @@
                     //               */
                     if (i === 0) {
                         // first case
-                        result.push(indent);
+                        result = [result, indent];
                     } else {
-                        result.push(specialBase);
+                        result = [result, specialBase];
                     }
                     result.push(generateComment(comment, specialBase));
                 } else {
-                    result.push(addIndent(generateComment(comment)));
+                    result = [result, addIndent(generateComment(comment))];
                 }
                 if (i !== len - 1 && !endsWithLineTerminator(toSourceNode(result).toString())) {
-                    result.push('\n');
+                    result = [result, '\n'];
                 }
             }
         }
