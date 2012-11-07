@@ -711,16 +711,16 @@
                     //               */
                     if (i === 0) {
                         // first case
-                        result.push(indent);
+                        result = [result, indent];
                     } else {
-                        result.push(specialBase);
+                        result = [result, specialBase];
                     }
                     result.push(generateComment(comment, specialBase));
                 } else {
-                    result.push(addIndent(generateComment(comment)));
+                    result = [result, addIndent(generateComment(comment))];
                 }
                 if (i !== len - 1 && !endsWithLineTerminator(toSourceNode(result).toString())) {
-                    result.push('\n');
+                    result = [result, '\n'];
                 }
             }
         }
