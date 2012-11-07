@@ -701,6 +701,7 @@
         if (stmt.trailingComments) {
             tailingToStatement = !endsWithLineTerminator(toSourceNode(result).toString());
             specialBase = stringRepeat(' ', calculateSpaces(toSourceNode([base, result, indent]).toString()));
+            result = isArray(result) ? result : [result];
             for (i = 0, len = stmt.trailingComments.length; i < len; i += 1) {
                 comment = stmt.trailingComments[i];
                 if (tailingToStatement) {
