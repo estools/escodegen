@@ -806,17 +806,18 @@
     }
 
     function generateExpression(expr, option) {
-        var result, precedence, currentPrecedence, i, len, raw, fragment, multiline, leftChar, leftSource, rightChar, rightSource, allowIn, allowCall, allowUnparenthesizedNew, property, key, value;
+        var result, precedence, type, currentPrecedence, i, len, raw, fragment, multiline, leftChar, leftSource, rightChar, rightSource, allowIn, allowCall, allowUnparenthesizedNew, property, key, value;
 
         precedence = option.precedence;
         allowIn = option.allowIn;
         allowCall = option.allowCall;
+        type = expr.type || option.type;
 
         if (extra.verbatim && expr.hasOwnProperty(extra.verbatim)) {
             return generateVerbatim(expr, option);
         }
 
-        switch (expr.type) {
+        switch (type) {
         case Syntax.SequenceExpression:
             result = [];
             allowIn |= (Precedence.Sequence < precedence);
@@ -1188,7 +1189,8 @@
                 fragment = generateExpression(expr.properties[0], {
                     precedence: Precedence.Sequence,
                     allowIn: true,
-                    allowCall: true
+                    allowCall: true,
+                    type: Syntax.Property
                 });
             });
 
@@ -1216,7 +1218,8 @@
                         result.push(indent, generateExpression(expr.properties[i], {
                             precedence: Precedence.Sequence,
                             allowIn: true,
-                            allowCall: true
+                            allowCall: true,
+                            type: Syntax.Property
                         }));
                         if (i + 1 < len) {
                             result.push(',' + newline);
