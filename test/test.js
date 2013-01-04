@@ -845,6 +845,32 @@ data = {
             }
         },
 
+        'x = { answer: 4 }': {
+            type: 'ExpressionStatement',
+            expression: {
+                type: 'AssignmentExpression',
+                operator: '=',
+                left: {
+                    type: 'Identifier',
+                    name: 'x'
+                },
+                right: {
+                    type: 'ObjectExpression',
+                    properties: [{
+                        key: {
+                            type: 'Identifier',
+                            name: 'answer'
+                        },
+                        value: {
+                            type: 'Literal',
+                            value: 4
+                        },
+                        kind: 'init'
+                    }]
+                }
+            }
+        },
+
         'x = { answer: 42 }': {
             type: 'ExpressionStatement',
             expression: {
