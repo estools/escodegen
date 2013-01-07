@@ -207,6 +207,7 @@
                 parenthesizedComprehensionBlock: false
             },
             sourceMap: null,
+            sourceMapRoot: null,
             sourceMapWithCode: false,
             directive: false,
             verbatim: null
@@ -1958,7 +1959,10 @@
             return result.toString();
         }
 
-        pair = result.toStringWithSourceMap({file: options.sourceMap});
+        pair = result.toStringWithSourceMap({
+            file: options.sourceMap,
+            sourceRoot: options.sourceMapRoot
+        });
 
         if (options.sourceMapWithCode) {
             return pair;
