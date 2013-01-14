@@ -73,7 +73,10 @@
         directive,
         extra,
         parse,
-        sourceMap;
+        sourceMap,
+        traverse;
+
+    traverse = require('estraverse').traverse;
 
     Syntax = {
         AssignmentExpression: 'AssignmentExpression',
@@ -2024,62 +2027,6 @@
         Skip: 2
     };
 
-    function traverse(top, visitor) {
-        var worklist, leavelist, node, ret, current, current2, candidates, candidate, marker = {};
-
-        worklist = [ top ];
-        leavelist = [ null ];
-
-        while (worklist.length) {
-            node = worklist.pop();
-
-            if (node === marker) {
-                node = leavelist.pop();
-                if (visitor.leave) {
-                    ret = visitor.leave(node, leavelist[leavelist.length - 1]);
-                } else {
-                    ret = undefined;
-                }
-                if (ret === VisitorOption.Break) {
-                    return;
-                }
-            } else if (node) {
-                if (visitor.enter) {
-                    ret = visitor.enter(node, leavelist[leavelist.length - 1]);
-                } else {
-                    ret = undefined;
-                }
-
-                if (ret === VisitorOption.Break) {
-                    return;
-                }
-
-                worklist.push(marker);
-                leavelist.push(node);
-
-                if (ret !== VisitorOption.Skip) {
-                    candidates = VisitorKeys[node.type];
-                    current = candidates.length;
-                    while ((current -= 1) >= 0) {
-                        candidate = node[candidates[current]];
-                        if (candidate) {
-                            if (isArray(candidate)) {
-                                current2 = candidate.length;
-                                while ((current2 -= 1) >= 0) {
-                                    if (candidate[current2]) {
-                                        worklist.push(candidate[current2]);
-                                    }
-                                }
-                            } else {
-                                worklist.push(candidate);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     // based on LLVM libc++ upper_bound / lower_bound
     // MIT License
 
@@ -2245,7 +2192,6 @@
     exports.version = '0.0.16-dev';
 
     exports.generate = generate;
-    exports.traverse = traverse;
     exports.attachComments = attachComments;
 
 }, this));
