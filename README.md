@@ -9,7 +9,7 @@ See [online generator demo](http://constellation.github.com/escodegen/demo/index
 
 Escodegen can be used in a web browser:
 
-    <script src="escodegen.js"></script>
+    <script src="escodegen.browser.js"></script>
 
 or in a Node.js application via the package manager:
 
