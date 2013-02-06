@@ -797,7 +797,11 @@ var data = [{
         'if(cond){stmt;}else if(cond)for(;;)stmt;': 'if(cond){stmt}else if(cond)for(;;)stmt',
         'if(cond){stmt;}else if(cond);': 'if(cond){stmt}else if(cond);',
         'do ; while(cond);': 'do;while(cond)',
-        'while(cond);': 'while(cond);'
+        'while(cond);': 'while(cond);',
+        '/a/\nwhile(cond); ': '/a/;while(cond);',
+        '/a/ instanceof b': '/a/ instanceof b',
+        '/a/ in b': '/a/ in b',
+        '[] in b': '[]in b'
     }
 }, {
     options: {
