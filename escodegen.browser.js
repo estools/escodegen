@@ -469,7 +469,7 @@ require.define("/escodegen.js",function(require,module,exports,__dirname,__filen
 */
 
 /*jslint bitwise:true */
-/*global escodegen:true, exports:true, generateStatement:true, generateExpression:true, generateFunctionBody:true, process:true, require:true, define:true*/
+/*global escodegen:true, exports:true, generateStatement:true, generateExpression:true, generateFunctionBody:true, process:true, require:true, define:true, global:true*/
 (function () {
     'use strict';
 
@@ -547,7 +547,7 @@ require.define("/escodegen.js",function(require,module,exports,__dirname,__filen
         VariableDeclarator: 'VariableDeclarator',
         WhileStatement: 'WhileStatement',
         WithStatement: 'WithStatement',
-        YieldExpression: 'YieldExpression',
+        YieldExpression: 'YieldExpression'
 
     };
 
@@ -730,7 +730,7 @@ require.define("/escodegen.js",function(require,module,exports,__dirname,__filen
     };
 
     function hasLineTerminator(str) {
-        return /[\r\n]/g.test(str);
+        return (/[\r\n]/g).test(str);
     }
 
     function endsWithLineTerminator(str) {
@@ -1315,14 +1315,19 @@ require.define("/escodegen.js",function(require,module,exports,__dirname,__filen
 
             allowIn |= (currentPrecedence < precedence);
 
-            result = join(
-                generateExpression(expr.left, {
-                    precedence: currentPrecedence,
-                    allowIn: allowIn,
-                    allowCall: true
-                }),
-                expr.operator
-            );
+            fragment = generateExpression(expr.left, {
+                precedence: currentPrecedence,
+                allowIn: allowIn,
+                allowCall: true
+            });
+
+            leftSource = fragment.toString();
+
+            if (leftSource.charAt(leftSource.length - 1) === '/' && isIdentifierPart(expr.operator.charAt(0))) {
+                result = [fragment, ' ', expr.operator];
+            } else {
+                result = join(fragment, expr.operator);
+            }
 
             fragment = generateExpression(expr.right, {
                 precedence: currentPrecedence + 1,
@@ -2613,7 +2618,7 @@ require.define("/escodegen.js",function(require,module,exports,__dirname,__filen
     }
 
     // Sync with package.json.
-    exports.version = '0.0.16-dev';
+    exports.version = '0.0.16';
 
     exports.generate = generate;
     exports.attachComments = attachComments;
