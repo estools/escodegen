@@ -2180,7 +2180,7 @@
     }
 
     // Sync with package.json.
-    exports.version = '0.0.18-dev';
+    exports.version = '0.0.19-dev';
 
     exports.generate = generate;
     exports.attachComments = attachComments;
