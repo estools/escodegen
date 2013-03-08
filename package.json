@@ -32,7 +32,9 @@
     "devDependencies": {
         "esprima-moz": "*",
         "browserify": "*",
-        "q": "*"
+        "q": "*",
+        "bower": "*",
+        "semver": "*"
     },
     "licenses": [
         {
