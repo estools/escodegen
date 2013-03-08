@@ -31,7 +31,6 @@ var fs = require('fs'),
     esprima = require('esprima'),
     escodegen = require(root),
     child_process = require('child_process'),
-    falafel = require('falafel'),
     Q = require('q');
 
 function exec(cmd) {
@@ -64,28 +63,6 @@ function exec(cmd) {
     exec('git branch -D ' + version)
     .then(function () {
         return exec('git checkout -b ' + version);
-    })
-    .then(function updateScriptVersion() {
-        // use falafel for partial modification
-        var code, output, filename;
-
-        filename = path.join(root, 'escodegen.js');
-
-        src = fs.readFileSync(filename, 'utf-8');
-
-        // exports.version = 'X.X.X-dev';
-        output = falafel(src, function (node) {
-            if (node.type === 'AssignmentExpression' &&
-                node.operator === '=' &&
-                node.left.type === 'MemberExpression' && node.left.computed === false &&
-                node.left.object.type === 'Identifier' && node.left.object.name === 'exports' &&
-                node.left.property.type === 'Identifier' && node.left.property.name === 'version' &&
-                node.right.type === 'Literal' && node.right.value === devVersion) {
-                node.right.update('\'' + version + '\'');
-            }
-        });
-
-        fs.writeFileSync(filename, output, 'utf-8');
     })
     .then(function browserify() {
         return exec('npm run-script build');
