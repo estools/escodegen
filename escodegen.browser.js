@@ -2617,9 +2617,7 @@ require.define("/escodegen.js",function(require,module,exports,__dirname,__filen
         return tree;
     }
 
-    // Sync with package.json.
-    exports.version = '0.0.17';
-
+    exports.version = require('./package.json').version;
     exports.generate = generate;
     exports.attachComments = attachComments;
     exports.browser = false;
