@@ -2179,9 +2179,7 @@
         return tree;
     }
 
-    // Sync with package.json.
-    exports.version = '0.0.19-dev';
-
+    exports.version = require('./package.json').version;
     exports.generate = generate;
     exports.attachComments = attachComments;
     exports.browser = false;
