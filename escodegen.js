@@ -422,8 +422,8 @@
                 result += 'u' + '0000'.slice(hex.length) + hex;
             } else if (ch === '\u0000' && '0123456789'.indexOf(next) < 0) {
                 result += '0';
-            } else if (ch === '\v') {
-                result += 'v';
+            } else if (ch === '\x0B') { // '\v'
+                result += 'x0B';
             } else {
                 result += 'x' + '00'.slice(hex.length) + hex;
             }
@@ -528,7 +528,8 @@
     }
 
     function isWhiteSpace(ch) {
-        return '\t\v\f \xa0'.indexOf(ch) >= 0 || (ch.charCodeAt(0) >= 0x1680 && '\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff'.indexOf(ch) >= 0);
+        // Use `\x0B` instead of `\v` for IE < 9 compatibility
+        return '\t\x0B\f \xa0'.indexOf(ch) >= 0 || (ch.charCodeAt(0) >= 0x1680 && '\u1680\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000\ufeff'.indexOf(ch) >= 0);
     }
 
     function isLineTerminator(ch) {
