@@ -131,6 +131,20 @@ data = {
                 },
             }],
             expected: '/\\\\u2028/i;'
+        },
+        {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Literal',
+                    value: {
+                        toString: function() { return new RegExp('', 'i').toString(); },
+                        source: ''
+                    }
+                },
+            }],
+            expected: '/(?:)/i;'
         }
     ]
 };
