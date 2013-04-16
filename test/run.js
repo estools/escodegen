@@ -44,6 +44,7 @@
         'compare',
         'compare-harmony',
         'directive',
+        'ast',
         'identity',
         'verbatim'
     ];
