@@ -1050,8 +1050,10 @@
                 }), ']');
             } else {
                 if (expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
-                    if (result.indexOf('.') < 0) {
-                        if (!/[eExX]/.test(result) && !(result.length >= 2 && result[0] === '0')) {
+                    fragment = toSourceNode(result).toString();
+                    if (fragment.indexOf('.') < 0) {
+                        if (!/[eExX]/.test(fragment) &&
+                                !(fragment.length >= 2 && fragment.charCodeAt(0) === 48)) {  // '0'
                             result.push('.');
                         }
                     }
@@ -1558,7 +1560,8 @@
             })];
             // 12.4 '{', 'function' is not allowed in this position.
             // wrap expression with parentheses
-            if (result.toString().charAt(0) === '{' || (result.toString().slice(0, 8) === 'function' && " (".indexOf(result.toString().charAt(8)) >= 0) || (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
+            fragment = toSourceNode(result).toString();
+            if (fragment.charAt(0) === '{' || (fragment.slice(0, 8) === 'function' && " (".indexOf(fragment.charAt(8)) >= 0) || (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
                 result = ['(', result, ')' + semicolon];
             } else {
                 result.push(semicolon);
