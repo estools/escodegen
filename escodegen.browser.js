@@ -842,6 +842,67 @@ require.define("/escodegen.js",function(require,module,exports,__dirname,__filen
         return result;
     }
 
+    // Generate valid RegExp expression.
+    // This function is based on https://github.com/Constellation/iv Engine
+
+    function escapeRegExpCharacter(ch, previousIsBackslash) {
+        // not handling '\' and handling \u2028 or \u2029 to unicode escape sequence
+        if ((ch & ~1) === 0x2028) {
+            return (previousIsBackslash ? 'u' : '\\u') + ((ch === 0x2028) ? '2028' : '2029');
+        } else if (ch === 10 || ch === 13) {  // \n, \r
+            return (previousIsBackslash ? '' : '\\') + ((ch === 10) ? 'n' : 'r');
+        }
+        return String.fromCharCode(ch);
+    }
+
+    function generateRegExp(reg) {
+        var match, result, flags, i, iz, ch, characterInBrack, previousIsBackslash;
+
+        result = reg.toString();
+
+        if (reg.source) {
+            // extract flag from toString result
+            match = result.match(/\/([^/]*)$/);
+            if (!match) {
+                return result;
+            }
+
+            flags = match[1];
+            result = '';
+
+            characterInBrack = false;
+            previousIsBackslash = false;
+            for (i = 0, iz = reg.source.length; i < iz; ++i) {
+                ch = reg.source.charCodeAt(i);
+
+                if (!previousIsBackslash) {
+                    if (characterInBrack) {
+                        if (ch === 93) {  // ]
+                            characterInBrack = false;
+                        }
+                    } else {
+                        if (ch === 47) {  // /
+                            result += '\\';
+                        } else if (ch === 91) {  // [
+                            characterInBrack = true;
+                        }
+                    }
+                    result += escapeRegExpCharacter(ch, previousIsBackslash);
+                    previousIsBackslash = ch === 92;  // \
+                } else {
+                    // if new RegExp("\\\n') is provided, create /\n/
+                    result += escapeRegExpCharacter(ch, previousIsBackslash);
+                    // prevent like /\\[/]/
+                    previousIsBackslash = false;
+                }
+            }
+
+            return '/' + result + '/' + flags;
+        }
+
+        return result;
+    }
+
     function escapeAllowedCharacter(ch, next) {
         var code = ch.charCodeAt(0), hex = code.toString(16), result = '\\';
 
@@ -1427,8 +1488,10 @@ require.define("/escodegen.js",function(require,module,exports,__dirname,__filen
                 }), ']');
             } else {
                 if (expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
-                    if (result.indexOf('.') < 0) {
-                        if (!/[eExX]/.test(result) && !(result.length >= 2 && result[0] === '0')) {
+                    fragment = toSourceNode(result).toString();
+                    if (fragment.indexOf('.') < 0) {
+                        if (!/[eExX]/.test(fragment) &&
+                                !(fragment.length >= 2 && fragment.charCodeAt(0) === 48)) {  // '0'
                             result.push('.');
                         }
                     }
@@ -1747,7 +1810,12 @@ require.define("/escodegen.js",function(require,module,exports,__dirname,__filen
                 break;
             }
 
-            result = expr.value.toString();
+            if (typeof expr.value === 'boolean') {
+                result = expr.value ? 'true' : 'false';
+                break;
+            }
+
+            result = generateRegExp(expr.value);
             break;
 
         case Syntax.ComprehensionExpression:
@@ -1930,7 +1998,8 @@ require.define("/escodegen.js",function(require,module,exports,__dirname,__filen
             })];
             // 12.4 '{', 'function' is not allowed in this position.
             // wrap expression with parentheses
-            if (result.toString().charAt(0) === '{' || (result.toString().slice(0, 8) === 'function' && " (".indexOf(result.toString().charAt(8)) >= 0) || (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
+            fragment = toSourceNode(result).toString();
+            if (fragment.charAt(0) === '{' || (fragment.slice(0, 8) === 'function' && " (".indexOf(fragment.charAt(8)) >= 0) || (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
                 result = ['(', result, ')' + semicolon];
             } else {
                 result.push(semicolon);
