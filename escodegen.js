@@ -481,7 +481,7 @@
         default:
             if (json || code > 0xff) {
                 result += 'u' + '0000'.slice(hex.length) + hex;
-            } else if (ch === '\u0000' && '0123456789'.indexOf(next) < 0) {
+            } else if (ch === '\u0000' && '01234567'.indexOf(next) < 0) {
                 result += '0';
             } else if (ch === '\x0B') { // '\v'
                 result += 'x0B';
