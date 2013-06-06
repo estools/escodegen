@@ -61,7 +61,7 @@
                     process.stderr.write(suite + ': ' + stderr);
                 }
                 if (err) {
-                    ret = err.code;
+                    ret = 1;
                 }
                 index += 1;
                 nextTest();
