@@ -1644,10 +1644,28 @@
         case Syntax.TryStatement:
             result = ['try', maybeBlock(stmt.block)];
             result = maybeBlockSuffix(stmt.block, result);
-            for (i = 0, len = stmt.handlers.length; i < len; i += 1) {
-                result = join(result, generateStatement(stmt.handlers[i]));
-                if (stmt.finalizer || i + 1 !== len) {
-                    result = maybeBlockSuffix(stmt.handlers[i].body, result);
+            if (stmt.handlers) {
+                // old interface
+                for (i = 0, len = stmt.handlers.length; i < len; i += 1) {
+                    result = join(result, generateStatement(stmt.handlers[i]));
+                    if (stmt.finalizer || i + 1 !== len) {
+                        result = maybeBlockSuffix(stmt.handlers[i].body, result);
+                    }
+                }
+            } else {
+                // new interface
+                if (stmt.handler) {
+                    result = join(result, generateStatement(stmt.handler));
+                    if (stmt.finalizer || stmt.guardedHandlers.length > 0) {
+                        result = maybeBlockSuffix(stmt.handler.body, result);
+                    }
+                }
+
+                for (i = 0, len = stmt.guardedHandlers.length; i < len; i += 1) {
+                    result = join(result, generateStatement(stmt.guardedHandlers[i]));
+                    if (stmt.finalizer || i + 1 !== len) {
+                        result = maybeBlockSuffix(stmt.guardedHandlers[i].body, result);
+                    }
                 }
             }
             if (stmt.finalizer) {

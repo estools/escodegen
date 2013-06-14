@@ -13173,6 +13173,102 @@ data = {
                 start: { line: 1, column: 0 },
                 end: { line: 1, column: 65 }
             }
+        },
+
+        'try {\n} catch (e) {\n}': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'TryStatement',
+                    block: {
+                        type: 'BlockStatement',
+                        body: []
+                    },
+                    guardedHandlers: [],
+                    handler: {
+                        type: 'CatchClause',
+                        param: {
+                            type: 'Identifier',
+                            name: 'e'
+                        },
+                        body: {
+                            type: 'BlockStatement',
+                            body: []
+                        }
+                    },
+                    finalizer: null,
+                }]
+            }
+        },
+
+        'try {\n} catch (e) {\n}': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'TryStatement',
+                    block: {
+                        type: 'BlockStatement',
+                        body: []
+                    },
+                    guardedHandlers: [],
+                    handler: {
+                        type: 'CatchClause',
+                        param: {
+                            type: 'Identifier',
+                            name: 'e'
+                        },
+                        body: {
+                            type: 'BlockStatement',
+                            body: []
+                        }
+                    },
+                    finalizer: null,
+                }]
+            }
+        },
+
+        'function t() {\n    try {\n    } catch (e) {\n    } finally {\n    }\n}': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'FunctionDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 't'
+                    },
+                    params: [],
+                    defaults: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [{
+                            type: 'TryStatement',
+                            block: {
+                                type: 'BlockStatement',
+                                body: []
+                            },
+                            guardedHandlers: [],
+                            handler: {
+                                type: 'CatchClause',
+                                param: {
+                                    type: 'Identifier',
+                                    name: 'e'
+                                },
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: []
+                                }
+                            },
+                            finalizer: {
+                                type: 'BlockStatement',
+                                body: []
+                            }
+                        }]
+                    },
+                    rest: null,
+                    generator: false,
+                    expression: false
+                }]
+            }
         }
 
     },
