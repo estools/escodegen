@@ -31,7 +31,7 @@
 */
 
 /*jslint bitwise:true */
-/*global escodegen:true, exports:true, generateStatement:true, generateExpression:true, generateFunctionBody:true, process:true, require:true, define:true, global:true*/
+/*global exports:true, generateStatement:true, generateExpression:true, require:true, global:true*/
 (function () {
     'use strict';
 
@@ -520,7 +520,7 @@
     }
 
     function escapeDirective(str) {
-        var i, iz, ch, single, buf, quote;
+        var i, iz, ch, buf, quote;
 
         buf = str;
         if (typeof buf[0] === 'undefined') {
@@ -545,7 +545,7 @@
     }
 
     function escapeString(str) {
-        var result = '', i, len, ch, next, singleQuotes = 0, doubleQuotes = 0, single;
+        var result = '', i, len, ch, singleQuotes = 0, doubleQuotes = 0, single;
 
         if (typeof str[0] === 'undefined') {
             str = stringToArray(str);
@@ -656,7 +656,7 @@
     }
 
     function adjustMultilineComment(value, specialBase) {
-        var array, i, len, line, j, ch, spaces, previousBase;
+        var array, i, len, line, j, spaces, previousBase;
 
         array = value.split(/\r\n|[\r\n]/);
         spaces = Number.MAX_VALUE;
@@ -722,7 +722,7 @@
     }
 
     function addCommentsToStatement(stmt, result) {
-        var i, len, comment, save, node, tailingToStatement, specialBase, fragment;
+        var i, len, comment, save, tailingToStatement, specialBase, fragment;
 
         if (stmt.leadingComments && stmt.leadingComments.length > 0) {
             save = result;
@@ -857,7 +857,7 @@
     }
 
     function generateExpression(expr, option) {
-        var result, precedence, type, currentPrecedence, i, len, raw, fragment, multiline, leftChar, leftSource, rightChar, rightSource, allowIn, allowCall, allowUnparenthesizedNew, property, key, value;
+        var result, precedence, type, currentPrecedence, i, len, raw, fragment, multiline, leftChar, leftSource, rightChar, allowIn, allowCall, allowUnparenthesizedNew, property;
 
         precedence = option.precedence;
         allowIn = option.allowIn;
@@ -1243,7 +1243,7 @@
             }
             multiline = expr.properties.length > 1;
 
-            withIndent(function (indent) {
+            withIndent(function () {
                 fragment = generateExpression(expr.properties[0], {
                     precedence: Precedence.Sequence,
                     allowIn: true,
@@ -1561,7 +1561,7 @@
             // 12.4 '{', 'function' is not allowed in this position.
             // wrap expression with parentheses
             fragment = toSourceNode(result).toString();
-            if (fragment.charAt(0) === '{' || (fragment.slice(0, 8) === 'function' && " (".indexOf(fragment.charAt(8)) >= 0) || (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
+            if (fragment.charAt(0) === '{' || (fragment.slice(0, 8) === 'function' && ' ('.indexOf(fragment.charAt(8)) >= 0) || (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
                 result = ['(', result, ')' + semicolon];
             } else {
                 result.push(semicolon);
