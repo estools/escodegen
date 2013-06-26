@@ -1363,7 +1363,8 @@
             }
 
             if (typeof expr.value === 'string') {
-                result = escapeString(expr.value);
+                if (expr.noEscape) { result = expr.value; }
+                else { result = escapeString(expr.value); }
                 break;
             }
 
