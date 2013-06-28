@@ -1062,7 +1062,7 @@
                         }
                     }
                 }
-                result.push('.' + expr.property.name);
+                result.push('.', generateIdentifier(expr.property));
             }
 
             result = parenthesize(result, Precedence.Member, precedence);

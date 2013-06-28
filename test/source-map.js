@@ -1,4 +1,4 @@
-var escodegen = require("../escodegen")
+var escodegen = require("../escodegen");
 
 
 exports.testFunctionExpressionIdentifier = function (assert) {
@@ -50,18 +50,18 @@ exports.testFunctionExpressionParams = function (assert) {
         "type": "FunctionExpression",
         "params": [
             {
-              "type": "Identifier",
-              "name": "x",
-              "loc": {
-                  "start": {
-                      "line": 2,
-                      "column": 4
-                  },
-                  "end": {
-                      "line": 2,
-                      "column": 5
-                  }
-              }
+                "type": "Identifier",
+                "name": "x",
+                "loc": {
+                    "start": {
+                        "line": 2,
+                        "column": 4
+                    },
+                    "end": {
+                        "line": 2,
+                        "column": 5
+                    }
+                }
             },
             {
                 "type": "Identifier",
@@ -108,12 +108,82 @@ exports.testFunctionExpressionParams = function (assert) {
             mapping.original.column == 6;
     }
 
-    var matches = result.map._mappings.filter(function(mapping) {
-        return isXParam(mapping) || isYParam(mapping);
-    });
-
-    assert.equal(matches.length, 2, "found source map info for both params");
+    assert.equal(result.map._mappings.filter(isXParam).length, 1,
+        "found x param mapping");
+    assert.equal(result.map._mappings.filter(isYParam).length, 1,
+        "found y param mapping");
 };
 
+exports.testMemberExpression = function (assert) {
+    // https://github.com/Constellation/escodegen/issues/108
+    var ast = {
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 8
+            }
+        },
+        "type": "MemberExpression",
+        "computed": false,
+        "object": {
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 5
+                }
+            },
+            "type": "Identifier",
+            "name": "isFoo"
+        },
+        "property": {
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 4
+                },
+                "end": {
+                    "line": 1,
+                    "column": 8
+                }
+            },
+            "type": "Identifier",
+            "name": "bar"
+        }
+    };
+
+    // function x() {\n}
+    var result = escodegen.generate(ast, {
+        sourceMap: "members",
+        sourceMapWithCode: true
+    });
+
+    function isObject(mapping) {
+        return mapping.generated.line == 1 &&
+            mapping.generated.column == 0 &&
+            mapping.original.line == 1 &&
+            mapping.original.column == 0;
+    }
+
+    function isProperty(mapping) {
+        return mapping.generated.line == 1 &&
+            mapping.generated.column == 6 &&
+            mapping.original.line == 1 &&
+            mapping.original.column == 4;
+    }
+
+    assert.equal(result.map._mappings.filter(isObject).length, 1,
+        "found object mapping");
+
+    assert.equal(result.map._mappings.filter(isProperty).length, 1,
+        "found one property mapping");
+};
 
 require("./driver")(exports);
