@@ -828,6 +828,10 @@
         return toSourceNode(result, expr);
     }
 
+    function generateIdentifier(node) {
+        return toSourceNode(node.name, node);
+    }
+
     function generateFunctionBody(node) {
         var result, i, len, expr;
         result = ['('];
@@ -1146,13 +1150,15 @@
 
         case Syntax.FunctionExpression:
             result = 'function';
+
             if (expr.id) {
-                result += ' ' + expr.id.name;
+                result = [result + ' ',
+                          generateIdentifier(expr.id),
+                          generateFunctionBody(expr)];
             } else {
-                result += space;
+                result = [result + space, generateFunctionBody(expr)];
             }
 
-            result = [result, generateFunctionBody(expr)];
             break;
 
         case Syntax.ArrayPattern:
