@@ -836,7 +836,7 @@
         var result, i, len, expr;
         result = ['('];
         for (i = 0, len = node.params.length; i < len; i += 1) {
-            result.push(node.params[i].name);
+            result.push(generateIdentifier(node.params[i]));
             if (i + 1 < len) {
                 result.push(',' + space);
             }
