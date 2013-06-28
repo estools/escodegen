@@ -42,6 +42,7 @@
         'options',
         'comment',
         'compare',
+        'source-map',
         'compare-harmony',
         'directive',
         'ast',
