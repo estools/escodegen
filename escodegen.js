@@ -828,11 +828,15 @@
         return toSourceNode(result, expr);
     }
 
+    function generateIdentifier(node) {
+        return toSourceNode(node.name, node);
+    }
+
     function generateFunctionBody(node) {
         var result, i, len, expr;
         result = ['('];
         for (i = 0, len = node.params.length; i < len; i += 1) {
-            result.push(node.params[i].name);
+            result.push(generateIdentifier(node.params[i]));
             if (i + 1 < len) {
                 result.push(',' + space);
             }
@@ -1146,13 +1150,15 @@
 
         case Syntax.FunctionExpression:
             result = 'function';
+
             if (expr.id) {
-                result += ' ' + expr.id.name;
+                result = [result + ' ',
+                          generateIdentifier(expr.id),
+                          generateFunctionBody(expr)];
             } else {
-                result += space;
+                result = [result + space, generateFunctionBody(expr)];
             }
 
-            result = [result, generateFunctionBody(expr)];
             break;
 
         case Syntax.ArrayPattern:
@@ -2042,7 +2048,7 @@
         }
 
         pair = result.toStringWithSourceMap({
-            file: options.sourceMap,
+            file: options.file,
             sourceRoot: options.sourceMapRoot
         });
 
