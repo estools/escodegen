@@ -2048,7 +2048,7 @@
         }
 
         pair = result.toStringWithSourceMap({
-            file: options.sourceMap,
+            file: options.file,
             sourceRoot: options.sourceMapRoot
         });
 
