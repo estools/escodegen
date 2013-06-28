@@ -1581,7 +1581,10 @@
                         precedence: Precedence.Assignment,
                         allowIn: allowIn,
                         allowCall: true
-                    }) + space + '=' + space,
+                    }),
+                    space,
+                    '=',
+                    space,
                     generateExpression(stmt.init, {
                         precedence: Precedence.Assignment,
                         allowIn: allowIn,
