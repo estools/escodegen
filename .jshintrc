@@ -9,7 +9,7 @@
     "noempty": true,
     "quotmark": "single",
     "undef": true,
-    "unused": false,
+    "unused": "vars",
     "strict": true,
     "trailing": true,
     "validthis": true,

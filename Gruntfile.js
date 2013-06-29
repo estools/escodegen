@@ -25,9 +25,6 @@
 module.exports = function (grunt) {
     'use strict';
 
-    var path = require('path'),
-        child_process = require('child_process');
-
     grunt.initConfig({
         jshint: {
             all: [
