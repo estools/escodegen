@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
+  Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -22,133 +22,86 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*jslint browser:true node:true */
-/*global escodegen:true, esprima:true*/
+'use strict';
 
-(function () {
-    'use strict';
-    var total = 0,
-        failures = [],
-        tick,
-        fs = require('fs'),
-        expected,
-        header,
-        fixtures,
-        esprima,
-        escodegen;
+var fs = require('fs'),
+    path = require('path'),
+    root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
+    esprima = require('./3rdparty/esprima'),
+    escodegen = require(root),
+    chai = require('chai'),
+    expect = chai.expect,
+    fixtures;
 
-    if (typeof window === 'undefined') {
-        esprima = require('./3rdparty/esprima');
-        escodegen = require('../escodegen');
+function slug(name) {
+    return name.toLowerCase().replace(/\s/g, '-');
+}
+
+function adjustRegexLiteral(key, value) {
+    if (key === 'value' && value instanceof RegExp) {
+        value = value.toString();
     }
+    return value;
+}
 
-    function slug(name) {
-        return name.toLowerCase().replace(/\s/g, '-');
-    }
+fixtures = [
+    'jQuery 1.7.1',
+    'jQuery 1.6.4',
+    'jQuery.Mobile 1.0',
+    'Prototype 1.7.0.0',
+    'Prototype 1.6.1',
+    'Ext Core 3.1.0',
+    'Ext Core 3.0.0',
+    'MooTools 1.4.1',
+    'MooTools 1.3.2',
+    'Backbone 0.5.3',
+    'Underscore 1.2.3'
+];
 
-    function adjustRegexLiteral(key, value) {
-        if (key === 'value' && value instanceof RegExp) {
-            value = value.toString();
-        }
-        return value;
-    }
+function testIdentity(code) {
+    var expected, tree, actual, options, commentOptions, commentTree, StringObject, err;
 
-    function NotMatchingError(expected, actual) {
-        Error.call(this, 'Expected ');
-        this.expected = expected;
-        this.actual = actual;
-    }
-    NotMatchingError.prototype = new Error();
+    // alias, so that JSLint does not complain.
+    StringObject = String;
 
-    fixtures = [
-        'jQuery 1.7.1',
-        'jQuery 1.6.4',
-        'jQuery.Mobile 1.0',
-        'Prototype 1.7.0.0',
-        'Prototype 1.6.1',
-        'Ext Core 3.1.0',
-        'Ext Core 3.0.0',
-        'MooTools 1.4.1',
-        'MooTools 1.3.2',
-        'Backbone 0.5.3',
-        'Underscore 1.2.3'
-    ];
+    // once
+    options = {
+        comment: false,
+        range: false,
+        loc: false,
+        tokens: false,
+        raw: false
+    };
 
-    function testIdentity(code) {
-        var expected, tree, actual, options, commentOptions, commentTree, StringObject, err;
+    tree = esprima.parse(code, options);
+    expected = JSON.stringify(tree, adjustRegexLiteral, 4);
+    tree = esprima.parse(escodegen.generate(tree), options);
+    actual = JSON.stringify(tree, adjustRegexLiteral, 4);
+    expect(actual).to.be.equal(expected);
 
-        // alias, so that JSLint does not complain.
-        StringObject = String;
+    // second, attachComments
+    commentOptions = {
+        comment: true,
+        range: true,
+        loc: false,
+        tokens: true,
+        raw: false
+    };
 
-        // once
-        options = {
-            comment: false,
-            range: false,
-            loc: false,
-            tokens: false,
-            raw: false
-        };
+    commentTree = esprima.parse(code, commentOptions);
+    commentTree = escodegen.attachComments(commentTree, commentTree.comments, commentTree.tokens);
+    tree = esprima.parse(escodegen.generate(commentTree), options);
+    actual = JSON.stringify(tree, adjustRegexLiteral, 4);
+    expect(actual).to.be.equal(expected);
+}
 
-        try {
-            tree = esprima.parse(code, options);
-            expected = JSON.stringify(tree, adjustRegexLiteral, 4);
-            tree = esprima.parse(escodegen.generate(tree), options);
-            actual = JSON.stringify(tree, adjustRegexLiteral, 4);
-        } catch (e) {
-            throw new NotMatchingError(expected, e.toString());
-        }
-        if (expected !== actual) {
-            throw new NotMatchingError(expected, actual);
-        }
-
-        // second, attachComments
-        commentOptions = {
-            comment: true,
-            range: true,
-            loc: false,
-            tokens: true,
-            raw: false
-        };
-
-        try {
-            commentTree = esprima.parse(code, commentOptions);
-            commentTree = escodegen.attachComments(commentTree, commentTree.comments, commentTree.tokens);
-            tree = esprima.parse(escodegen.generate(commentTree), options);
-            actual = JSON.stringify(tree, adjustRegexLiteral, 4);
-        } catch (e) {
-            throw new NotMatchingError(expected, e.toString());
-        }
-        if (expected !== actual) {
-            throw new NotMatchingError(expected, actual);
-        }
-    }
-
-    total = 0;
-    tick = new Date();
+describe('identity test', function () {
     fixtures.forEach(function (filename) {
-        var source = fs.readFileSync(__dirname + '/3rdparty/' + slug(filename) + '.js', 'utf-8'),
-            size = source.length;
-        total += 1;
-        try {
+        it(filename, function () {
+            var source = fs.readFileSync(__dirname + '/3rdparty/' + slug(filename) + '.js', 'utf-8'),
+                size = source.length;
             testIdentity(source);
-        } catch (e) {
-            e.source = source;
-            failures.push(e);
-        }
-    });
-    tick = (new Date()) - tick;
-
-    header = total + ' tests. ' + failures.length + ' failures. ' +
-        tick + ' ms';
-    if (failures.length) {
-        console.error(header);
-        failures.forEach(function (failure) {
-            console.error(failure.source + ': Expected\n    ' +
-                failure.expected.split('\n').join('\n    ') +
-                '\nto match\n    ' + failure.actual);
         });
-    } else {
-        console.log(header);
-    }
-}());
+    });
+});
 /* vim: set sw=4 ts=4 et tw=80 : */

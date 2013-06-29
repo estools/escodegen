@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
+  Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -22,14 +22,16 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*jslint browser:true node:true */
-/*global escodegen:true, esprima:true*/
-
 'use strict';
-var data, esprima, escodegen;
 
-esprima = require('./3rdparty/esprima');
-escodegen = require('../escodegen');
+var data,
+    fs = require('fs'),
+    path = require('path'),
+    root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
+    esprima = require('./3rdparty/esprima'),
+    escodegen = require(root),
+    chai = require('chai'),
+    expect = chai.expect;
 
 data = {
     'RegExp string': [
@@ -149,14 +151,6 @@ data = {
     ]
 };
 
-function NotMatchingError(expected, actual) {
-    'use strict';
-    Error.call(this, 'Expected ');
-    this.expected = expected;
-    this.actual = actual;
-}
-NotMatchingError.prototype = new Error();
-
 function runTest(ast, expected) {
     var actual, options;
 
@@ -165,45 +159,17 @@ function runTest(ast, expected) {
         parse: esprima.parse
     };
 
-    try {
-        actual = escodegen.generate(ast, options);
-    } catch (e) {
-        throw new NotMatchingError(expected, e.toString());
-    }
-    if (expected !== actual) {
-        throw new NotMatchingError(expected, actual);
-    }
+    actual = escodegen.generate(ast, options);
+    expect(actual).to.be.equal(expected);
 }
 
-(function driver() {
-    var total = 0,
-        failures = [],
-        tick = new Date(),
-        header;
-
+describe('AST', function () {
     Object.keys(data).forEach(function (category) {
-        data[category].forEach(function (ast) {
-            total += 1;
-            try {
+        it(category + ' test', function () {
+            data[category].forEach(function (ast) {
                 runTest(ast, ast.expected);
-            } catch (e) {
-                e.source = ast.expected;
-                failures.push(e);
-            }
+            });
         });
     });
-    tick = (new Date()) - tick;
-
-    header = total + ' tests. ' + failures.length + ' failures. ' + tick + ' ms';
-    if (failures.length) {
-        console.error(header);
-        failures.forEach(function (failure) {
-            console.error('Expected\n    ' +
-                failure.source.split('\n').join('\n    ') +
-                '\nto match\n    ' + failure.actual);
-        });
-    } else {
-        console.log(header);
-    }
-    process.exit(failures.length === 0 ? 0 : 1);
-}());
+});
+/* vim: set sw=4 ts=4 et tw=80 : */

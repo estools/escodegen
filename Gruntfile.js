@@ -1,6 +1,5 @@
 /*
-  Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
-  Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
+  Copyright (C) 2013 Yusuke Suzuki <utatane.tea@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -23,55 +22,42 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*jslint node:true */
-
-(function () {
+module.exports = function (grunt) {
     'use strict';
 
-    var child = require('child_process'),
-        nodejs = '"' + process.execPath + '"',
-        ret = 0,
-        suites,
-        index;
+    var path = require('path'),
+        child_process = require('child_process');
 
-    suites = [
-        'test',
-        'harmony',
-        'moz',
-        'api',
-        'options',
-        'comment',
-        'compare',
-        'source-map',
-        'compare-harmony',
-        'directive',
-        'ast',
-        'identity',
-        'verbatim'
-    ];
-
-    function nextTest() {
-        var suite = suites[index];
-
-        if (index < suites.length) {
-            child.exec(nodejs + ' ./test/' + suite + '.js', function (err, stdout, stderr) {
-                if (stdout) {
-                    process.stdout.write(suite + ': ' + stdout);
-                }
-                if (stderr) {
-                    process.stderr.write(suite + ': ' + stderr);
-                }
-                if (err) {
-                    ret = 1;
-                }
-                index += 1;
-                nextTest();
-            });
-        } else {
-            process.exit(ret);
+    grunt.initConfig({
+        jshint: {
+            all: [
+                'Gruntfile.js',
+                'escodegen.js'
+            ],
+            options: {
+                jshintrc: '.jshintrc',
+                force: false
+            }
+        },
+        mochaTest: {
+            test: {
+                options: {
+                    reporter: 'spec'
+                },
+                src: ['test/*.js']
+            }
         }
-    }
+    });
 
-    index = 0;
-    nextTest();
-}());
+
+    // load tasks
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-mocha-test');
+
+    // alias
+    grunt.registerTask('test', 'mochaTest');
+    grunt.registerTask('lint', 'jshint');
+    grunt.registerTask('travis', ['lint', 'test']);
+    grunt.registerTask('default','travis');
+};
+/* vim: set sw=4 ts=4 et tw=80 : */

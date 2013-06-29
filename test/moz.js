@@ -1,10 +1,10 @@
 /*
+  Copyright (C) 2011-2013 Yusuke Suzuki <utatane.tea@gmail.com>
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2012 Joost-Wim Boekesteijn <joost-wim@boekesteijn.nl>
   Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
   Copyright (C) 2012 Arpad Borsos <arpad.borsos@googlemail.com>
   Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
-  Copyright (C) 2011 Yusuke Suzuki <utatane.tea@gmail.com>
   Copyright (C) 2011 Arpad Borsos <arpad.borsos@googlemail.com>
 
   Redistribution and use in source and binary forms, with or without
@@ -28,10 +28,16 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*jslint browser:true node:true */
-/*global escodegen:true, esprima:true*/
+'use strict';
 
-var runTests, data;
+var fs = require('fs'),
+    path = require('path'),
+    root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
+    esprima = require('esprima-moz'),
+    escodegen = require(root),
+    chai = require('chai'),
+    expect = chai.expect,
+    data;
 
 data = {
     'Yield with starless generator': {
@@ -823,19 +829,6 @@ function adjustRegexLiteral(key, value) {
     return value;
 }
 
-if (typeof window === 'undefined') {
-    var esprima = require('esprima-moz');
-    var escodegen = require('../escodegen');
-}
-
-function NotMatchingError(expected, actual) {
-    'use strict';
-    Error.call(this, 'Expected ');
-    this.expected = expected;
-    this.actual = actual;
-}
-NotMatchingError.prototype = new Error();
-
 function testIdentity(code, syntax) {
     'use strict';
     var expected, tree, actual, actual2, options, StringObject;
@@ -851,22 +844,14 @@ function testIdentity(code, syntax) {
         raw: false
     };
 
-    try {
-        tree = esprima.parse(code, options);
-        expected = JSON.stringify(tree, adjustRegexLiteral, 4);
-        tree = esprima.parse(escodegen.generate(tree), options);
-        actual = JSON.stringify(tree, adjustRegexLiteral, 4);
-        tree = esprima.parse(escodegen.generate(syntax), options);
-        actual2 = JSON.stringify(tree, adjustRegexLiteral, 4);
-    } catch (e) {
-        throw new NotMatchingError(expected, e.toString());
-    }
-    if (expected !== actual) {
-        throw new NotMatchingError(expected, actual);
-    }
-    if (expected !== actual2) {
-        throw new NotMatchingError(expected, actual2);
-    }
+    tree = esprima.parse(code, options);
+    expected = JSON.stringify(tree, adjustRegexLiteral, 4);
+    tree = esprima.parse(escodegen.generate(tree), options);
+    actual = JSON.stringify(tree, adjustRegexLiteral, 4);
+    tree = esprima.parse(escodegen.generate(syntax), options);
+    actual2 = JSON.stringify(tree, adjustRegexLiteral, 4);
+    expect(actual).to.be.equal(expected);
+    expect(actual2).to.be.equal(expected);
 }
 
 function testGenerate(expected, result) {
@@ -882,14 +867,8 @@ function testGenerate(expected, result) {
         }
     };
 
-    try {
-        actual = escodegen.generate(result.generateFrom, options);
-    } catch (e) {
-        throw new NotMatchingError(expected, e.toString());
-    }
-    if (expected !== actual) {
-        throw new NotMatchingError(expected, actual);
-    }
+    actual = escodegen.generate(result.generateFrom, options);
+    expect(actual).to.be.equal(expected);
 }
 
 function isGeneratorIdentityFixture(result) {
@@ -907,42 +886,14 @@ function runTest(code, result) {
     }
 }
 
-(function () {
-    'use strict';
-
-    var total = 0,
-        failures = [],
-        tick = new Date(),
-        expected,
-        header;
-
+describe('moz test', function () {
     Object.keys(data).forEach(function (category) {
         Object.keys(data[category]).forEach(function (source) {
-            total += 1;
-            expected = data[category][source];
-            try {
+            it(category, function () {
+                var expected = data[category][source];
                 runTest(source, expected);
-            } catch (e) {
-                e.source = source;
-                failures.push(e);
-            }
+            });
         });
     });
-    tick = (new Date()) - tick;
-
-    header = total + ' tests. ' + failures.length + ' failures. ' +
-        tick + ' ms';
-    if (failures.length) {
-        console.error(header);
-        failures.forEach(function (failure) {
-            console.log(failure);
-            console.error(failure.source + ': Expected\n    ' +
-                failure.source.split('\n').join('\n    ') +
-                '\nto match\n    ' + failure.actual);
-        });
-    } else {
-        console.log(header);
-    }
-    process.exit(failures.length === 0 ? 0 : 1);
-}());
+});
 /* vim: set sw=4 ts=4 et tw=80 : */

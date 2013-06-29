@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
+  Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -22,103 +22,47 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*jslint browser:true node:true */
-/*global escodegen:true, esprima:true*/
+'use strict';
 
-(function () {
-    'use strict';
-    var total = 0,
-        failures = [],
-        tick,
-        fs = require('fs'),
-        expected,
-        header,
-        fixtures,
-        esprima,
-        escodegen;
+var fs = require('fs'),
+    path = require('path'),
+    root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
+    esprima = require('./3rdparty/esprima-harmony'),
+    escodegen = require(root),
+    chai = require('chai'),
+    expect = chai.expect;
 
-    if (typeof window === 'undefined') {
-        esprima = require('./3rdparty/esprima-harmony');
-        escodegen = require('../escodegen');
-    }
+function test(code, expected) {
+    var tree, actual, options, StringObject;
 
-    function slug(name) {
-        return name.toLowerCase().replace(/\s/g, '-');
-    }
+    // alias, so that JSLint does not complain.
+    StringObject = String;
 
-    function adjustRegexLiteral(key, value) {
-        if (key === 'value' && value instanceof RegExp) {
-            value = value.toString();
-        }
-        return value;
-    }
+    options = {
+        range: true,
+        loc: false,
+        tokens: true,
+        raw: false
+    };
 
-    function NotMatchingError(expected, actual) {
-        Error.call(this, 'Expected ');
-        this.expected = expected;
-        this.actual = actual;
-    }
-    NotMatchingError.prototype = new Error();
+    tree = esprima.parse(code, options);
 
-    function test(code, expected) {
-        var tree, actual, options, StringObject;
+    // for UNIX text comment
+    actual = escodegen.generate(tree).replace(/[\n\r]$/, '') + '\n';
+    expect(actual).to.be.equal(expected);
+}
 
-        // alias, so that JSLint does not complain.
-        StringObject = String;
-
-        options = {
-            range: true,
-            loc: false,
-            tokens: true,
-            raw: false
-        };
-
-        try {
-            tree = esprima.parse(code, options);
-
-            // for UNIX text comment
-            actual = escodegen.generate(tree).replace(/[\n\r]$/, '') + '\n';
-        } catch (e) {
-            console.error(e.stack);
-            throw new NotMatchingError(expected, e.toString());
-        }
-        if (expected !== actual) {
-            throw new NotMatchingError(expected, actual);
-        }
-    }
-
-    total = 0;
-    tick = new Date();
+describe('compare harmony test', function () {
     fs.readdirSync(__dirname + '/compare-harmony').sort().forEach(function(file) {
         var code, expected, p;
-        if (/\.js$/.test(file)) {
-            if (!/expected\.js$/.test(file)) {
+        if (/\.js$/.test(file) && !/expected\.js$/.test(file)) {
+            it(file, function () {
                 p = file.replace(/\.js$/, '.expected.js');
-                total += 1;
                 code = fs.readFileSync(__dirname + '/compare-harmony/' + file, 'utf-8');
                 expected = fs.readFileSync(__dirname + '/compare-harmony/' + p, 'utf-8');
-                try {
-                    test(code, expected);
-                } catch (e) {
-                    e.source = code;
-                    failures.push(e);
-                }
-            }
+                test(code, expected);
+            });
         }
     });
-    tick = (new Date()) - tick;
-
-    header = total + ' tests. ' + failures.length + ' failures. ' +
-        tick + ' ms';
-    if (failures.length) {
-        console.error(header);
-        failures.forEach(function (failure) {
-            console.error(failure.source + ': Expected\n    ' +
-                failure.expected.split('\n').join('\n    ') +
-                '\nto match\n    ' + failure.actual);
-        });
-    } else {
-        console.log(header);
-    }
-}());
+});
 /* vim: set sw=4 ts=4 et tw=80 : */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
+  Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -22,14 +22,16 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*jslint browser:true node:true */
-/*global escodegen:true, esprima:true*/
-
 'use strict';
-var data, esprima, escodegen;
 
-esprima = require('./3rdparty/esprima');
-escodegen = require('../escodegen');
+var fs = require('fs'),
+    path = require('path'),
+    root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
+    esprima = require('./3rdparty/esprima'),
+    escodegen = require(root),
+    chai = require('chai'),
+    expect = chai.expect,
+    data;
 
 data = {
     'DirectiveStatement': {
@@ -194,14 +196,6 @@ data = {
     }
 };
 
-function NotMatchingError(expected, actual) {
-    'use strict';
-    Error.call(this, 'Expected ');
-    this.expected = expected;
-    this.actual = actual;
-}
-NotMatchingError.prototype = new Error();
-
 function runTest(expected, result) {
     var actual, options;
 
@@ -211,47 +205,16 @@ function runTest(expected, result) {
         parse: esprima.parse
     };
 
-    try {
-        actual = escodegen.generate(result, options);
-    } catch (e) {
-        throw new NotMatchingError(expected, e.toString());
-    }
-    if (expected !== actual) {
-        throw new NotMatchingError(expected, actual);
-    }
+    actual = escodegen.generate(result, options);
+    expect(actual).to.be.equal(expected);
 }
 
-(function driver() {
-    var total = 0,
-        failures = [],
-        tick = new Date(),
-        expected,
-        header;
-
+describe('directive support', function () {
     Object.keys(data).forEach(function (category) {
-        Object.keys(data[category]).forEach(function (source) {
-            total += 1;
-            expected = data[category][source];
-            try {
-                runTest(source, expected);
-            } catch (e) {
-                e.source = source;
-                failures.push(e);
-            }
+        it(category, function () {
+            Object.keys(data[category]).forEach(function (source) {
+                runTest(source, data[category][source]);
+            });
         });
     });
-    tick = (new Date()) - tick;
-
-    header = total + ' tests. ' + failures.length + ' failures. ' + tick + ' ms';
-    if (failures.length) {
-        console.error(header);
-        failures.forEach(function (failure) {
-            console.error('Expected\n    ' +
-                failure.source.split('\n').join('\n    ') +
-                '\nto match\n    ' + failure.actual);
-        });
-    } else {
-        console.log(header);
-    }
-    process.exit(failures.length === 0 ? 0 : 1);
-}());
+});

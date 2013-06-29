@@ -1,6 +1,6 @@
 /*
+  Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
   Copyright (C) 2012 Robert Gust-Bardon <donate@robert.gust-bardon.org>
-  Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -23,10 +23,18 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*jslint browser:true node:true */
-/*global escodegen:true, esprima:true*/
+'use strict';
 
-var data = [{
+var fs = require('fs'),
+    path = require('path'),
+    root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
+    esprima = require('./3rdparty/esprima'),
+    escodegen = require(root),
+    chai = require('chai'),
+    expect = chai.expect,
+    data;
+
+data = [{
     options: {
         base: 2,
         indent: '    '
@@ -837,97 +845,48 @@ var data = [{
     }
 }];
 
-(function () {
-    'use strict';
-
-    var total = 0,
-        failures = [],
-        tick = new Date(),
-        header,
-        escodegen,
-        esprima;
-
-    if (typeof window === 'undefined') {
-        esprima = require('./3rdparty/esprima');
-        escodegen = require('../escodegen');
+function adjustRegexLiteral(key, value) {
+    if (key === 'value' && value instanceof RegExp) {
+        value = value.toString();
     }
+    return value;
+}
 
-    function adjustRegexLiteral(key, value) {
-        if (key === 'value' && value instanceof RegExp) {
-            value = value.toString();
-        }
-        return value;
+function runTest(options, source, expectedCode) {
+    var tree, actualTree, expectedTree, actualCode, optionsParser = {
+        raw: true
+    };
+    if (options.comment) {
+        optionsParser.comment = true;
+        optionsParser.range = true;
+        optionsParser.loc = true;
+        optionsParser.tokens = true;
     }
-
-    function NotMatchingError(expected, actual) {
-        Error.call(this, 'Expected ');
-        this.expected = expected;
-        this.actual = actual;
+    tree = esprima.parse(source);
+    expectedTree = JSON.stringify(tree, adjustRegexLiteral, 4);
+    tree = esprima.parse(source, optionsParser);
+    if (options.comment) {
+        tree = escodegen.attachComments(tree, tree.comments, tree.tokens);
     }
-    NotMatchingError.prototype = new Error();
+    actualCode = escodegen.generate(tree, options);
+    tree = esprima.parse(actualCode);
+    actualTree = JSON.stringify(tree, adjustRegexLiteral, 4);
+    expect(actualTree).to.be.equal(expectedTree);
+    expect(actualCode).to.be.equal(expectedCode);
+}
 
-    function runTest(options, source, expectedCode) {
-        var tree, actualTree, expectedTree, actualCode, optionsParser = {
-            raw: true
-        };
-        if (options.comment) {
-            optionsParser.comment = true;
-            optionsParser.range = true;
-            optionsParser.loc = true;
-            optionsParser.tokens = true;
-        }
-        try {
-            tree = esprima.parse(source);
-            expectedTree = JSON.stringify(tree, adjustRegexLiteral, 4);
-            tree = esprima.parse(source, optionsParser);
-            if (options.comment) {
-                tree = escodegen.attachComments(tree, tree.comments, tree.tokens);
-            }
-            actualCode = escodegen.generate(tree, options);
-            tree = esprima.parse(actualCode);
-            actualTree = JSON.stringify(tree, adjustRegexLiteral, 4);
-        } catch (e) {
-            throw new NotMatchingError(expectedCode, e.toString());
-        }
-        if (expectedTree !== actualTree) {
-            throw new NotMatchingError(expectedTree, actualTree);
-        }
-        if (expectedCode !== actualCode) {
-            throw new NotMatchingError(expectedCode, actualCode);
-        }
-    }
-
-    data.forEach(function (category) {
-        var options = category.options;
-        Object.keys(category.items).forEach(function (source) {
-            var expectedCode = category.items[source];
-            total += 1;
-            if (options.parse) {
-                options.parse = esprima.parse;
-            }
-            try {
+describe('options test', function () {
+    data.forEach(function (category, index) {
+        it('data[' + index + ']', function () {
+            var options = category.options;
+            Object.keys(category.items).forEach(function (source) {
+                var expectedCode = category.items[source];
+                if (options.parse) {
+                    options.parse = esprima.parse;
+                }
                 runTest(options, source, expectedCode);
-            } catch (e) {
-                e.source = source;
-                failures.push(e);
-            }
-
+            });
         });
     });
-    tick = (new Date()) - tick;
-
-    header = total + ' tests. ' + failures.length + ' failures. ' +
-        tick + ' ms';
-    if (failures.length) {
-        console.error(header);
-        failures.forEach(function (failure) {
-            console.error(failure.source + ': Expected\n    ' +
-                failure.expected.split('\n').join('\n    ') +
-                '\nto match\n    ' + failure.actual);
-        });
-    } else {
-        console.log(header);
-    }
-    process.exit(failures.length === 0 ? 0 : 1);
-}());
+});
 /* vim: set sw=4 ts=4 et tw=80 : */
