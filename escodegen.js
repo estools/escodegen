@@ -1063,7 +1063,7 @@
                         }
                     }
                 }
-                result.push('.' + expr.property.name);
+                result.push('.', generateIdentifier(expr.property));
             }
 
             result = parenthesize(result, Precedence.Member, precedence);
@@ -1346,7 +1346,7 @@
             break;
 
         case Syntax.Identifier:
-            result = expr.name;
+            result = generateIdentifier(expr);
             break;
 
         case Syntax.Literal:
@@ -1582,7 +1582,10 @@
                         precedence: Precedence.Assignment,
                         allowIn: allowIn,
                         allowCall: true
-                    }) + space + '=' + space,
+                    }),
+                    space,
+                    '=',
+                    space,
                     generateExpression(stmt.init, {
                         precedence: Precedence.Assignment,
                         allowIn: allowIn,
@@ -1590,7 +1593,7 @@
                     })
                 ];
             } else {
-                result = stmt.id.name;
+                result = generateIdentifier(stmt.id);
             }
             break;
 
@@ -1859,7 +1862,9 @@
             break;
 
         case Syntax.FunctionDeclaration:
-            result = [(stmt.generator && !extra.moz.starlessGenerator ? 'function* ' : 'function ') + stmt.id.name, generateFunctionBody(stmt)];
+            result = [(stmt.generator && !extra.moz.starlessGenerator ? 'function* ' : 'function '),
+                      generateIdentifier(stmt.id),
+                      generateFunctionBody(stmt)];
             break;
 
         case Syntax.ReturnStatement:

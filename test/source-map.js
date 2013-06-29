@@ -1,4 +1,4 @@
-var escodegen = require("../escodegen")
+var escodegen = require("../escodegen");
 
 
 exports.testFunctionExpressionIdentifier = function (assert) {
@@ -50,18 +50,18 @@ exports.testFunctionExpressionParams = function (assert) {
         "type": "FunctionExpression",
         "params": [
             {
-              "type": "Identifier",
-              "name": "x",
-              "loc": {
-                  "start": {
-                      "line": 2,
-                      "column": 4
-                  },
-                  "end": {
-                      "line": 2,
-                      "column": 5
-                  }
-              }
+                "type": "Identifier",
+                "name": "x",
+                "loc": {
+                    "start": {
+                        "line": 2,
+                        "column": 4
+                    },
+                    "end": {
+                        "line": 2,
+                        "column": 5
+                    }
+                }
             },
             {
                 "type": "Identifier",
@@ -108,12 +108,167 @@ exports.testFunctionExpressionParams = function (assert) {
             mapping.original.column == 6;
     }
 
-    var matches = result.map._mappings.filter(function(mapping) {
-        return isXParam(mapping) || isYParam(mapping);
-    });
-
-    assert.equal(matches.length, 2, "found source map info for both params");
+    assert.equal(result.map._mappings.filter(isXParam).length, 1,
+        "found x param mapping");
+    assert.equal(result.map._mappings.filter(isYParam).length, 1,
+        "found y param mapping");
 };
 
+exports.testMemberExpression = function (assert) {
+    var ast = {
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 8
+            }
+        },
+        "type": "MemberExpression",
+        "computed": false,
+        "object": {
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 5
+                }
+            },
+            "type": "Identifier",
+            "name": "isFoo"
+        },
+        "property": {
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 4
+                },
+                "end": {
+                    "line": 1,
+                    "column": 8
+                }
+            },
+            "type": "Identifier",
+            "name": "bar"
+        }
+    };
+
+
+    var result = escodegen.generate(ast, {
+        sourceMap: "members",
+        sourceMapWithCode: true
+    });
+
+    function isObject(mapping) {
+        return mapping.generated.line == 1 &&
+            mapping.generated.column == 0 &&
+            mapping.original.line == 1 &&
+            mapping.original.column == 0;
+    }
+
+    function isProperty(mapping) {
+        return mapping.generated.line == 1 &&
+            mapping.generated.column == 6 &&
+            mapping.original.line == 1 &&
+            mapping.original.column == 4;
+    }
+
+    assert.equal(result.map._mappings.filter(isObject).length, 1,
+        "found object mapping");
+
+    assert.equal(result.map._mappings.filter(isProperty).length, 1,
+        "found one property mapping");
+};
+
+
+exports.testDeclarationInFunction = function (assert) {
+    var ast = {
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 11
+            }
+        },
+        "type": "CallExpression",
+        "arguments": [],
+        "callee": {
+            "type": "SequenceExpression",
+            "expressions": [
+                {
+                    "type": "FunctionExpression",
+                    "params": [],
+                    "defaults": [],
+                    "expression": false,
+                    "generator": false,
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                            {
+                                "type": "VariableDeclaration",
+                                "kind": "var",
+                                "declarations": [
+                                    {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                            "type": "Identifier",
+                                            "name": "xᐝ1",
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 6
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 7
+                                                }
+                                            }
+                                        },
+                                        "init": {
+                                            "type": "Literal",
+                                            "value": 1
+                                        }
+                                }
+                            ]
+                        },
+                            {
+                                "type": "ReturnStatement",
+                                "argument": {
+                                    "type": "UnaryExpression",
+                                    "operator": "void",
+                                    "argument": {
+                                        "type": "Literal",
+                                        "value": 0
+                                    },
+                                    "prefix": true
+                                }
+                        }
+                    ]
+                    }
+            }
+        ]
+        }
+    };
+
+
+    var result = escodegen.generate(ast, {
+        sourceMap: "IIFE",
+        sourceMapWithCode: true
+    });
+
+    assert.equal(result.map._mappings.filter(function (x) {
+        return x.original &&
+            x.original.line == 1 &&
+            x.original.column == 6;
+    }).length, 1, "found a declaration node");
+};
 
 require("./driver")(exports);
