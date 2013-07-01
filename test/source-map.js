@@ -305,4 +305,171 @@ describe('source map test', function () {
                 x.original.column == 6;
         }).length).to.be.equal(1);
     });
+
+    it('names array test', function() {
+        var ast = {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "id": {
+                                "type": "Identifier",
+                                "name": "fooga",
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 9
+                                    }
+                                }
+                            },
+                            "init": {
+                                "type": "Literal",
+                                "value": "wooga",
+                                "raw": "\"wooga\"",
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 12
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 19
+                                    }
+                                }
+                            },
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 19
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 20
+                        }
+                    }
+                },
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                                "type": "Identifier",
+                                "name": "console",
+                                "loc": {
+                                    "start": {
+                                        "line": 3,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 3,
+                                        "column": 7
+                                    }
+                                }
+                            },
+                            "property": {
+                                "type": "Identifier",
+                                "name": "log",
+                                "loc": {
+                                    "start": {
+                                        "line": 3,
+                                        "column": 8
+                                    },
+                                    "end": {
+                                        "line": 3,
+                                        "column": 11
+                                    }
+                                }
+                            },
+                            "loc": {
+                                "start": {
+                                    "line": 3,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 3,
+                                    "column": 11
+                                }
+                            }
+                        },
+                        "arguments": [
+                            {
+                                "type": "Identifier",
+                                "name": "fooga",
+                                "loc": {
+                                    "start": {
+                                        "line": 3,
+                                        "column": 12
+                                    },
+                                    "end": {
+                                        "line": 3,
+                                        "column": 17
+                                    }
+                                }
+                            }
+                        ],
+                        "loc": {
+                            "start": {
+                                "line": 3,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 3,
+                                "column": 18
+                            }
+                        }
+                    },
+                    "loc": {
+                        "start": {
+                            "line": 3,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 3,
+                            "column": 19
+                        }
+                    }
+                }
+            ],
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 3,
+                    "column": 19
+                }
+            }
+        };
+        
+        var result = escodegen.generate(ast, {
+            sourceMap: "Names",
+            sourceMapWithCode: true
+        });
+        
+        expect(result.map._names._array.length).to.be.equal(3);
+    });
 });
