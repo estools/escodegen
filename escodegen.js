@@ -617,9 +617,9 @@
             }
         }
         if (node.loc == null) {
-            return new SourceNode(null, null, sourceMap, generated);
+            return new SourceNode(null, null, sourceMap, generated, node.name || null);
         }
-        return new SourceNode(node.loc.start.line, node.loc.start.column, (sourceMap === true ? node.loc.source || null : sourceMap), generated);
+        return new SourceNode(node.loc.start.line, node.loc.start.column, (sourceMap === true ? node.loc.source || null : sourceMap), generated, node.name || null);
     }
 
     function join(left, right) {
