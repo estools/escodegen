@@ -60,7 +60,9 @@
         extra,
         parse,
         sourceMap,
-        traverse;
+        traverse,
+        FORMAT_MINIFY,
+        FORMAT_DEFAULTS;
 
     traverse = require('estraverse').traverse;
 
@@ -2283,9 +2285,27 @@
         return tree;
     }
 
+    FORMAT_MINIFY = {
+        indent: {
+            style: '',
+            base: 0
+        },
+        renumber: true,
+        hexadecimal: true,
+        quotes: 'auto',
+        escapeless: false,
+        compact: true,
+        parentheses: false,
+        semicolons: false
+    };
+
+    FORMAT_DEFAULTS = getDefaultOptions().format;
+
     exports.version = require('./package.json').version;
     exports.generate = generate;
     exports.attachComments = attachComments;
     exports.browser = false;
+    exports.FORMAT_MINIFY = FORMAT_MINIFY;
+    exports.FORMAT_DEFAULTS = FORMAT_DEFAULTS;
 }());
 /* vim: set sw=4 ts=4 et tw=80 : */
