@@ -2293,7 +2293,7 @@
         renumber: true,
         hexadecimal: true,
         quotes: 'auto',
-        escapeless: false,
+        escapeless: true,
         compact: true,
         parentheses: false,
         semicolons: false
