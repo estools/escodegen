@@ -7,7 +7,7 @@
     "esgenerate": "./bin/esgenerate.js",
     "escodegen": "./bin/escodegen.js"
   },
-  "version": "0.0.24-dev",
+  "version": "0.0.25-dev",
   "engines": {
     "node": ">=0.4.0"
   },
