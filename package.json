@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "esprima": "~1.0.2",
-    "estraverse": "~0.0.4"
+    "estraverse": "1.1.x"
   },
   "optionalDependencies": {
     "source-map": ">= 0.1.2"
