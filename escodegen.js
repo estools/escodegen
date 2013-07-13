@@ -61,6 +61,7 @@
         parse,
         sourceMap,
         traverse,
+        cursor,
         FORMAT_MINIFY,
         FORMAT_DEFAULTS;
 
@@ -2216,13 +2217,13 @@
         }
 
         // This is based on John Freeman's implementation.
+        cursor = 0;
         traverse(tree, {
-            cursor: 0,
             enter: function (node) {
                 var comment;
 
-                while (this.cursor < comments.length) {
-                    comment = comments[this.cursor];
+                while (cursor < comments.length) {
+                    comment = comments[cursor];
                     if (comment.extendedRange[1] > node.range[0]) {
                         break;
                     }
@@ -2232,30 +2233,30 @@
                             node.leadingComments = [];
                         }
                         node.leadingComments.push(comment);
-                        comments.splice(this.cursor, 1);
+                        comments.splice(cursor, 1);
                     } else {
-                        this.cursor += 1;
+                        cursor += 1;
                     }
                 }
 
                 // already out of owned node
-                if (this.cursor === comments.length) {
+                if (cursor === comments.length) {
                     return VisitorOption.Break;
                 }
 
-                if (comments[this.cursor].extendedRange[0] > node.range[1]) {
+                if (comments[cursor].extendedRange[0] > node.range[1]) {
                     return VisitorOption.Skip;
                 }
             }
         });
 
+        cursor = 0;
         traverse(tree, {
-            cursor: 0,
             leave: function (node) {
                 var comment;
 
-                while (this.cursor < comments.length) {
-                    comment = comments[this.cursor];
+                while (cursor < comments.length) {
+                    comment = comments[cursor];
                     if (node.range[1] < comment.extendedRange[0]) {
                         break;
                     }
@@ -2265,18 +2266,18 @@
                             node.trailingComments = [];
                         }
                         node.trailingComments.push(comment);
-                        comments.splice(this.cursor, 1);
+                        comments.splice(cursor, 1);
                     } else {
-                        this.cursor += 1;
+                        cursor += 1;
                     }
                 }
 
                 // already out of owned node
-                if (this.cursor === comments.length) {
+                if (cursor === comments.length) {
                     return VisitorOption.Break;
                 }
 
-                if (comments[this.cursor].extendedRange[0] > node.range[1]) {
+                if (comments[cursor].extendedRange[0] > node.range[1]) {
                     return VisitorOption.Skip;
                 }
             }
