@@ -24,7 +24,6 @@
 
 (function () {
     'use strict';
-    var escodegen;
-    escodegen = global.escodegen = require('../escodegen');
+    global.escodegen = require('../escodegen');
     escodegen.browser = true;
 }());
