@@ -3,6 +3,7 @@ npm-debug.log
 .vimrc.local
 t.js
 esprima.js
+escodegen.browser.js
 .travis.yml
 .npmignore
 /tmp/
