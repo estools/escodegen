@@ -31,7 +31,6 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*jslint bitwise:true */
 /*global exports:true, generateStatement:true, generateExpression:true, require:true, global:true*/
 (function () {
     'use strict';
