@@ -579,6 +579,11 @@
             ((ch.charCodeAt(0) >= 0x80) && Regex.NonAsciiIdentifierPart.test(ch));
     }
 
+    // takes char code
+    function isDecimalDigit(ch) {
+        return (ch >= 48 && ch <= 57);   // 0..9
+    }
+
     function toSourceNode(generated, node) {
         if (node == null) {
             if (generated instanceof SourceNode) {
@@ -1030,11 +1035,19 @@
             } else {
                 if (expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
                     fragment = toSourceNode(result).toString();
-                    if (fragment.indexOf('.') < 0) {
-                        if (!/[eExX]/.test(fragment) &&
-                                !(fragment.length >= 2 && fragment.charCodeAt(0) === 48)) {  // '0'
-                            result.push('.');
-                        }
+                    // When the following conditions are all true,
+                    //   1. No floating point
+                    //   2. Don't have exponents
+                    //   3. The last character is a decimal digit
+                    //   4. Not hexadecimal OR octal number literal
+                    // we should add a floating point.
+                    if (
+                            fragment.indexOf('.') < 0 &&
+                            !/[eExX]/.test(fragment) &&
+                            isDecimalDigit(fragment.charCodeAt(fragment.length - 1)) &&
+                            !(fragment.length >= 2 && fragment.charCodeAt(0) === 48)  // '0'
+                            ) {
+                        result.push('.');
                     }
                 }
                 result.push('.', generateIdentifier(expr.property));

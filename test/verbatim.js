@@ -106,6 +106,13 @@ data = {
                 type: 'Identifier',
                 name: 'b'
             }]
+        },
+        // Floating point
+        "(0).a": {
+            type: 'MemberExpression',
+            object: { type: 'Literal', value: 0, verbatim: '0' },
+            property: { type: 'Identifier', name: 'a' },
+            computed: false
         }
     }
 };
