@@ -809,7 +809,8 @@ data = [{
         '/a/\nwhile(cond); ': '/a/;while(cond);',
         '/a/ instanceof b': '/a/ instanceof b',
         '/a/ in b': '/a/ in b',
-        '[] in b': '[]in b'
+        '[] in b': '[]in b',
+        'for(var a = /a/ in []);': 'for(var a=/a/ in[]);'
     }
 }, {
     options: {

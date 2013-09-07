@@ -606,7 +606,9 @@
             leftChar = leftSource.charAt(leftSource.length - 1),
             rightChar = rightSource.charAt(0);
 
-        if (((leftChar === '+' || leftChar === '-') && leftChar === rightChar) || (isIdentifierPart(leftChar) && isIdentifierPart(rightChar))) {
+        if ((leftChar === '+' || leftChar === '-') && leftChar === rightChar ||
+        isIdentifierPart(leftChar) && isIdentifierPart(rightChar) ||
+        leftChar === '/' && rightChar === 'i') { // infix word operators all start with `i`
             return [left, ' ', right];
         } else if (isWhiteSpace(leftChar) || isLineTerminator(leftChar) || isWhiteSpace(rightChar) || isLineTerminator(rightChar)) {
             return [left, right];
