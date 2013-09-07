@@ -67,6 +67,7 @@
         AssignmentExpression: 'AssignmentExpression',
         ArrayExpression: 'ArrayExpression',
         ArrayPattern: 'ArrayPattern',
+        ArrowFunctionExpression: 'ArrowFunctionExpression',
         BlockStatement: 'BlockStatement',
         BinaryExpression: 'BinaryExpression',
         BreakStatement: 'BreakStatement',
@@ -117,6 +118,7 @@
         Sequence: 0,
         Assignment: 1,
         Conditional: 2,
+        ArrowFunction: 2,
         LogicalOR: 3,
         LogicalAND: 4,
         BitwiseOR: 5,
@@ -813,15 +815,27 @@
     }
 
     function generateFunctionBody(node) {
-        var result, i, len, expr;
-        result = ['('];
-        for (i = 0, len = node.params.length; i < len; i += 1) {
-            result.push(generateIdentifier(node.params[i]));
-            if (i + 1 < len) {
-                result.push(',' + space);
+        var result, i, len, expr, arrow;
+
+        arrow = node.type === Syntax.ArrowFunctionExpression;
+
+        if (arrow && node.params.length === 1 && node.params[0].type === Syntax.Identifier) {
+            // arg => { } case
+            result = [generateIdentifier(node.params[0])];
+        } else {
+            result = ['('];
+            for (i = 0, len = node.params.length; i < len; i += 1) {
+                result.push(generateIdentifier(node.params[i]));
+                if (i + 1 < len) {
+                    result.push(',' + space);
+                }
             }
+            result.push(')');
         }
-        result.push(')');
+
+        if (arrow) {
+            result.push(space, '=>');
+        }
 
         if (node.expression) {
             result.push(space);
@@ -841,7 +855,22 @@
     }
 
     function generateExpression(expr, option) {
-        var result, precedence, type, currentPrecedence, i, len, raw, fragment, multiline, leftChar, leftSource, rightChar, allowIn, allowCall, allowUnparenthesizedNew, property;
+        var result,
+            precedence,
+            type,
+            currentPrecedence,
+            i,
+            len,
+            raw,
+            fragment,
+            multiline,
+            leftChar,
+            leftSource,
+            rightChar,
+            allowIn,
+            allowCall,
+            allowUnparenthesizedNew,
+            property;
 
         precedence = option.precedence;
         allowIn = option.allowIn;
@@ -888,6 +917,11 @@
                 Precedence.Assignment,
                 precedence
             );
+            break;
+
+        case Syntax.ArrowFunctionExpression:
+            allowIn |= (Precedence.ArrowFunction < precedence);
+            result = parenthesize(generateFunctionBody(expr), Precedence.ArrowFunction, precedence);
             break;
 
         case Syntax.ConditionalExpression:
