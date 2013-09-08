@@ -979,7 +979,8 @@
                 allowCall: true
             });
 
-            if (expr.operator === '/' && fragment.toString().charAt(0) === '/') {
+            if (expr.operator === '/' && fragment.toString().charAt(0) === '/' ||
+            expr.operator.slice(-1) === '<' && fragment.toString().slice(0, 3) === '!--') {
                 // If '/' concats with '/', it is interpreted as comment start
                 result.push(' ', fragment);
             } else {
