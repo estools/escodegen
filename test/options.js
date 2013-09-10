@@ -810,7 +810,9 @@ data = [{
         '/a/ instanceof b': '/a/ instanceof b',
         '/a/ in b': '/a/ in b',
         '[] in b': '[]in b',
-        'for(var a = /a/ in []);': 'for(var a=/a/ in[]);'
+        'for(var a = /a/ in []);': 'for(var a=/a/ in[]);',
+        'a < !--b': 'a< !--b',
+        'a << !--b': 'a<< !--b'
     }
 }, {
     options: {
