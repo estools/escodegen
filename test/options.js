@@ -846,6 +846,121 @@ data = [{
         '!{}': '\n!{};',
         '{}//A': '\n{}//A\n'
     }
+}, {
+    options: {
+        format: {
+            newline: '\r\n',
+            semicolons: false
+        }
+    },
+    items: {
+        '{}': '{\r\n}',
+        '{;}': '{\r\n    ;\r\n}',
+        '{42}': '{\r\n    42\r\n}',
+        'if(42);': 'if (42);',
+        'if(42)42': 'if (42)\r\n    42',
+        'if(42);else;': 'if (42);\r\nelse ;',
+        'if(42)42;else 42': 'if (42)\r\n    42;\r\nelse\r\n    42',
+        'do;while(42)': 'do ;\r\nwhile (42)',
+        'do 42;while(42)': 'do\r\n    42;\r\nwhile (42)',
+        'while(42);': 'while (42);',
+        'while(42)42': 'while (42)\r\n    42',
+        'for(;;);': 'for (;;);',
+        'for(;;)42': 'for (;;)\r\n    42',
+        'for(foo in 42);': 'for (foo in 42);',
+        'for(foo in 42)42': 'for (foo in 42)\r\n    42',
+        'with({});': 'with ({});',
+        'with({})42': 'with ({})\r\n    42',
+        'switch(42){default:}': 'switch (42) {\r\ndefault:\r\n}',
+        'switch(42){default:;}': 'switch (42) {\r\ndefault:\r\n    ;\r\n}',
+        'switch(42){default:42}': 'switch (42) {\r\ndefault:\r\n    42\r\n}',
+        'foo:;': 'foo:;',
+        'foo:42': 'foo:\r\n    42',
+        'try{}catch(foo){}finally{}': 'try {\r\n} catch (foo) {\r\n} finally {\r\n}',
+        'try{;}catch(foo){;}finally{;}': 'try {\r\n    ;\r\n} catch (foo) {\r\n    ;\r\n} finally {\r\n    ;\r\n}',
+        'try{42}catch(foo){42}finally{42}': 'try {\r\n    42\r\n} catch (foo) {\r\n    42\r\n} finally {\r\n    42\r\n}',
+        '!function(){}': '!function () {\r\n}',
+        '!function(){;}': '!function () {\r\n    ;\r\n}',
+        '!function(){42}': '!function () {\r\n    42\r\n}',
+        '42;foo': '42;\r\nfoo'
+    }
+}, {
+    options: {
+        format: {
+            newline: '\r\n',
+            space: ' ',
+            semicolons: false
+        }
+    },
+    items: {
+        '{}': '{\r\n}',
+        '{;}': '{\r\n    ;\r\n}',
+        '{42}': '{\r\n    42\r\n}',
+        'if(42);': 'if (42);',
+        'if(42)42': 'if (42)\r\n    42',
+        'if(42);else;': 'if (42);\r\nelse ;',
+        'if(42)42;else 42': 'if (42)\r\n    42;\r\nelse\r\n    42',
+        'do;while(42)': 'do ;\r\nwhile (42)',
+        'do 42;while(42)': 'do\r\n    42;\r\nwhile (42)',
+        'while(42);': 'while (42);',
+        'while(42)42': 'while (42)\r\n    42',
+        'for(;;);': 'for (;;);',
+        'for(;;)42': 'for (;;)\r\n    42',
+        'for(foo in 42);': 'for (foo in 42);',
+        'for(foo in 42)42': 'for (foo in 42)\r\n    42',
+        'with({});': 'with ({});',
+        'with({})42': 'with ({})\r\n    42',
+        'switch(42){default:}': 'switch (42) {\r\ndefault:\r\n}',
+        'switch(42){default:;}': 'switch (42) {\r\ndefault:\r\n    ;\r\n}',
+        'switch(42){default:42}': 'switch (42) {\r\ndefault:\r\n    42\r\n}',
+        'foo:;': 'foo:;',
+        'foo:42': 'foo:\r\n    42',
+        'try{}catch(foo){}finally{}': 'try {\r\n} catch (foo) {\r\n} finally {\r\n}',
+        'try{;}catch(foo){;}finally{;}': 'try {\r\n    ;\r\n} catch (foo) {\r\n    ;\r\n} finally {\r\n    ;\r\n}',
+        'try{42}catch(foo){42}finally{42}': 'try {\r\n    42\r\n} catch (foo) {\r\n    42\r\n} finally {\r\n    42\r\n}',
+        '!function(){}': '!function () {\r\n}',
+        '!function(){;}': '!function () {\r\n    ;\r\n}',
+        '!function(){42}': '!function () {\r\n    42\r\n}',
+        '42;foo': '42;\r\nfoo'
+    }
+}, {
+    options: {
+        format: {
+            space: '\t',
+            semicolons: false
+        }
+    },
+    items: {
+        '{}': '{\n}',
+        '{;}': '{\n    ;\n}',
+        '{42}': '{\n    42\n}',
+        'if(42);': 'if\t(42);',
+        'if(42)42': 'if\t(42)\n    42',
+        'if(42);else;': 'if\t(42);\nelse\t;',
+        'if(42)42;else 42': 'if\t(42)\n    42;\nelse\n    42',
+        'do;while(42)': 'do\t;\nwhile\t(42)',
+        'do 42;while(42)': 'do\n    42;\nwhile\t(42)',
+        'while(42);': 'while\t(42);',
+        'while(42)42': 'while\t(42)\n    42',
+        'for(;;);': 'for\t(;;);',
+        'for(;;)42': 'for\t(;;)\n    42',
+        'for(foo in 42);': 'for\t(foo\tin\t42);',
+        'for(foo in 42)42': 'for\t(foo\tin\t42)\n    42',
+        'with({});': 'with\t({});',
+        'with({})42': 'with\t({})\n    42',
+        'switch(42){default:}': 'switch\t(42)\t{\ndefault:\n}',
+        'switch(42){default:;}': 'switch\t(42)\t{\ndefault:\n    ;\n}',
+        'switch(42){default:42}': 'switch\t(42)\t{\ndefault:\n    42\n}',
+        'foo:;': 'foo:;',
+        'foo:42': 'foo:\n    42',
+        'try{}catch(foo){}finally{}': 'try\t{\n}\tcatch\t(foo)\t{\n}\tfinally\t{\n}',
+        'try{;}catch(foo){;}finally{;}': 'try\t{\n    ;\n}\tcatch\t(foo)\t{\n    ;\n}\tfinally\t{\n    ;\n}',
+        'try{42}catch(foo){42}finally{42}': 'try\t{\n    42\n}\tcatch\t(foo)\t{\n    42\n}\tfinally\t{\n    42\n}',
+        '!function(){}': '!function\t()\t{\n}',
+        '!function(){;}': '!function\t()\t{\n    ;\n}',
+        '!function(){42}': '!function\t()\t{\n    42\n}',
+        '42;foo': '42;\nfoo'
+    }
 }];
 
 function adjustRegexLiteral(key, value) {

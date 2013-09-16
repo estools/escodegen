@@ -182,6 +182,8 @@
                     base: 0,
                     adjustMultilineComment: false
                 },
+                newline: '\n',
+                space: ' ',
                 json: false,
                 renumber: false,
                 hexadecimal: false,
@@ -600,6 +602,10 @@
         return new SourceNode(node.loc.start.line, node.loc.start.column, (sourceMap === true ? node.loc.source || null : sourceMap), generated, node.name || null);
     }
 
+    function noEmptySpace() {
+        return (space) ? space : ' ';
+    }
+
     function join(left, right) {
         var leftSource = toSourceNode(left).toString(),
             rightSource = toSourceNode(right).toString(),
@@ -609,7 +615,7 @@
         if ((leftChar === '+' || leftChar === '-') && leftChar === rightChar ||
         isIdentifierPart(leftChar) && isIdentifierPart(rightChar) ||
         leftChar === '/' && rightChar === 'i') { // infix word operators all start with `i`
-            return [left, ' ', right];
+            return [left, noEmptySpace(), right];
         } else if (isWhiteSpace(leftChar) || isLineTerminator(leftChar) || isWhiteSpace(rightChar) || isLineTerminator(rightChar)) {
             return [left, right];
         }
@@ -968,7 +974,7 @@
             leftSource = fragment.toString();
 
             if (leftSource.charAt(leftSource.length - 1) === '/' && isIdentifierPart(expr.operator.charAt(0))) {
-                result = [fragment, ' ', expr.operator];
+                result = [fragment, noEmptySpace(), expr.operator];
             } else {
                 result = join(fragment, expr.operator);
             }
@@ -982,7 +988,7 @@
             if (expr.operator === '/' && fragment.toString().charAt(0) === '/' ||
             expr.operator.slice(-1) === '<' && fragment.toString().slice(0, 3) === '!--') {
                 // If '/' concats with '/' or `<` concats with `!--`, it is interpreted as comment start
-                result.push(' ', fragment);
+                result.push(noEmptySpace(), fragment);
             } else {
                 result = join(result, fragment);
             }
@@ -1116,7 +1122,7 @@
                     rightChar = fragment.toString().charAt(0);
 
                     if (((leftChar === '+' || leftChar === '-') && leftChar === rightChar) || (isIdentifierPart(leftChar) && isIdentifierPart(rightChar))) {
-                        result.push(' ', fragment);
+                        result.push(noEmptySpace(), fragment);
                     } else {
                         result.push(fragment);
                     }
@@ -1177,7 +1183,7 @@
             result = 'function';
 
             if (expr.id) {
-                result = [result + ' ',
+                result = [result, noEmptySpace(),
                           generateIdentifier(expr.id),
                           generateFunctionBody(expr)];
             } else {
@@ -1224,7 +1230,7 @@
         case Syntax.Property:
             if (expr.kind === 'get' || expr.kind === 'set') {
                 result = [
-                    expr.kind + ' ',
+                    expr.kind, noEmptySpace(),
                     generateExpression(expr.key, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
@@ -1451,7 +1457,7 @@
         case Syntax.ComprehensionBlock:
             if (expr.left.type === Syntax.VariableDeclaration) {
                 fragment = [
-                    expr.left.kind + ' ',
+                    expr.left.kind, noEmptySpace(),
                     generateStatement(expr.left.declarations[0], {
                         allowIn: false
                     })
@@ -1628,7 +1634,7 @@
             // };
             if (stmt.declarations.length === 1 && stmt.declarations[0].init &&
                     stmt.declarations[0].init.type === Syntax.FunctionExpression) {
-                result.push(' ', generateStatement(stmt.declarations[0], {
+                result.push(noEmptySpace(), generateStatement(stmt.declarations[0], {
                     allowIn: allowIn
                 }));
             } else {
@@ -1642,7 +1648,7 @@
                             allowIn: allowIn
                         })));
                     } else {
-                        result.push(' ', generateStatement(node, {
+                        result.push(noEmptySpace(), generateStatement(node, {
                             allowIn: allowIn
                         }));
                     }
@@ -1839,7 +1845,7 @@
             withIndent(function () {
                 if (stmt.left.type === Syntax.VariableDeclaration) {
                     withIndent(function () {
-                        result.push(stmt.left.kind + ' ', generateStatement(stmt.left.declarations[0], {
+                        result.push(stmt.left.kind + noEmptySpace(), generateStatement(stmt.left.declarations[0], {
                             allowIn: false
                         }));
                     });
@@ -1987,11 +1993,10 @@
         hexadecimal = json ? false : options.format.hexadecimal;
         quotes = json ? 'double' : options.format.quotes;
         escapeless = options.format.escapeless;
+        newline = options.format.newline;
+        space = options.format.space;
         if (options.format.compact) {
             newline = space = indent = base = '';
-        } else {
-            newline = '\n';
-            space = ' ';
         }
         parentheses = options.format.parentheses;
         semicolons = options.format.semicolons;
