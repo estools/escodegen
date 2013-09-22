@@ -14,10 +14,11 @@ Escodegen can be used in a web browser:
 
     <script src="escodegen.browser.js"></script>
 
-or in a Node.js application via the package manager:
+escodegen.browser.js is found in tagged-revision. See Tags on GitHub.
+
+Or in a Node.js application via the package manager:
 
     npm install escodegen
-
 
 ### Usage
 
@@ -34,7 +35,6 @@ produces the string `'40 + 2'`
 
 See the [API page](https://github.com/Constellation/escodegen/wiki/API) for
 options. To run the tests, execute `npm test` in the root directory.
-
 
 ### License
 
