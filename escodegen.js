@@ -896,7 +896,11 @@
     }
 
     function generateIdentifier(node) {
-        return toSourceNode(node.name, node);
+        var ret = toSourceNode(node.name, node);
+        if (node.extras) {
+            ret = addExtrasToNode(node,ret);
+        }
+        return ret;
     }
 
     function generateFunctionBody(node) {
