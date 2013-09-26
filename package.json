@@ -52,6 +52,7 @@
     "unit-test": "grunt test",
     "lint": "grunt lint",
     "release": "node tools/release.js",
-    "build": "./node_modules/.bin/cjsify -ma path: tools/entry-point.js > escodegen.browser.js"
+    "build-min": "./node_modules/.bin/cjsify -ma path: tools/entry-point.js > escodegen.browser.min.js",
+    "build": "./node_modules/.bin/cjsify -a path: tools/entry-point.js > escodegen.browser.js"
   }
 }
