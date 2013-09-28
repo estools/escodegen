@@ -301,7 +301,7 @@
 
     function endsWithLineTerminator(str) {
         var ch = str.charAt(str.length - 1);
-        return ch === '\r' || ch === '\n';
+        return ch && isLineTerminator(ch);
     }
 
     function updateDeeply(target, override) {
