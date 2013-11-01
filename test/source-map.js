@@ -71,10 +71,10 @@ describe('source map test', function () {
 
         // contains mapping for identifier
         expect(result.map._mappings.some(function (mapping) {
-            return mapping.generated.line == 1 &&
-                mapping.generated.column == 9 &&
-                mapping.original.line == 2 &&
-                mapping.original.column == 4;
+            return mapping.generatedLine == 1 &&
+                mapping.generatedColumn == 9 &&
+                mapping.originalLine == 2 &&
+                mapping.originalColumn == 4;
         })).to.be.true;
     });
 
@@ -130,17 +130,17 @@ describe('source map test', function () {
         });
 
         function isXParam(mapping) {
-            return mapping.generated.line == 1 &&
-                mapping.generated.column == 10 &&
-                mapping.original.line == 2 &&
-                mapping.original.column == 4;
+            return mapping.generatedLine == 1 &&
+                mapping.generatedColumn == 10 &&
+                mapping.originalLine == 2 &&
+                mapping.originalColumn == 4;
         }
 
         function isYParam(mapping) {
-            return mapping.generated.line == 1 &&
-                mapping.generated.column == 13 &&
-                mapping.original.line == 3 &&
-                mapping.original.column == 6;
+            return mapping.generatedLine == 1 &&
+                mapping.generatedColumn == 13 &&
+                mapping.originalLine == 3 &&
+                mapping.originalColumn == 6;
         }
 
         // found x param mapping
@@ -200,17 +200,17 @@ describe('source map test', function () {
         });
 
         function isObject(mapping) {
-            return mapping.generated.line == 1 &&
-                mapping.generated.column == 0 &&
-                mapping.original.line == 1 &&
-                mapping.original.column == 0;
+            return mapping.generatedLine == 1 &&
+                mapping.generatedColumn == 0 &&
+                mapping.originalLine == 1 &&
+                mapping.originalColumn == 0;
         }
 
         function isProperty(mapping) {
-            return mapping.generated.line == 1 &&
-                mapping.generated.column == 6 &&
-                mapping.original.line == 1 &&
-                mapping.original.column == 4;
+            return mapping.generatedLine == 1 &&
+                mapping.generatedColumn == 6 &&
+                mapping.originalLine == 1 &&
+                mapping.originalColumn == 4;
         }
 
         // found object mapping
@@ -300,9 +300,7 @@ describe('source map test', function () {
 
         // "found a declaration node"
         expect(result.map._mappings.filter(function (x) {
-            return x.original &&
-                x.original.line == 1 &&
-                x.original.column == 6;
+            return x.originalLine == 1 && x.originalColumn == 6;
         }).length).to.be.equal(1);
     });
 
