@@ -210,7 +210,7 @@
         var length = str.length,
             result = [],
             i;
-        for (i = 0; i < length; i += 1) {
+        for (i = 0; i < length; ++i) {
             result[i] = str.charAt(i);
         }
         return result;
@@ -286,7 +286,8 @@
         result = [];
         iz = this.children.length;
         if (iz > 0) {
-            for (i = 0, iz -= 1; i < iz; ++i) {
+            --iz;
+            for (i = 0; i < iz; ++i) {
                 result.push(this.children[i], sep);
             }
             result.push(this.children[iz]);
@@ -365,7 +366,7 @@
         }
         pos = 0;
         while (temp.charAt(temp.length + pos - 1) === '0') {
-            pos -= 1;
+            --pos;
         }
         if (pos !== 0) {
             exponent -= pos;
@@ -507,7 +508,7 @@
         }
 
         quote = quotes === 'double' ? '"' : '\'';
-        for (i = 0, iz = buf.length; i < iz; i += 1) {
+        for (i = 0, iz = buf.length; i < iz; ++i) {
             ch = buf[i];
             if (ch === '\'') {
                 quote = '"';
@@ -516,7 +517,7 @@
                 quote = '\'';
                 break;
             } else if (ch === '\\') {
-                i += 1;
+                ++i;
             }
         }
 
@@ -530,12 +531,12 @@
             str = stringToArray(str);
         }
 
-        for (i = 0, len = str.length; i < len; i += 1) {
+        for (i = 0, len = str.length; i < len; ++i) {
             ch = str[i];
             if (ch === '\'') {
-                singleQuotes += 1;
+                ++singleQuotes;
             } else if (ch === '"') {
-                doubleQuotes += 1;
+                ++doubleQuotes;
             } else if (ch === '/' && json) {
                 result += '\\';
             } else if ('\\\n\r\u2028\u2029'.indexOf(ch) >= 0) {
@@ -556,7 +557,7 @@
             str = stringToArray(str);
         }
 
-        for (i = 0, len = str.length; i < len; i += 1) {
+        for (i = 0, len = str.length; i < len; ++i) {
             ch = str[i];
             if ((ch === '\'' && single) || (ch === '"' && !single)) {
                 result += '\\';
@@ -637,7 +638,7 @@
 
     function calculateSpaces(str) {
         var i;
-        for (i = str.length - 1; i >= 0; i -= 1) {
+        for (i = str.length - 1; i >= 0; --i) {
             if (isLineTerminator(str.charAt(i))) {
                 break;
             }
@@ -652,11 +653,11 @@
         spaces = Number.MAX_VALUE;
 
         // first line doesn't have indentation
-        for (i = 1, len = array.length; i < len; i += 1) {
+        for (i = 1, len = array.length; i < len; ++i) {
             line = array[i];
             j = 0;
             while (j < line.length && isWhiteSpace(line[j])) {
-                j += 1;
+                ++j;
             }
             if (spaces > j) {
                 spaces = j;
@@ -682,12 +683,12 @@
                 //  */
                 // If spaces are odd number, above pattern is considered.
                 // We waste 1 space.
-                spaces -= 1;
+                --spaces;
             }
             previousBase = base;
         }
 
-        for (i = 1, len = array.length; i < len; i += 1) {
+        for (i = 1, len = array.length; i < len; ++i) {
             array[i] = toSourceNode(addIndent(array[i].slice(spaces))).join('');
         }
 
@@ -727,7 +728,7 @@
                 result.push('\n');
             }
 
-            for (i = 1, len = stmt.leadingComments.length; i < len; i += 1) {
+            for (i = 1, len = stmt.leadingComments.length; i < len; ++i) {
                 comment = stmt.leadingComments[i];
                 fragment = [generateComment(comment)];
                 if (!endsWithLineTerminator(toSourceNode(fragment).toString())) {
@@ -742,7 +743,7 @@
         if (stmt.trailingComments) {
             tailingToStatement = !endsWithLineTerminator(toSourceNode(result).toString());
             specialBase = stringRepeat(' ', calculateSpaces(toSourceNode([base, result, indent]).toString()));
-            for (i = 0, len = stmt.trailingComments.length; i < len; i += 1) {
+            for (i = 0, len = stmt.trailingComments.length; i < len; ++i) {
                 comment = stmt.trailingComments[i];
                 if (tailingToStatement) {
                     // We assume target like following script
@@ -832,7 +833,7 @@
             result = [generateIdentifier(node.params[0])];
         } else {
             result = ['('];
-            for (i = 0, len = node.params.length; i < len; i += 1) {
+            for (i = 0, len = node.params.length; i < len; ++i) {
                 result.push(generateIdentifier(node.params[i]));
                 if (i + 1 < len) {
                     result.push(',' + space);
@@ -893,7 +894,7 @@
         case Syntax.SequenceExpression:
             result = [];
             allowIn |= (Precedence.Sequence < precedence);
-            for (i = 0, len = expr.expressions.length; i < len; i += 1) {
+            for (i = 0, len = expr.expressions.length; i < len; ++i) {
                 result.push(generateExpression(expr.expressions[i], {
                     precedence: Precedence.Assignment,
                     allowIn: allowIn,
@@ -1010,7 +1011,7 @@
             })];
 
             result.push('(');
-            for (i = 0, len = expr['arguments'].length; i < len; i += 1) {
+            for (i = 0, len = expr['arguments'].length; i < len; ++i) {
                 result.push(generateExpression(expr['arguments'][i], {
                     precedence: Precedence.Assignment,
                     allowIn: true,
@@ -1045,7 +1046,7 @@
 
             if (!allowUnparenthesizedNew || parentheses || len > 0) {
                 result.push('(');
-                for (i = 0; i < len; i += 1) {
+                for (i = 0; i < len; ++i) {
                     result.push(generateExpression(expr['arguments'][i], {
                         precedence: Precedence.Assignment,
                         allowIn: true,
@@ -1201,7 +1202,7 @@
             multiline = expr.elements.length > 1;
             result = ['[', multiline ? newline : ''];
             withIndent(function (indent) {
-                for (i = 0, len = expr.elements.length; i < len; i += 1) {
+                for (i = 0, len = expr.elements.length; i < len; ++i) {
                     if (!expr.elements[i]) {
                         if (multiline) {
                             result.push(indent);
@@ -1309,7 +1310,7 @@
 
                 if (multiline) {
                     result.push(',' + newline);
-                    for (i = 1, len = expr.properties.length; i < len; i += 1) {
+                    for (i = 1, len = expr.properties.length; i < len; ++i) {
                         result.push(indent, generateExpression(expr.properties[i], {
                             precedence: Precedence.Sequence,
                             allowIn: true,
@@ -1342,7 +1343,7 @@
                     multiline = true;
                 }
             } else {
-                for (i = 0, len = expr.properties.length; i < len; i += 1) {
+                for (i = 0, len = expr.properties.length; i < len; ++i) {
                     property = expr.properties[i];
                     if (!property.shorthand) {
                         multiline = true;
@@ -1353,7 +1354,7 @@
             result = ['{', multiline ? newline : '' ];
 
             withIndent(function (indent) {
-                for (i = 0, len = expr.properties.length; i < len; i += 1) {
+                for (i = 0, len = expr.properties.length; i < len; ++i) {
                     result.push(multiline ? indent : '', generateExpression(expr.properties[i], {
                         precedence: Precedence.Sequence,
                         allowIn: true,
@@ -1428,7 +1429,7 @@
             ];
 
             if (expr.blocks) {
-                for (i = 0, len = expr.blocks.length; i < len; i += 1) {
+                for (i = 0, len = expr.blocks.length; i < len; ++i) {
                     fragment = generateExpression(expr.blocks[i], {
                         precedence: Precedence.Sequence,
                         allowIn: true,
@@ -1512,7 +1513,7 @@
             result = ['{', newline];
 
             withIndent(function () {
-                for (i = 0, len = stmt.body.length; i < len; i += 1) {
+                for (i = 0, len = stmt.body.length; i < len; ++i) {
                     fragment = addIndent(generateStatement(stmt.body[i], {
                         semicolonOptional: i === len - 1,
                         directiveContext: functionBody
@@ -1653,7 +1654,7 @@
                         }));
                     }
 
-                    for (i = 1, len = stmt.declarations.length; i < len; i += 1) {
+                    for (i = 1, len = stmt.declarations.length; i < len; ++i) {
                         node = stmt.declarations[i];
                         if (extra.comment && node.leadingComments) {
                             result.push(',' + newline, addIndent(generateStatement(node, {
@@ -1686,7 +1687,7 @@
             result = maybeBlockSuffix(stmt.block, result);
             if (stmt.handlers) {
                 // old interface
-                for (i = 0, len = stmt.handlers.length; i < len; i += 1) {
+                for (i = 0, len = stmt.handlers.length; i < len; ++i) {
                     result = join(result, generateStatement(stmt.handlers[i]));
                     if (stmt.finalizer || i + 1 !== len) {
                         result = maybeBlockSuffix(stmt.handlers[i].body, result);
@@ -1701,7 +1702,7 @@
                     }
                 }
 
-                for (i = 0, len = stmt.guardedHandlers.length; i < len; i += 1) {
+                for (i = 0, len = stmt.guardedHandlers.length; i < len; ++i) {
                     result = join(result, generateStatement(stmt.guardedHandlers[i]));
                     if (stmt.finalizer || i + 1 !== len) {
                         result = maybeBlockSuffix(stmt.guardedHandlers[i].body, result);
@@ -1726,7 +1727,7 @@
                 ];
             });
             if (stmt.cases) {
-                for (i = 0, len = stmt.cases.length; i < len; i += 1) {
+                for (i = 0, len = stmt.cases.length; i < len; ++i) {
                     fragment = addIndent(generateStatement(stmt.cases[i], {semicolonOptional: i === len - 1}));
                     result.push(fragment);
                     if (!endsWithLineTerminator(toSourceNode(fragment).toString())) {
@@ -1764,7 +1765,7 @@
                     result.push(newline);
                 }
 
-                for (; i < len; i += 1) {
+                for (; i < len; ++i) {
                     fragment = addIndent(generateStatement(stmt.consequent[i], {semicolonOptional: i === len - 1 && semicolon === ''}));
                     result.push(fragment);
                     if (i + 1 !== len && !endsWithLineTerminator(toSourceNode(fragment).toString())) {
@@ -1877,7 +1878,7 @@
         case Syntax.Program:
             len = stmt.body.length;
             result = [safeConcatenation && len > 0 ? '\n' : ''];
-            for (i = 0; i < len; i += 1) {
+            for (i = 0; i < len; ++i) {
                 fragment = addIndent(
                     generateStatement(stmt.body[i], {
                         semicolonOptional: !safeConcatenation && i === len - 1,
