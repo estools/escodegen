@@ -81,6 +81,7 @@
         DoWhileStatement: 'DoWhileStatement',
         DebuggerStatement: 'DebuggerStatement',
         EmptyStatement: 'EmptyStatement',
+        EmptyExpression: 'EmptyExpression',
         ExpressionStatement: 'ExpressionStatement',
         ForStatement: 'ForStatement',
         ForInStatement: 'ForInStatement',
@@ -303,6 +304,10 @@
     function endsWithLineTerminator(str) {
         var ch = str.charAt(str.length - 1);
         return ch && isLineTerminator(ch);
+    }
+
+    function startsWithLineTerminator(str) {
+        return isLineTerminator(str.charAt(0));
     }
 
     function updateDeeply(target, override) {
@@ -770,6 +775,78 @@
         return result;
     }
 
+    function addExtrasToNode(node, result) {
+
+        function addExtras(extras, result) {
+            var i, len, extra;
+
+            for (i = 0, len = extras.length; i < len; i += 1) {
+                // was previous extra a line-comment?
+                if (previousLineComment) {
+                    // need to insert a new-line to delimit previous line-comment?
+                    if (!startsWithLineTerminator(extras[i].value)) {
+                        result.push('\n');
+                    }
+                }
+
+                extra = extras[i];
+
+                if (extra.type === 'Whitespace') {
+                    result.push(extra.value);
+                    previousLineComment = false;
+                }
+                else if (extra.type === 'LineComment') {
+                    result.push((extra.marker || '//') + extra.value);
+                    previousLineComment = true;
+                }
+                else if (extra.type === 'MultilineComment') {
+                    result.push('/*' + extra.value + '*/');
+                    previousLineComment = false;
+                }
+            }
+
+            return result;
+        }
+
+        var save, previousLineComment = false;
+
+        if (node && node.extras) {
+            if (node.extras.leading && node.extras.leading.length > 0) {
+                save = result;
+                result = [];
+
+                result = addExtras(node.extras.leading, result);
+
+                // was last extra a line-comment?
+                if (previousLineComment) {
+                    // need to insert a new-line to delimit previous line-comment?
+                    if (!startsWithLineTerminator(toSourceNode(save).toString() || '')) {
+                        result.push('\n');
+                        previousLineComment = false;
+                    }
+                }
+
+                result.push(save);
+            }
+
+            if (node.extras.trailing && node.extras.trailing.length > 0) {
+                // if result is not yet an array, make it one so we can add to it
+                if (!Array.isArray(result)) {
+                    result = [result];
+                }
+                result = addExtras(node.extras.trailing, result);
+
+                // was last extra a line-comment?
+                if (previousLineComment) {
+                    // insert a new-line to delimit previous line-comment
+                    result.push('\n');
+                }
+            }
+        }
+
+        return result;
+    }
+
     function parenthesize(text, current, should) {
         if (current < should) {
             return ['(', text, ')'];
@@ -820,7 +897,11 @@
     }
 
     function generateIdentifier(node) {
-        return toSourceNode(node.name, node);
+        var ret = toSourceNode(node.name, node);
+        if (node.extras) {
+            ret = addExtrasToNode(node,ret);
+        }
+        return ret;
     }
 
     function generateFunctionBody(node) {
@@ -891,6 +972,15 @@
         }
 
         switch (type) {
+
+        case Syntax.EmptyExpression:
+            // 'EmptyExpression' is just a placeholder node for where only
+            // extras are present.
+            // Example: comment or whitespace extras in an otherwise empty
+            //    arguments list of a call expression
+            result = [];
+            break;
+
         case Syntax.SequenceExpression:
             result = [];
             allowIn |= (Precedence.Sequence < precedence);
@@ -1489,6 +1579,10 @@
             throw new Error('Unknown expression type: ' + expr.type);
         }
 
+        if (expr.extras) {
+            result = addExtrasToNode(expr, result);
+        }
+
         return toSourceNode(result, expr);
     }
 
@@ -1958,6 +2052,10 @@
             result = toSourceNode(result).replaceRight(/\s+$/, '');
         }
 
+        if (stmt.extras) {
+            result = addExtrasToNode(stmt, result);
+        }
+
         return toSourceNode(result, stmt);
     }
 
@@ -2053,6 +2151,7 @@
         case Syntax.BinaryExpression:
         case Syntax.CallExpression:
         case Syntax.ConditionalExpression:
+        case Syntax.EmptyExpression:
         case Syntax.FunctionExpression:
         case Syntax.Identifier:
         case Syntax.Literal:

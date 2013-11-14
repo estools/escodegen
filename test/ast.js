@@ -148,6 +148,390 @@ data = {
             }],
             expected: '/(?:)/i;'
         }
+    ],
+    'AST-Node "extras"': [
+        {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Identifier',
+                    name: 'foo'
+                },
+            }],
+            extras: {
+                leading: [
+                    {
+                        type: 'Whitespace',
+                        value: '\t'
+                    }
+                ],
+            },
+            expected: '\tfoo;'
+        },
+        {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Identifier',
+                    name: 'foo'
+                },
+            }],
+            extras: {
+                trailing: [
+                    {
+                        type: 'Whitespace',
+                        value: '\t'
+                    }
+                ],
+            },
+            expected: 'foo;\t'
+        },
+        {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Identifier',
+                    name: 'foo'
+                },
+                extras: {
+                    leading: [
+                        {
+                            type: 'Whitespace',
+                            value: '\t'
+                        }
+                    ],
+                    trailing: [
+                        {
+                            type: 'Whitespace',
+                            value: '\t'
+                        }
+                    ],
+                },
+            }],
+            expected: '\tfoo;\t'
+        },
+        {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Identifier',
+                    name: 'foo',
+                    extras: {
+                        leading: [
+                            {
+                                type: 'Whitespace',
+                                value: '\t'
+                            }
+                        ],
+                        trailing: [
+                            {
+                                type: 'Whitespace',
+                                value: '\t'
+                            }
+                        ],
+                    },
+                },
+            }],
+            expected: '\tfoo\t;'
+        },
+        {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'CallExpression',
+                    callee: {
+                        type: 'Identifier',
+                        name: 'foo'
+                    },
+                    arguments: [
+                        {
+                            type: 'EmptyExpression',
+                            value: '',
+                            extras: {
+                                leading: [
+                                    {
+                                        type: 'Whitespace',
+                                        value: '\t'
+                                    }
+                                ],
+                                trailing: [
+                                    {
+                                        type: 'Whitespace',
+                                        value: '\t'
+                                    }
+                                ],
+                            },
+                        }
+                    ],
+                },
+            }],
+            expected: 'foo(\t\t);'
+        },
+        {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'CallExpression',
+                    callee: {
+                        type: 'Identifier',
+                        name: 'foo',
+                        extras: {
+                            trailing: [
+                                {
+                                    type: 'MultilineComment',
+                                    value: '2'
+                                },
+                            ],
+                        }
+                    },
+                    arguments: [
+                        {
+                            type: 'EmptyExpression',
+                            value: '',
+                            extras: {
+                                leading: [
+                                    {
+                                        type: 'MultilineComment',
+                                        value: '3'
+                                    },
+                                ],
+                            },
+                        }
+                    ],
+                    extras: {
+                        leading: [
+                            {
+                                type: 'MultilineComment',
+                                value: '1'
+                            },
+                        ],
+                        trailing: [
+                            {
+                                type: 'MultilineComment',
+                                value: '4'
+                            },
+                        ],
+                    }
+                },
+            }],
+            extras: {
+                trailing: [
+                    {
+                        type: 'MultilineComment',
+                        value: '5'
+                    },
+                ],
+            },
+            expected: '/*1*/foo/*2*/(/*3*/)/*4*/;/*5*/'
+        },
+        {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'CallExpression',
+                    callee: {
+                        type: 'Identifier',
+                        name: 'foo',
+                        extras: {
+                            trailing: [
+                                {
+                                    type: 'MultilineComment',
+                                    value: '2'
+                                },
+                            ],
+                        }
+                    },
+                    arguments: [
+                        {
+                            type: 'EmptyExpression',
+                            value: '',
+                            extras: {
+                                leading: [
+                                    {
+                                        type: 'LineComment',
+                                        value: '3'
+                                    }
+                                ],
+                                trailing: [
+                                    {
+                                        type: 'MultilineComment',
+                                        value: '4'
+                                    },
+                                ],
+                            },
+                        }
+                    ],
+                    extras: {
+                        leading: [
+                            {
+                                type: 'MultilineComment',
+                                value: '1'
+                            },
+                        ],
+                        trailing: [
+                            {
+                                type: 'MultilineComment',
+                                value: '5'
+                            },
+                        ]
+                    }
+                },
+            }],
+            extras: {
+                trailing: [
+                    {
+                        type: 'MultilineComment',
+                        value: '6'
+                    },
+                ],
+            },
+            expected: '/*1*/foo/*2*/(//3\n/*4*/)/*5*/;/*6*/'
+        },
+        {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'CallExpression',
+                    callee: {
+                        type: 'Identifier',
+                        name: 'foo',
+                        extras: {
+                            trailing: [
+                                {
+                                    type: 'MultilineComment',
+                                    value: '2'
+                                },
+                            ],
+                        }
+                    },
+                    arguments: [
+                        {
+                            type: 'Literal',
+                            value: 4,
+                            raw: '4',
+                            extras: {
+                                leading: [
+                                    {
+                                        type: 'LineComment',
+                                        value: '3'
+                                    }
+                                ],
+                                trailing: [
+                                    {
+                                        type: 'MultilineComment',
+                                        value: '5'
+                                    },
+                                ],
+                            },
+                        }
+                    ],
+                    extras: {
+                        leading: [
+                            {
+                                type: 'MultilineComment',
+                                value: '1'
+                            },
+                        ],
+                        trailing: [
+                            {
+                                type: 'MultilineComment',
+                                value: '6'
+                            },
+                        ]
+                    }
+                },
+            }],
+            extras: {
+                trailing: [
+                    {
+                        type: 'MultilineComment',
+                        value: '7'
+                    },
+                ],
+            },
+            expected: '/*1*/foo/*2*/(//3\n4/*5*/)/*6*/;/*7*/'
+        },
+        {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'CallExpression',
+                    callee: {
+                        type: 'Identifier',
+                        name: 'foo',
+                        extras: {
+                            trailing: [
+                                {
+                                    type: 'MultilineComment',
+                                    value: '2'
+                                },
+                            ],
+                        }
+                    },
+                    arguments: [
+                        {
+                            type: 'Literal',
+                            value: 4,
+                            raw: '4',
+                            extras: {
+                                leading: [
+                                    {
+                                        type: 'LineComment',
+                                        value: '3'
+                                    }
+                                ],
+                                trailing: [
+                                    {
+                                        type: 'MultilineComment',
+                                        value: '5'
+                                    },
+                                    // NOTE: testing custom line-comment markers,
+                                    // in support of HTML-style line-comment markers
+                                    // Ref: http://javascript.spec.whatwg.org/#comment-syntax
+                                    {
+                                        type: 'LineComment',
+                                        value: '6',
+                                        marker: '<!--'
+                                    }
+                                ],
+                            },
+                        }
+                    ],
+                    extras: {
+                        leading: [
+                            {
+                                type: 'MultilineComment',
+                                value: '1'
+                            },
+                        ],
+                        trailing: [
+                            {
+                                type: 'MultilineComment',
+                                value: '7'
+                            },
+                        ]
+                    }
+                },
+            }],
+            extras: {
+                trailing: [
+                    {
+                        type: 'MultilineComment',
+                        value: '8'
+                    },
+                ],
+            },
+            expected: '/*1*/foo/*2*/(//3\n4/*5*/<!--6\n)/*7*/;/*8*/'
+        },
     ]
 };
 
