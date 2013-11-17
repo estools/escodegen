@@ -29,6 +29,7 @@ var fs = require('fs'),
     path = require('path'),
     root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
     esprima = require('./3rdparty/esprima'),
+    sourcemap = require('source-map'),
     escodegen = require(root),
     chai = require('chai'),
     expect = chai.expect;
@@ -462,12 +463,46 @@ describe('source map test', function () {
                 }
             }
         };
-        
+
         var result = escodegen.generate(ast, {
             sourceMap: "Names",
             sourceMapWithCode: true
         });
-        
+
         expect(result.map._names._array.length).to.be.equal(3);
+    });
+
+    it('sourceContent support', function() {
+        var source = "(+ a b)"
+        var ast = {
+            "type": "ExpressionStatement",
+            "expression": {"type": "BinaryExpression",
+                           "operator": "+",
+                           "left": {"type": "Identifier",
+                                    "name": "a",
+                                    "loc": {"start": {"line": 1, "column": 3 },
+                                            "end": {"line": 1, "column": 4 } },
+                                   },
+                           "right": {"type": "Identifier",
+                                     "name": "b",
+                                     "loc": {"start": { "line": 1, "column": 5 },
+                                             "end": { "line": 1, "column": 6 } }
+                                    },
+                           "loc": { "start": { "line": 1, "column": 0 },
+                                   "end": { "line": 1, "column": 6 } }
+                          }
+        };
+        var output = escodegen.generate(ast, {
+            file: "sum.js",
+            sourceMap: "sum.ls",
+            sourceMapWithCode: true,
+            sourceContent: source
+        });
+
+        expect(output.code).to.be.equal("a + b;");
+
+
+        var consumer = new sourcemap.SourceMapConsumer(output.map.toString());
+        expect(consumer.sourceContentFor("sum.ls")).to.be.equal(source);
     });
 });
