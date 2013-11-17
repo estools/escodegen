@@ -2083,14 +2083,21 @@
             return result.toString();
         }
 
+
         pair = result.toStringWithSourceMap({
             file: options.file,
             sourceRoot: options.sourceMapRoot
         });
 
+        if (options.sourceContent) {
+            pair.map.setSourceContent(options.sourceMap,
+                                      options.sourceContent);
+        }
+
         if (options.sourceMapWithCode) {
             return pair;
         }
+
         return pair.map.toString();
     }
 
