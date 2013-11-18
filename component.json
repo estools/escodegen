@@ -23,12 +23,10 @@
         "url": "http://github.com/Constellation/escodegen.git"
     },
     "dependencies": {
-        "esprima": "~1.0.2",
-        "estraverse": "~1.4.0"
+        "estraverse": "~1.4.0",
+        "esprima": "~1.0.2"
     },
-    "optionalDependencies": {
-        "source-map": "~0.1.30"
-    },
+    "optionalDependencies": {},
     "devDependencies": {
         "esprima-moz": "*",
         "commonjs-everywhere": "~0.8.0",
