@@ -336,7 +336,7 @@
         }
 
         point = result.indexOf('.');
-        if (!json && result.charAt(0) === '0' && point === 1) {
+        if (!json && result.charCodeAt(0) === 48  /* 0 */ && point === 1) {
             point = 0;
             result = result.slice(1);
         }
@@ -352,7 +352,7 @@
             temp = +(temp.slice(0, point) + temp.slice(point + 1)) + '';
         }
         pos = 0;
-        while (temp.charAt(temp.length + pos - 1) === '0') {
+        while (temp.charCodeAt(temp.length + pos - 1) === 48  /* 0 */) {
             --pos;
         }
         if (pos !== 0) {
