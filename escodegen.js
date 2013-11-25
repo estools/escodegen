@@ -203,16 +203,6 @@
         };
     }
 
-    function stringToArray(str) {
-        var length = str.length,
-            result = [],
-            i;
-        for (i = 0; i < length; ++i) {
-            result[i] = str.charAt(i);
-        }
-        return result;
-    }
-
     function stringRepeat(str, num) {
         var result = '';
 
@@ -442,25 +432,26 @@
         return result;
     }
 
-    function escapeAllowedCharacter(ch, next) {
-        var code = ch.charCodeAt(0), hex = code.toString(16), result = '\\';
+    function escapeAllowedCharacter(code, next) {
+        var hex, result = '\\';
 
-        switch (ch) {
-        case '\b':
+        switch (code) {
+        case 8  /* \b */:
             result += 'b';
             break;
-        case '\f':
+        case 12  /* \f */:
             result += 'f';
             break;
-        case '\t':
+        case 9  /* \t */:
             result += 't';
             break;
         default:
+            hex = code.toString(16);
             if (json || code > 0xff) {
                 result += 'u' + '0000'.slice(hex.length) + hex;
-            } else if (ch === '\u0000' && '0123456789'.indexOf(next) < 0) {
+            } else if (code === 0x0000 && !esutils.code.isDecimalDigit(next)) {
                 result += '0';
-            } else if (ch === '\x0B') { // '\v'
+            } else if (code === 0x000B  /* \v */) { // '\v'
                 result += 'x0B';
             } else {
                 result += 'x' + '00'.slice(hex.length) + hex;
@@ -471,22 +462,22 @@
         return result;
     }
 
-    function escapeDisallowedCharacter(ch) {
+    function escapeDisallowedCharacter(code) {
         var result = '\\';
-        switch (ch) {
-        case '\\':
+        switch (code) {
+        case 92  /* \ */:
             result += '\\';
             break;
-        case '\n':
+        case 10  /* \n */:
             result += 'n';
             break;
-        case '\r':
+        case 13  /* \r */:
             result += 'r';
             break;
-        case '\u2028':
+        case 0x2028:
             result += 'u2028';
             break;
-        case '\u2029':
+        case 0x2029:
             result += 'u2029';
             break;
         default:
@@ -497,23 +488,18 @@
     }
 
     function escapeDirective(str) {
-        var i, iz, ch, buf, quote;
-
-        buf = str;
-        if (typeof buf[0] === 'undefined') {
-            buf = stringToArray(buf);
-        }
+        var i, iz, code, quote;
 
         quote = quotes === 'double' ? '"' : '\'';
-        for (i = 0, iz = buf.length; i < iz; ++i) {
-            ch = buf[i];
-            if (ch === '\'') {
+        for (i = 0, iz = str.length; i < iz; ++i) {
+            code = str.charCodeAt(i);
+            if (code === 39  /* ' */) {
                 quote = '"';
                 break;
-            } else if (ch === '"') {
+            } else if (code === 34  /* " */) {
                 quote = '\'';
                 break;
-            } else if (ch === '\\') {
+            } else if (code === 92  /* \ */) {
                 ++i;
             }
         }
@@ -522,47 +508,45 @@
     }
 
     function escapeString(str) {
-        var result = '', i, len, ch, singleQuotes = 0, doubleQuotes = 0, single;
-
-        if (typeof str[0] === 'undefined') {
-            str = stringToArray(str);
-        }
+        var result = '', i, len, code, singleQuotes = 0, doubleQuotes = 0, single, quote;
 
         for (i = 0, len = str.length; i < len; ++i) {
-            ch = str[i];
-            if (ch === '\'') {
+            code = str.charCodeAt(i);
+            if (code === 39  /* ' */) {
                 ++singleQuotes;
-            } else if (ch === '"') {
+            } else if (code === 34  /* " */) {
                 ++doubleQuotes;
-            } else if (ch === '/' && json) {
+            } else if (code === 47  /* / */ && json) {
                 result += '\\';
-            } else if ('\\\n\r\u2028\u2029'.indexOf(ch) >= 0) {
-                result += escapeDisallowedCharacter(ch);
+            } else if (esutils.code.isLineTerminator(code) || code === 92  /* \ */) {
+                result += escapeDisallowedCharacter(code);
                 continue;
-            } else if ((json && ch < ' ') || !(json || escapeless || (ch >= ' ' && ch <= '~'))) {
-                result += escapeAllowedCharacter(ch, str[i + 1]);
+            } else if ((json && code < 32  /* SP */) || !(json || escapeless || (code >= 32  /* SP */ && code <= 126  /* ~ */))) {
+                result += escapeAllowedCharacter(code, str.charCodeAt(i + 1));
                 continue;
             }
-            result += ch;
+            result += String.fromCharCode(code);
         }
 
         single = !(quotes === 'double' || (quotes === 'auto' && doubleQuotes < singleQuotes));
-        str = result;
-        result = single ? '\'' : '"';
+        quote = single ? '\'' : '"';
 
-        if (typeof str[0] === 'undefined') {
-            str = stringToArray(str);
+        if (!(single ? singleQuotes : doubleQuotes)) {
+            return quote + result + quote;
         }
+
+        str = result;
+        result = quote;
 
         for (i = 0, len = str.length; i < len; ++i) {
-            ch = str[i];
-            if ((ch === '\'' && single) || (ch === '"' && !single)) {
+            code = str.charCodeAt(i);
+            if ((code === 39  /* ' */ && single) || (code === 34  /* " */ && !single)) {
                 result += '\\';
             }
-            result += ch;
+            result += String.fromCharCode(code);
         }
 
-        return result + (single ? '\'' : '"');
+        return result + quote;
     }
 
     function toSourceNode(generated, node) {
