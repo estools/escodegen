@@ -1105,7 +1105,7 @@
                 result = join(
                     result,
                     generateExpression(expr.argument, {
-                        precedence: precedence + 1,
+                        precedence: Precedence.Yield,
                         allowIn: true,
                         allowCall: true
                     })
