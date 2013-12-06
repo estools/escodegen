@@ -117,6 +117,7 @@
 
     Precedence = {
         Sequence: 0,
+        Yield: 1,
         Assignment: 1,
         Conditional: 2,
         ArrowFunction: 2,
@@ -1110,6 +1111,7 @@
                     })
                 );
             }
+            result = parenthesize(result, Precedence.Yield, precedence);
             break;
 
         case Syntax.UpdateExpression:
