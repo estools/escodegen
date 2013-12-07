@@ -337,7 +337,7 @@
         }
 
         point = result.indexOf('.');
-        if (!json && result.charCodeAt(0) === 48  /* 0 */ && point === 1) {
+        if (!json && result.charCodeAt(0) === 0x30  /* 0 */ && point === 1) {
             point = 0;
             result = result.slice(1);
         }
@@ -353,7 +353,7 @@
             temp = +(temp.slice(0, point) + temp.slice(point + 1)) + '';
         }
         pos = 0;
-        while (temp.charCodeAt(temp.length + pos - 1) === 48  /* 0 */) {
+        while (temp.charCodeAt(temp.length + pos - 1) === 0x30  /* 0 */) {
             --pos;
         }
         if (pos !== 0) {
@@ -437,18 +437,18 @@
         var hex, result = '\\';
 
         switch (code) {
-        case 8  /* \b */:
+        case 0x08  /* \b */:
             result += 'b';
             break;
-        case 12  /* \f */:
+        case 0x0C  /* \f */:
             result += 'f';
             break;
-        case 9  /* \t */:
+        case 0x09  /* \t */:
             result += 't';
             break;
         default:
             hex = code.toString(16);
-            if (json || code > 0xff) {
+            if (json || code > 0xFF) {
                 result += 'u' + '0000'.slice(hex.length) + hex;
             } else if (code === 0x0000 && !esutils.code.isDecimalDigit(next)) {
                 result += '0';
@@ -466,13 +466,13 @@
     function escapeDisallowedCharacter(code) {
         var result = '\\';
         switch (code) {
-        case 92  /* \ */:
+        case 0x5C  /* \ */:
             result += '\\';
             break;
-        case 10  /* \n */:
+        case 0x0A  /* \n */:
             result += 'n';
             break;
-        case 13  /* \r */:
+        case 0x0D  /* \r */:
             result += 'r';
             break;
         case 0x2028:
@@ -494,13 +494,13 @@
         quote = quotes === 'double' ? '"' : '\'';
         for (i = 0, iz = str.length; i < iz; ++i) {
             code = str.charCodeAt(i);
-            if (code === 39  /* ' */) {
+            if (code === 0x27  /* ' */) {
                 quote = '"';
                 break;
-            } else if (code === 34  /* " */) {
+            } else if (code === 0x22  /* " */) {
                 quote = '\'';
                 break;
-            } else if (code === 92  /* \ */) {
+            } else if (code === 0x5C  /* \ */) {
                 ++i;
             }
         }
@@ -513,16 +513,16 @@
 
         for (i = 0, len = str.length; i < len; ++i) {
             code = str.charCodeAt(i);
-            if (code === 39  /* ' */) {
+            if (code === 0x27  /* ' */) {
                 ++singleQuotes;
-            } else if (code === 34  /* " */) {
+            } else if (code === 0x22  /* " */) {
                 ++doubleQuotes;
-            } else if (code === 47  /* / */ && json) {
+            } else if (code === 0x2F  /* / */ && json) {
                 result += '\\';
-            } else if (esutils.code.isLineTerminator(code) || code === 92  /* \ */) {
+            } else if (esutils.code.isLineTerminator(code) || code === 0x5C  /* \ */) {
                 result += escapeDisallowedCharacter(code);
                 continue;
-            } else if ((json && code < 32  /* SP */) || !(json || escapeless || (code >= 32  /* SP */ && code <= 126  /* ~ */))) {
+            } else if ((json && code < 0x20  /* SP */) || !(json || escapeless || (code >= 0x20  /* SP */ && code <= 0x7E  /* ~ */))) {
                 result += escapeAllowedCharacter(code, str.charCodeAt(i + 1));
                 continue;
             }
@@ -541,7 +541,7 @@
 
         for (i = 0, len = str.length; i < len; ++i) {
             code = str.charCodeAt(i);
-            if ((code === 39  /* ' */ && single) || (code === 34  /* " */ && !single)) {
+            if ((code === 0x27  /* ' */ && single) || (code === 0x22  /* " */ && !single)) {
                 result += '\\';
             }
             result += String.fromCharCode(code);
@@ -574,9 +574,9 @@
             leftCharCode = leftSource.charCodeAt(leftSource.length - 1),
             rightCharCode = rightSource.charCodeAt(0);
 
-        if ((leftCharCode === 43  /* + */ || leftCharCode === 45  /* - */) && leftCharCode === rightCharCode ||
+        if ((leftCharCode === 0x2B  /* + */ || leftCharCode === 0x2D  /* - */) && leftCharCode === rightCharCode ||
         esutils.code.isIdentifierPart(leftCharCode) && esutils.code.isIdentifierPart(rightCharCode) ||
-        leftCharCode === 47  /* / */ && rightCharCode === 105  /* i */) { // infix word operators all start with `i`
+        leftCharCode === 0x2F  /* / */ && rightCharCode === 0x69  /* i */) { // infix word operators all start with `i`
             return [left, noEmptySpace(), right];
         } else if (esutils.code.isWhiteSpace(leftCharCode) || esutils.code.isLineTerminator(leftCharCode) ||
                 esutils.code.isWhiteSpace(rightCharCode) || esutils.code.isLineTerminator(rightCharCode)) {
@@ -936,7 +936,7 @@
 
             leftSource = fragment.toString();
 
-            if (leftSource.charCodeAt(leftSource.length - 1) === 47 /* / */ && esutils.code.isIdentifierPart(expr.operator.charCodeAt(0))) {
+            if (leftSource.charCodeAt(leftSource.length - 1) === 0x2F /* / */ && esutils.code.isIdentifierPart(expr.operator.charCodeAt(0))) {
                 result = [fragment, noEmptySpace(), expr.operator];
             } else {
                 result = join(fragment, expr.operator);
@@ -1084,7 +1084,7 @@
                     leftCharCode = leftSource.charCodeAt(leftSource.length - 1);
                     rightCharCode = fragment.toString().charCodeAt(0);
 
-                    if (((leftCharCode === 43  /* + */ || leftCharCode === 45  /* - */) && leftCharCode === rightCharCode) ||
+                    if (((leftCharCode === 0x2B  /* + */ || leftCharCode === 0x2D  /* - */) && leftCharCode === rightCharCode) ||
                             (esutils.code.isIdentifierPart(leftCharCode) && esutils.code.isIdentifierPart(rightCharCode))) {
                         result.push(noEmptySpace(), fragment);
                     } else {
