@@ -117,6 +117,7 @@
 
     Precedence = {
         Sequence: 0,
+        Yield: 1,
         Assignment: 1,
         Conditional: 2,
         ArrowFunction: 2,
@@ -1104,12 +1105,13 @@
                 result = join(
                     result,
                     generateExpression(expr.argument, {
-                        precedence: Precedence.Assignment,
+                        precedence: Precedence.Yield,
                         allowIn: true,
                         allowCall: true
                     })
                 );
             }
+            result = parenthesize(result, Precedence.Yield, precedence);
             break;
 
         case Syntax.UpdateExpression:
