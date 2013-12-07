@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "esprima": "~1.0.2",
-    "estraverse": "~1.4.0",
+    "estraverse": "~1.5.0",
     "esutils": "~1.0.0"
   },
   "optionalDependencies": {
