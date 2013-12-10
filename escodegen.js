@@ -447,7 +447,7 @@
             result += 't';
             break;
         default:
-            hex = code.toString(16);
+            hex = code.toString(16).toUpperCase();
             if (json || code > 0xFF) {
                 result += 'u' + '0000'.slice(hex.length) + hex;
             } else if (code === 0x0000 && !esutils.code.isDecimalDigit(next)) {
