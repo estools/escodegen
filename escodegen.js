@@ -1533,6 +1533,8 @@
 
         case Syntax.CatchClause:
             withIndent(function () {
+                var guard;
+
                 result = [
                     'catch' + space + '(',
                     generateExpression(stmt.param, {
@@ -1544,7 +1546,7 @@
                 ];
 
                 if (stmt.guard) {
-                    var guard = generateExpression(stmt.guard, {
+                    guard = generateExpression(stmt.guard, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
