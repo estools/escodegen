@@ -1457,7 +1457,7 @@
     }
 
     function generateStatement(stmt, option) {
-        var i, len, result, node, allowIn, functionBody, directiveContext, fragment, semicolon;
+        var i, len, result, node, allowIn, functionBody, directiveContext, fragment, semicolon, guard;
 
         allowIn = true;
         semicolon = ';';
@@ -1542,6 +1542,16 @@
                     }),
                     ')'
                 ];
+
+                if (stmt.guard) {
+                    var guard = generateExpression(stmt.guard, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    });
+
+                    result.splice(2, 0, ' if ', guard);
+                }
             });
             result.push(maybeBlock(stmt.body));
             break;
@@ -1649,6 +1659,7 @@
         case Syntax.TryStatement:
             result = ['try', maybeBlock(stmt.block)];
             result = maybeBlockSuffix(stmt.block, result);
+
             if (stmt.handlers) {
                 // old interface
                 for (i = 0, len = stmt.handlers.length; i < len; ++i) {
@@ -1658,11 +1669,22 @@
                     }
                 }
             } else {
+                stmt.guardedHandlers = stmt.guardedHandlers || [];
+
                 // new interface
                 if (stmt.handler) {
-                    result = join(result, generateStatement(stmt.handler));
-                    if (stmt.finalizer || stmt.guardedHandlers.length > 0) {
-                        result = maybeBlockSuffix(stmt.handler.body, result);
+                    if (isArray(stmt.handler)) {
+                        for (i = 0, len = stmt.handler.length; i < len; ++i) {
+                            result = join(result, generateStatement(stmt.handler[i]));
+                            if (stmt.finalizer || i + 1 !== len) {
+                                result = maybeBlockSuffix(stmt.handler[i].body, result);
+                            }
+                        }
+                    } else {
+                        result = join(result, generateStatement(stmt.handler));
+                        if (stmt.finalizer || stmt.guardedHandlers.length > 0) {
+                            result = maybeBlockSuffix(stmt.handler.body, result);
+                        }
                     }
                 }
 
