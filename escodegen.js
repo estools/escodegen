@@ -87,6 +87,7 @@
         ForInStatement: 'ForInStatement',
         FunctionDeclaration: 'FunctionDeclaration',
         FunctionExpression: 'FunctionExpression',
+        GeneratorExpression: 'GeneratorExpression',
         Identifier: 'Identifier',
         IfStatement: 'IfStatement',
         Literal: 'Literal',
@@ -1112,6 +1113,27 @@
                 );
             }
             result = parenthesize(result, Precedence.Yield, precedence);
+            break;
+
+        case Syntax.GeneratorExpression:
+            result = ['(', generateExpression(expr.body, {
+                precedence: Precedence.Assignment,
+                allowIn: true,
+                allowCall: true
+            })];
+
+            for (i = 0, len = expr.blocks.length; i < len; ++i) {
+                result = join(
+                    result,
+                    generateExpression(expr.blocks[i], {
+                        precedence: Precedence.Assignment,
+                        allowIn: true,
+                        allowCall: true
+                    })
+                );
+            }
+
+            result.push(')');
             break;
 
         case Syntax.UpdateExpression:
