@@ -1133,6 +1133,19 @@
                 );
             }
 
+            if (expr.filter) {
+                result = join(
+                    result,
+                    ' if (',
+                    generateExpression(expr.filter, {
+                        precedence: Precedence.Assignment,
+                        allowIn: true,
+                        allowCall: true
+                    }),
+                    ')'
+                );
+            }
+
             result.push(')');
             break;
 
