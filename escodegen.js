@@ -675,7 +675,7 @@
     }
 
     function addCommentsToStatement(stmt, result) {
-        var i, len, comment, save, tailingToStatement, specialBase, fragment;
+        var i, len, comment, save, tailingToStatement, specialBase, fragment, rangesAdded = {};
 
         if (stmt.leadingComments && stmt.leadingComments.length > 0) {
             save = result;
@@ -697,6 +697,7 @@
                     fragment.push('\n');
                 }
                 result.push(addIndent(fragment));
+                rangesAdded[comment.range.toString()] = 1;
             }
 
             result.push(addIndent(save));
@@ -707,24 +708,27 @@
             specialBase = stringRepeat(' ', calculateSpaces(toSourceNode([base, result, indent]).toString()));
             for (i = 0, len = stmt.trailingComments.length; i < len; ++i) {
                 comment = stmt.trailingComments[i];
-                if (tailingToStatement) {
-                    // We assume target like following script
-                    //
-                    // var t = 20;  /**
-                    //               * This is comment of t
-                    //               */
-                    if (i === 0) {
-                        // first case
-                        result = [result, indent];
+                if (rangesAdded[comment.range.toString()]) {
+                    if (tailingToStatement) {
+
+                        // We assume target like following script
+                        //
+                        // var t = 20;  /**
+                        //               * This is comment of t
+                        //               */
+                        if (i === 0) {
+                            // first case
+                            result = [result, indent];
+                        } else {
+                            result = [result, specialBase];
+                        }
+                        result.push(generateComment(comment, specialBase));
                     } else {
-                        result = [result, specialBase];
+                        result = [result, addIndent(generateComment(comment))];
                     }
-                    result.push(generateComment(comment, specialBase));
-                } else {
-                    result = [result, addIndent(generateComment(comment))];
-                }
-                if (i !== len - 1 && !endsWithLineTerminator(toSourceNode(result).toString())) {
-                    result = [result, '\n'];
+                    if (i !== len - 1 && !endsWithLineTerminator(toSourceNode(result).toString())) {
+                        result = [result, '\n'];
+                    }
                 }
             }
         }
