@@ -216,6 +216,22 @@
         return result;
     }
 
+    function isValidIdentifier(str) {
+        if (!str.length) {
+            return false;
+        }
+
+        if (!/^[_|\$|a-z]/i.test(str)) {
+            return false;
+        }
+
+        if (!/^[_|\$|a-z|0-9]+$/i.test(str.substr(1))) {
+            return false;
+        }
+
+        return true;
+    }
+
     isArray = Array.isArray;
     if (!isArray) {
         isArray = function isArray(array) {
@@ -1038,6 +1054,8 @@
                     allowIn: true,
                     allowCall: allowCall
                 }), ']');
+            } else if (!isValidIdentifier(expr.property.name)) {
+                result.push('[', escapeString(expr.property.name), ']');
             } else {
                 if (expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
                     fragment = toSourceNode(result).toString();
