@@ -1115,40 +1115,6 @@
             result = parenthesize(result, Precedence.Yield, precedence);
             break;
 
-        case Syntax.GeneratorExpression:
-            result = ['(', generateExpression(expr.body, {
-                precedence: Precedence.Assignment,
-                allowIn: true,
-                allowCall: true
-            })];
-
-            for (i = 0, len = expr.blocks.length; i < len; ++i) {
-                result = join(
-                    result,
-                    generateExpression(expr.blocks[i], {
-                        precedence: Precedence.Assignment,
-                        allowIn: true,
-                        allowCall: true
-                    })
-                );
-            }
-
-            if (expr.filter) {
-                result = join(
-                    result,
-                    ' if (',
-                    generateExpression(expr.filter, {
-                        precedence: Precedence.Assignment,
-                        allowIn: true,
-                        allowCall: true
-                    }),
-                    ')'
-                );
-            }
-
-            result.push(')');
-            break;
-
         case Syntax.UpdateExpression:
             if (expr.prefix) {
                 result = parenthesize(
@@ -1417,15 +1383,21 @@
             result = generateRegExp(expr.value);
             break;
 
+        case Syntax.GeneratorExpression:
         case Syntax.ComprehensionExpression:
-            result = [
-                '[',
-                generateExpression(expr.body, {
+            // GeneratorExpression should be parenthesized with (...), ComprehensionExpression with [...]
+            // Due to https://bugzilla.mozilla.org/show_bug.cgi?id=883468 position of expr.body can differ in Spidermonkey and ES6
+            result = (type === Syntax.GeneratorExpression) ? '(' : '[';
+
+            if (type === Syntax.GeneratorExpression && extra.moz.generateExpression) {
+                fragment = generateExpression(expr.body, {
                     precedence: Precedence.Assignment,
                     allowIn: true,
                     allowCall: true
-                })
-            ];
+                });
+
+                result = join(result, fragment);
+            }
 
             if (expr.blocks) {
                 for (i = 0, len = expr.blocks.length; i < len; ++i) {
@@ -1451,7 +1423,18 @@
                     result = join(result, fragment);
                 }
             }
-            result.push(']');
+
+            if (!extra.moz.generatorExpression) {
+                fragment = generateExpression(expr.body, {
+                    precedence: Precedence.Assignment,
+                    allowIn: true,
+                    allowCall: true
+                });
+
+                result = join(result, fragment);
+            }
+
+            result.push((type === Syntax.GeneratorExpression) ? ')' : ']');
             break;
 
         case Syntax.ComprehensionBlock:
