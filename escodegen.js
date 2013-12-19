@@ -1389,7 +1389,7 @@
             // Due to https://bugzilla.mozilla.org/show_bug.cgi?id=883468 position of expr.body can differ in Spidermonkey and ES6
             result = (type === Syntax.GeneratorExpression) ? '(' : '[';
 
-            if (type === Syntax.GeneratorExpression && extra.moz.generateExpression) {
+            if (type === Syntax.GeneratorExpression) {
                 fragment = generateExpression(expr.body, {
                     precedence: Precedence.Assignment,
                     allowIn: true,
@@ -1424,7 +1424,7 @@
                 }
             }
 
-            if (!extra.moz.generatorExpression) {
+            if (type === Syntax.ComprehensionExpression) {
                 fragment = generateExpression(expr.body, {
                     precedence: Precedence.Assignment,
                     allowIn: true,
