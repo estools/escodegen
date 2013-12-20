@@ -89,6 +89,8 @@
         FunctionExpression: 'FunctionExpression',
         Identifier: 'Identifier',
         IfStatement: 'IfStatement',
+        LetExpression: 'LetExpression',
+        LetStatement: 'LetStatement',
         Literal: 'Literal',
         LabeledStatement: 'LabeledStatement',
         LogicalExpression: 'LogicalExpression',
@@ -1604,14 +1606,17 @@
             }
             break;
 
+        case Syntax.LetExpression:
+        case Syntax.LetStatement:
         case Syntax.VariableDeclaration:
-            result = [stmt.kind];
+            result = [stmt.kind || 'let'];
             // special path for
             // var x = function () {
             // };
-            if (stmt.declarations.length === 1 && stmt.declarations[0].init &&
-                    stmt.declarations[0].init.type === Syntax.FunctionExpression) {
-                result.push(noEmptySpace(), generateStatement(stmt.declarations[0], {
+            fragment = stmt.type === Syntax.VariableDeclaration ? stmt.declarations : stmt.head;
+            if (fragment.length === 1 && fragment[0].init &&
+                    fragment[0].init.type === Syntax.FunctionExpression) {
+                result.push(noEmptySpace(), generateStatement(fragment[0], {
                     allowIn: allowIn
                 }));
             } else {
@@ -1619,7 +1624,7 @@
                 // but joined with comma (not LineTerminator).
                 // So if comment is attached to target node, we should specialize.
                 withIndent(function () {
-                    node = stmt.declarations[0];
+                    node = fragment[0];
                     if (extra.comment && node.leadingComments) {
                         result.push('\n', addIndent(generateStatement(node, {
                             allowIn: allowIn
@@ -1630,8 +1635,8 @@
                         }));
                     }
 
-                    for (i = 1, len = stmt.declarations.length; i < len; ++i) {
-                        node = stmt.declarations[i];
+                    for (i = 1, len = fragment.length; i < len; ++i) {
+                        node = fragment[i];
                         if (extra.comment && node.leadingComments) {
                             result.push(',' + newline, addIndent(generateStatement(node, {
                                 allowIn: allowIn
@@ -1645,6 +1650,15 @@
                 });
             }
             result.push(semicolon);
+
+            if (stmt.body) {
+                result = join(
+                    result,
+                    [newline, generateStatement(stmt.body, {
+                        allowIn: true
+                    })]
+                );
+            }
             break;
 
         case Syntax.ThrowStatement:
@@ -2022,6 +2036,8 @@
         case Syntax.FunctionDeclaration:
         case Syntax.IfStatement:
         case Syntax.LabeledStatement:
+        case Syntax.LetExpression:
+        case Syntax.LetStatement:
         case Syntax.Program:
         case Syntax.ReturnStatement:
         case Syntax.SwitchStatement:
