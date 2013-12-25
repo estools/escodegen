@@ -994,6 +994,10 @@
             }
             break;
 
+        case Syntax.LetExpression:
+            result = generateVariable(expr, option);
+            break;
+
         case Syntax.NewExpression:
             len = expr['arguments'].length;
             allowUnparenthesizedNew = option.allowUnparenthesizedNew === undefined || option.allowUnparenthesizedNew;
@@ -1606,59 +1610,9 @@
             }
             break;
 
-        case Syntax.LetExpression:
         case Syntax.LetStatement:
         case Syntax.VariableDeclaration:
-            result = [stmt.kind || 'let'];
-            // special path for
-            // var x = function () {
-            // };
-            fragment = stmt.type === Syntax.VariableDeclaration ? stmt.declarations : stmt.head;
-            if (fragment.length === 1 && fragment[0].init &&
-                    fragment[0].init.type === Syntax.FunctionExpression) {
-                result.push(noEmptySpace(), generateStatement(fragment[0], {
-                    allowIn: allowIn
-                }));
-            } else {
-                // VariableDeclarator is typed as Statement,
-                // but joined with comma (not LineTerminator).
-                // So if comment is attached to target node, we should specialize.
-                withIndent(function () {
-                    node = fragment[0];
-                    if (extra.comment && node.leadingComments) {
-                        result.push('\n', addIndent(generateStatement(node, {
-                            allowIn: allowIn
-                        })));
-                    } else {
-                        result.push(noEmptySpace(), generateStatement(node, {
-                            allowIn: allowIn
-                        }));
-                    }
-
-                    for (i = 1, len = fragment.length; i < len; ++i) {
-                        node = fragment[i];
-                        if (extra.comment && node.leadingComments) {
-                            result.push(',' + newline, addIndent(generateStatement(node, {
-                                allowIn: allowIn
-                            })));
-                        } else {
-                            result.push(',' + space, generateStatement(node, {
-                                allowIn: allowIn
-                            }));
-                        }
-                    }
-                });
-            }
-            result.push(semicolon);
-
-            if (stmt.body) {
-                result = join(
-                    result,
-                    [newline, generateStatement(stmt.body, {
-                        allowIn: true
-                    })]
-                );
-            }
+            result = generateVariable(stmt, option);
             break;
 
         case Syntax.ThrowStatement:
@@ -2036,7 +1990,6 @@
         case Syntax.FunctionDeclaration:
         case Syntax.IfStatement:
         case Syntax.LabeledStatement:
-        case Syntax.LetExpression:
         case Syntax.LetStatement:
         case Syntax.Program:
         case Syntax.ReturnStatement:
@@ -2059,6 +2012,7 @@
         case Syntax.ConditionalExpression:
         case Syntax.FunctionExpression:
         case Syntax.Identifier:
+        case Syntax.LetExpression:
         case Syntax.Literal:
         case Syntax.LogicalExpression:
         case Syntax.MemberExpression:
@@ -2103,6 +2057,69 @@
         }
 
         return pair.map.toString();
+    }
+
+    function generateVariable(node, option) {
+        var result, i, len, fragment, allowIn, semicolon;
+
+        allowIn = true;
+        semicolon = ';';
+
+        result = [node.kind || 'let'];
+
+        // special path for
+        // var x = function () {
+        // };
+        fragment = node.type === Syntax.VariableDeclaration ? node.declarations : node.head;
+        if (fragment.length === 1 && fragment[0].init &&
+                fragment[0].init.type === Syntax.FunctionExpression) {
+            result.push(noEmptySpace(), generateStatement(fragment[0], {
+                allowIn: allowIn
+            }));
+        } else {
+            // VariableDeclarator is typed as Statement,
+            // but joined with comma (not LineTerminator).
+            // So if comment is attached to target node, we should specialize.
+            withIndent(function () {
+                var block;
+
+                block = fragment[0];
+
+                if (extra.comment && block.leadingComments) {
+                    result.push('\n', addIndent(generateStatement(block, {
+                        allowIn: allowIn
+                    })));
+                } else {
+                    result.push(noEmptySpace(), generateStatement(block, {
+                        allowIn: allowIn
+                    }));
+                }
+
+                for (i = 1, len = fragment.length; i < len; ++i) {
+                    block = fragment[i];
+                    if (extra.comment && block.leadingComments) {
+                        result.push(',' + newline, addIndent(generateStatement(block, {
+                            allowIn: allowIn
+                        })));
+                    } else {
+                        result.push(',' + space, generateStatement(block, {
+                            allowIn: allowIn
+                        }));
+                    }
+                }
+            });
+        }
+        result.push(semicolon);
+
+        if (node.body) {
+            result = join(
+                result,
+                [newline, generateStatement(node.body, {
+                    allowIn: allowIn
+                })]
+            );
+        }
+        return result;
     }
 
     FORMAT_MINIFY = {
