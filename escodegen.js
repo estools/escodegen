@@ -1463,7 +1463,7 @@
     }
 
     function generateStatement(stmt, option) {
-        var i, len, result, node, allowIn, functionBody, directiveContext, fragment, semicolon;
+        var i, len, result, allowIn, functionBody, directiveContext, fragment, semicolon;
 
         allowIn = true;
         semicolon = ';';
