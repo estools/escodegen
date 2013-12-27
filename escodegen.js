@@ -995,7 +995,7 @@
             break;
 
         case Syntax.LetExpression:
-            result = generateVariable(expr, option);
+            result = generateVariable(expr, allowIn, (option && !semicolons && option.semicolonOptional === true) ? '' : ';');
             break;
 
         case Syntax.NewExpression:
@@ -1612,7 +1612,7 @@
 
         case Syntax.LetStatement:
         case Syntax.VariableDeclaration:
-            result = generateVariable(stmt, option);
+            result = generateVariable(stmt, allowIn, semicolon);
             break;
 
         case Syntax.ThrowStatement:
@@ -2059,11 +2059,8 @@
         return pair.map.toString();
     }
 
-    function generateVariable(node, option) {
-        var result, i, len, fragment, allowIn, semicolon;
-
-        allowIn = true;
-        semicolon = ';';
+    function generateVariable(node, allowIn, semicolon) {
+        var result, i, len, fragment;
 
         result = [node.kind || 'let'];
 
