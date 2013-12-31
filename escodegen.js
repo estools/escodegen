@@ -995,7 +995,7 @@
             break;
 
         case Syntax.LetExpression:
-            result = generateVariable(expr, allowIn, (option && !semicolons && option.semicolonOptional === true) ? '' : ';');
+            result = generateVariable(expr, allowIn, '');
             break;
 
         case Syntax.NewExpression:
