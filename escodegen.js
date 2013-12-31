@@ -995,7 +995,7 @@
             break;
 
         case Syntax.LetExpression:
-            result = generateVariable(expr, allowIn, '');
+            result = generateVariable(expr, allowIn, '', Syntax.LetExpression);
             break;
 
         case Syntax.NewExpression:
@@ -1612,7 +1612,7 @@
 
         case Syntax.LetStatement:
         case Syntax.VariableDeclaration:
-            result = generateVariable(stmt, allowIn, semicolon);
+            result = generateVariable(stmt, allowIn, semicolon, stmt.type);
             break;
 
         case Syntax.ThrowStatement:
@@ -2059,7 +2059,7 @@
         return pair.map.toString();
     }
 
-    function generateVariable(node, allowIn, semicolon) {
+    function generateVariable(node, allowIn, semicolon, type) {
         var result, i, len, fragment;
 
         result = [node.kind || 'let'];
@@ -2109,11 +2109,19 @@
         result.push(semicolon);
 
         if (node.body) {
+            if (type === Syntax.LetExpression) {
+                fragment = generateExpression(node.body, {
+                    allowIn: allowIn
+                });
+            } else {
+                fragment = generateStatement(node.body, {
+                    allowIn: allowIn
+                });
+            }
+
             result = join(
                 result,
-                [newline, generateStatement(node.body, {
-                    allowIn: allowIn
-                })]
+                [newline, fragment]
             );
         }
         return result;
