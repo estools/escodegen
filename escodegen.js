@@ -82,6 +82,7 @@
         DoWhileStatement: 'DoWhileStatement',
         DebuggerStatement: 'DebuggerStatement',
         EmptyStatement: 'EmptyStatement',
+        ExportDeclaration: 'ExportDeclaration',
         ExpressionStatement: 'ExpressionStatement',
         ForStatement: 'ForStatement',
         ForInStatement: 'ForInStatement',
@@ -112,7 +113,6 @@
         WhileStatement: 'WhileStatement',
         WithStatement: 'WithStatement',
         YieldExpression: 'YieldExpression'
-
     };
 
     Precedence = {
@@ -1552,6 +1552,15 @@
 
         case Syntax.EmptyStatement:
             result = ';';
+            break;
+
+        case Syntax.ExportDeclaration:
+            result = 'export ';
+            if (stmt.declaration) {
+                // FunctionDeclaration or VariableDeclaration
+                result = [result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' })];
+                break;
+            }
             break;
 
         case Syntax.ExpressionStatement:
