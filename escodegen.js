@@ -995,7 +995,7 @@
             break;
 
         case Syntax.LetExpression:
-            result = generateVariable(expr, allowIn, '', Syntax.LetExpression);
+            result = generateVariable(expr, allowIn, '');
             break;
 
         case Syntax.NewExpression:
@@ -1612,7 +1612,7 @@
 
         case Syntax.LetStatement:
         case Syntax.VariableDeclaration:
-            result = generateVariable(stmt, allowIn, semicolon, stmt.type);
+            result = generateVariable(stmt, allowIn, semicolon);
             break;
 
         case Syntax.ThrowStatement:
@@ -2059,10 +2059,14 @@
         return pair.map.toString();
     }
 
-    function generateVariable(node, allowIn, semicolon, type) {
+    function generateVariable(node, allowIn, semicolon) {
         var result, i, len, fragment;
 
         result = [node.kind || 'let'];
+
+        if (node.type !== Syntax.VariableDeclaration) {
+            result.push(noEmptySpace(), '(');
+        }
 
         // special path for
         // var x = function () {
@@ -2078,16 +2082,18 @@
             // but joined with comma (not LineTerminator).
             // So if comment is attached to target node, we should specialize.
             withIndent(function () {
-                var block;
-
-                block = fragment[0];
+                var block = fragment[0];
 
                 if (extra.comment && block.leadingComments) {
                     result.push('\n', addIndent(generateStatement(block, {
                         allowIn: allowIn
                     })));
                 } else {
-                    result.push(noEmptySpace(), generateStatement(block, {
+                    if (node.type === Syntax.VariableDeclaration) {
+                        result.push(noEmptySpace());
+                    }
+
+                    result.push(generateStatement(block, {
                         allowIn: allowIn
                     }));
                 }
@@ -2106,23 +2112,29 @@
                 }
             });
         }
-        result.push(semicolon);
+
+        if (node.type !== Syntax.VariableDeclaration) {
+            result.push(')');
+        } else {
+            result.push(semicolon);
+        }
 
         if (node.body) {
-            if (type === Syntax.LetExpression) {
-                fragment = generateExpression(node.body, {
-                    allowIn: allowIn
-                });
+            // node.body exists only if node is of LetStatement or LetExpression type
+            // both LetStatement and LetExpression should be parenthesized with ( ... )
+            // if node type is LetExpression then expression (node.body) should be indented
+            // if node type is LetStatement then it's more safe to parenthesize stmt (node.body) with { ... }
+            if (node.type === Syntax.LetStatement) {
+                result = join(result, maybeBlock(node.body));
             } else {
-                fragment = generateStatement(node.body, {
-                    allowIn: allowIn
+                withIndent(function () {
+                    result.push(newline, addIndent(generateExpression(node.body, {
+                        precedence: Precedence.Assignment,
+                        allowIn: allowIn,
+                        allowCall: true
+                    })));
                 });
             }
-
-            result = join(
-                result,
-                [newline, fragment]
-            );
         }
         return result;
     }
