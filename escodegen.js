@@ -2125,6 +2125,14 @@
             // if node type is LetExpression then expression (node.body) should be indented
             // if node type is LetStatement then it's more safe to parenthesize stmt (node.body) with { ... }
             if (node.type === Syntax.LetStatement) {
+                if (node.body.type !== Syntax.BlockStatement) {
+                    // wrap node.body inside BlockStatement if needed
+                    node.body = {
+                        type: Syntax.BlockStatement,
+                        body: [node.body]
+                    };
+                }
+
                 result = join(result, maybeBlock(node.body));
             } else {
                 withIndent(function () {
