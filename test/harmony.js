@@ -1405,7 +1405,7 @@ data = {
 
     'Array Comprehension': {
 
-        '[x for x in []];':{
+        '[for x in [] x];':{
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1435,7 +1435,7 @@ data = {
             }
         },
 
-        '[x for x of []];': {
+        '[for x of [] x];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1465,7 +1465,7 @@ data = {
             }
         },
 
-        '[1 for x in y if f(x)];': {
+        '[for x in y if f(x) 1];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1506,7 +1506,7 @@ data = {
             }
         },
 
-        '[1 for x of y if f(x)];': {
+        '[for x of y if f(x) 1];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1547,7 +1547,7 @@ data = {
             }
         },
 
-        '[[\n    x,\n    b,\n    c\n] for x in [] for b in [] if b && c];': {
+        '[for x in [] for b in [] if b && c [\n    x,\n    b,\n    c\n]];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1609,7 +1609,7 @@ data = {
             }
         },
 
-        '[[\n    x,\n    b,\n    c\n] for x of [] for b of [] if b && c];': {
+        '[for x of [] for b of [] if b && c [\n    x,\n    b,\n    c\n]];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
