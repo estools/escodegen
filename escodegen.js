@@ -1397,7 +1397,7 @@
                     allowCall: true
                 });
 
-                result = join(result, fragment);
+                result.push(fragment);
             }
 
             if (expr.blocks) {
@@ -1409,7 +1409,7 @@
                             allowCall: true
                         });
 
-                        if (i > 0) {
+                        if (i > 0 || extra.moz.comprehensionExpressionStartsWithAssignment) {
                             result = join(result, fragment);
                         } else {
                             result.push(fragment);
