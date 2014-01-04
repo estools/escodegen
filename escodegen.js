@@ -225,67 +225,6 @@
         };
     }
 
-    // Fallback for the non SourceMap environment
-    function SourceNodeMock(line, column, filename, chunk) {
-        var result = [];
-
-        function flatten(input) {
-            var i, iz;
-            if (isArray(input)) {
-                for (i = 0, iz = input.length; i < iz; ++i) {
-                    flatten(input[i]);
-                }
-            } else if (input instanceof SourceNodeMock) {
-                result.push(input);
-            } else if (typeof input === 'string' && input) {
-                result.push(input);
-            }
-        }
-
-        flatten(chunk);
-        this.children = result;
-    }
-
-    SourceNodeMock.prototype.toString = function toString() {
-        var res = '', i, iz, node;
-        for (i = 0, iz = this.children.length; i < iz; ++i) {
-            node = this.children[i];
-            if (node instanceof SourceNodeMock) {
-                res += node.toString();
-            } else {
-                res += node;
-            }
-        }
-        return res;
-    };
-
-    SourceNodeMock.prototype.replaceRight = function replaceRight(pattern, replacement) {
-        var last = this.children[this.children.length - 1];
-        if (last instanceof SourceNodeMock) {
-            last.replaceRight(pattern, replacement);
-        } else if (typeof last === 'string') {
-            this.children[this.children.length - 1] = last.replace(pattern, replacement);
-        } else {
-            this.children.push(''.replace(pattern, replacement));
-        }
-        return this;
-    };
-
-    SourceNodeMock.prototype.join = function join(sep) {
-        var i, iz, result;
-        result = [];
-        iz = this.children.length;
-        if (iz > 0) {
-            --iz;
-            for (i = 0; i < iz; ++i) {
-                result.push(this.children[i], sep);
-            }
-            result.push(this.children[iz]);
-            this.children = result;
-        }
-        return this;
-    };
-
     function hasLineTerminator(str) {
         return (/[\r\n]/g).test(str);
     }
@@ -552,7 +491,30 @@
         return result + quote;
     }
 
+    /**
+     * flatten an array to a string, where the array can contain
+     * either strings or nested arrays
+     */
+    function flattenToString(arr) {
+        var result = '', i = 0, len = arr.length, elem;
+        for ( ; i < len; i++) {
+            elem = arr[i];
+            result += isArray(elem) ? flattenToString(elem) : elem;
+        }
+        return result;
+    }
+
     function toSourceNode(generated, node) {
+        if (!sourceMap) {
+            // with no source maps, generated is either an
+            // array or a string.  if an array, flatten it.
+            // if a string, just return it
+            if (isArray(generated)) {
+                return flattenToString(generated);
+            } else {
+                return generated;
+            }
+        }
         if (node == null) {
             if (generated instanceof SourceNode) {
                 return generated;
@@ -611,7 +573,7 @@
     }
 
     function adjustMultilineComment(value, specialBase) {
-        var array, i, len, line, j, spaces, previousBase;
+        var array, i, len, line, j, spaces, previousBase, sn;
 
         array = value.split(/\r\n|[\r\n]/);
         spaces = Number.MAX_VALUE;
@@ -653,7 +615,8 @@
         }
 
         for (i = 1, len = array.length; i < len; ++i) {
-            array[i] = toSourceNode(addIndent(array[i].slice(spaces))).join('');
+            sn = toSourceNode(addIndent(array[i].slice(spaces)));
+            array[i] = sourceMap ? sn.join('') : sn;
         }
 
         base = previousBase;
@@ -2017,7 +1980,7 @@
 
         fragment = toSourceNode(result).toString();
         if (stmt.type === Syntax.Program && !safeConcatenation && newline === '' &&  fragment.charAt(fragment.length - 1) === '\n') {
-            result = toSourceNode(result).replaceRight(/\s+$/, '');
+            result = sourceMap ? toSourceNode(result).replaceRight(/\s+$/, '') : fragment.replace(/\s+$/, '');
         }
 
         return toSourceNode(result, stmt);
@@ -2077,8 +2040,6 @@
             } else {
                 SourceNode = global.sourceMap.SourceNode;
             }
-        } else {
-            SourceNode = SourceNodeMock;
         }
 
         switch (node.type) {
