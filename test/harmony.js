@@ -255,6 +255,103 @@ data = {
                     end: { line: 1, column: 23 }
                 }
             }
+        },
+
+        'var a = function* () {\n    yield 1;\n};': {
+            generateFrom: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "a"
+                                },
+                                "init": {
+                                    "type": "FunctionExpression",
+                                    "id": null,
+                                    "params": [],
+                                    "defaults": [],
+                                    "body": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                            {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                    "type": "YieldExpression",
+                                                    "argument": {
+                                                        "type": "Literal",
+                                                        "value": 1,
+                                                        "raw": "1"
+                                                    },
+                                                    "delegate": false
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "rest": null,
+                                    "generator": true,
+                                    "expression": false
+                                }
+                            }
+                        ],
+                        "kind": "var"
+                    }
+                ]
+            }
+        },
+
+        'var a = function* b() {\n    yield 1;\n};': {
+            generateFrom: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "a"
+                                },
+                                "init": {
+                                    "type": "FunctionExpression",
+                                    "id": {
+                                        "type": "Identifier",
+                                        "name": "b"
+                                    },
+                                    "params": [],
+                                    "defaults": [],
+                                    "body": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                            {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                    "type": "YieldExpression",
+                                                    "argument": {
+                                                        "type": "Literal",
+                                                        "value": 1,
+                                                        "raw": "1"
+                                                    },
+                                                    "delegate": false
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "rest": null,
+                                    "generator": true,
+                                    "expression": false
+                                }
+                            }
+                        ],
+                        "kind": "var"
+                    }
+                ]
+            }
         }
     },
 
