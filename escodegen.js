@@ -1145,7 +1145,7 @@
             break;
 
         case Syntax.FunctionExpression:
-            result = 'function';
+            result = expr.generator && !extra.moz.starlessGenerator ? 'function*' : 'function';
 
             if (expr.id) {
                 result = [result, noEmptySpace(),
