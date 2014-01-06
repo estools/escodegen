@@ -352,6 +352,162 @@ data = {
                     }
                 ]
             }
+        },
+
+        'function*test(){yield 42}': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'FunctionDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'test',
+                        range: [9, 13],
+                        loc: {
+                            start: { line: 1, column: 9 },
+                            end: { line: 1, column: 13 }
+                        }
+                    },
+                    params: [],
+                    defaults: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [{
+                            type: 'ExpressionStatement',
+                            expression: {
+                                type: 'YieldExpression',
+                                argument: {
+                                    type: 'Literal',
+                                    value: 42,
+                                    raw: '42',
+                                    range: [22, 24],
+                                    loc: {
+                                        start: { line: 1, column: 22 },
+                                        end: { line: 1, column: 24 }
+                                    }
+                                },
+                                delegate: false,
+                                range: [16, 24],
+                                loc: {
+                                    start: { line: 1, column: 16 },
+                                    end: { line: 1, column: 24 }
+                                }
+                            },
+                            range: [16, 24],
+                            loc: {
+                                start: { line: 1, column: 16 },
+                                end: { line: 1, column: 24 }
+                            }
+                        }],
+                        range: [15, 25],
+                        loc: {
+                            start: { line: 1, column: 15 },
+                            end: { line: 1, column: 25 }
+                        }
+                    },
+                    rest: null,
+                    generator: true,
+                    expression: false,
+                    range: [0, 25],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 25 }
+                    }
+                }],
+                range: [0, 25],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 25 }
+                }
+            }
+        },
+
+        '(function*test(){yield 42})': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'FunctionExpression',
+                        id: {
+                            type: 'Identifier',
+                            name: 'test',
+                            range: [10, 14],
+                            loc: {
+                                start: { line: 1, column: 10 },
+                                end: { line: 1, column: 14 }
+                            }
+                        },
+                        params: [],
+                        defaults: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [{
+                                type: 'ExpressionStatement',
+                                expression: {
+                                    type: 'YieldExpression',
+                                    argument: {
+                                        type: 'Literal',
+                                        value: 42,
+                                        raw: '42',
+                                        range: [23, 25],
+                                        loc: {
+                                            start: { line: 1, column: 23 },
+                                            end: { line: 1, column: 25 }
+                                        }
+                                    },
+                                    delegate: false,
+                                    range: [17, 25],
+                                    loc: {
+                                        start: { line: 1, column: 17 },
+                                        end: { line: 1, column: 25 }
+                                    }
+                                },
+                                range: [17, 25],
+                                loc: {
+                                    start: { line: 1, column: 17 },
+                                    end: { line: 1, column: 25 }
+                                }
+                            }],
+                            range: [16, 26],
+                            loc: {
+                                start: { line: 1, column: 16 },
+                                end: { line: 1, column: 26 }
+                            }
+                        },
+                        rest: null,
+                        generator: true,
+                        expression: false,
+                        range: [1, 26],
+                        loc: {
+                            start: { line: 1, column: 1 },
+                            end: { line: 1, column: 26 }
+                        }
+                    },
+                    range: [0, 27],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 27 }
+                    }
+                }],
+                range: [0, 27],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 27 }
+                }
+            }
         }
     },
 
@@ -2437,6 +2593,30 @@ data = {
     }
 };
 
+function updateDeeply(target, override) {
+    var key, val;
+
+    function isHashObject(target) {
+        return typeof target === 'object' && target instanceof Object && !(target instanceof RegExp);
+    }
+
+    for (key in override) {
+        if (override.hasOwnProperty(key)) {
+            val = override[key];
+            if (isHashObject(val)) {
+                if (isHashObject(target[key])) {
+                    updateDeeply(target[key], val);
+                } else {
+                    target[key] = updateDeeply({}, val);
+                }
+            } else {
+                target[key] = val;
+            }
+        }
+    }
+    return target;
+}
+
 // Special handling for regular expression literal since we need to
 // convert it to a string literal, otherwise it will be decoded
 // as object "{}" and the regular expression would be lost.
@@ -2481,6 +2661,10 @@ function testGenerate(expected, result) {
         indent: '    ',
         parse: esprima.parse
     };
+
+    if (result.options) {
+        options = updateDeeply(options, result.options);
+    }
 
     actual = escodegen.generate(result.generateFrom, options);
     expect(actual).to.be.equal(expected);
