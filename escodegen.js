@@ -88,6 +88,7 @@
         ForInStatement: 'ForInStatement',
         FunctionDeclaration: 'FunctionDeclaration',
         FunctionExpression: 'FunctionExpression',
+        GeneratorExpression: 'GeneratorExpression',
         Identifier: 'Identifier',
         IfStatement: 'IfStatement',
         Literal: 'Literal',
@@ -193,6 +194,7 @@
                 safeConcatenation: false
             },
             moz: {
+                comprehensionExpressionStartsWithAssignment: false,
                 starlessGenerator: false,
                 parenthesizedComprehensionBlock: false
             },
@@ -1384,25 +1386,38 @@
             result = generateRegExp(expr.value);
             break;
 
+        case Syntax.GeneratorExpression:
         case Syntax.ComprehensionExpression:
-            result = [
-                '[',
-                generateExpression(expr.body, {
+            // GeneratorExpression should be parenthesized with (...), ComprehensionExpression with [...]
+            // Due to https://bugzilla.mozilla.org/show_bug.cgi?id=883468 position of expr.body can differ in Spidermonkey and ES6
+            result = (type === Syntax.GeneratorExpression) ? ['('] : ['['];
+
+            if (extra.moz.comprehensionExpressionStartsWithAssignment) {
+                fragment = generateExpression(expr.body, {
                     precedence: Precedence.Assignment,
                     allowIn: true,
                     allowCall: true
-                })
-            ];
+                });
+
+                result.push(fragment);
+            }
 
             if (expr.blocks) {
-                for (i = 0, len = expr.blocks.length; i < len; ++i) {
-                    fragment = generateExpression(expr.blocks[i], {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    });
-                    result = join(result, fragment);
-                }
+                withIndent(function () {
+                    for (i = 0, len = expr.blocks.length; i < len; ++i) {
+                        fragment = generateExpression(expr.blocks[i], {
+                            precedence: Precedence.Sequence,
+                            allowIn: true,
+                            allowCall: true
+                        });
+
+                        if (i > 0 || extra.moz.comprehensionExpressionStartsWithAssignment) {
+                            result = join(result, fragment);
+                        } else {
+                            result.push(fragment);
+                        }
+                    }
+                });
             }
 
             if (expr.filter) {
@@ -1418,7 +1433,18 @@
                     result = join(result, fragment);
                 }
             }
-            result.push(']');
+
+            if (!extra.moz.comprehensionExpressionStartsWithAssignment) {
+                fragment = generateExpression(expr.body, {
+                    precedence: Precedence.Assignment,
+                    allowIn: true,
+                    allowCall: true
+                });
+
+                result = join(result, fragment);
+            }
+
+            result.push((type === Syntax.GeneratorExpression) ? ')' : ']');
             break;
 
         case Syntax.ComprehensionBlock:

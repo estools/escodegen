@@ -863,7 +863,8 @@ function testGenerate(expected, result) {
         parse: esprima.parse,
         moz: {
             starlessGenerator: true,
-            parenthesizedComprehensionBlock: true
+            parenthesizedComprehensionBlock: true,
+            comprehensionExpressionStartsWithAssignment: true
         }
     };
 
