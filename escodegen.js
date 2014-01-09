@@ -82,11 +82,13 @@
         DoWhileStatement: 'DoWhileStatement',
         DebuggerStatement: 'DebuggerStatement',
         EmptyStatement: 'EmptyStatement',
+        ExportDeclaration: 'ExportDeclaration',
         ExpressionStatement: 'ExpressionStatement',
         ForStatement: 'ForStatement',
         ForInStatement: 'ForInStatement',
         FunctionDeclaration: 'FunctionDeclaration',
         FunctionExpression: 'FunctionExpression',
+        GeneratorExpression: 'GeneratorExpression',
         Identifier: 'Identifier',
         IfStatement: 'IfStatement',
         LetExpression: 'LetExpression',
@@ -114,7 +116,6 @@
         WhileStatement: 'WhileStatement',
         WithStatement: 'WithStatement',
         YieldExpression: 'YieldExpression'
-
     };
 
     Precedence = {
@@ -195,6 +196,7 @@
                 safeConcatenation: false
             },
             moz: {
+                comprehensionExpressionStartsWithAssignment: false,
                 starlessGenerator: false,
                 parenthesizedComprehensionBlock: false
             },
@@ -843,7 +845,8 @@
             allowIn,
             allowCall,
             allowUnparenthesizedNew,
-            property;
+            property,
+            isGenerator;
 
         precedence = option.precedence;
         allowIn = option.allowIn;
@@ -1151,10 +1154,11 @@
             break;
 
         case Syntax.FunctionExpression:
-            result = 'function';
+            isGenerator = expr.generator && !extra.moz.starlessGenerator;
+            result = isGenerator ? 'function*' : 'function';
 
             if (expr.id) {
-                result = [result, noEmptySpace(),
+                result = [result, (isGenerator) ? space : noEmptySpace(),
                           generateIdentifier(expr.id),
                           generateFunctionBody(expr)];
             } else {
@@ -1388,25 +1392,38 @@
             result = generateRegExp(expr.value);
             break;
 
+        case Syntax.GeneratorExpression:
         case Syntax.ComprehensionExpression:
-            result = [
-                '[',
-                generateExpression(expr.body, {
+            // GeneratorExpression should be parenthesized with (...), ComprehensionExpression with [...]
+            // Due to https://bugzilla.mozilla.org/show_bug.cgi?id=883468 position of expr.body can differ in Spidermonkey and ES6
+            result = (type === Syntax.GeneratorExpression) ? ['('] : ['['];
+
+            if (extra.moz.comprehensionExpressionStartsWithAssignment) {
+                fragment = generateExpression(expr.body, {
                     precedence: Precedence.Assignment,
                     allowIn: true,
                     allowCall: true
-                })
-            ];
+                });
+
+                result.push(fragment);
+            }
 
             if (expr.blocks) {
-                for (i = 0, len = expr.blocks.length; i < len; ++i) {
-                    fragment = generateExpression(expr.blocks[i], {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    });
-                    result = join(result, fragment);
-                }
+                withIndent(function () {
+                    for (i = 0, len = expr.blocks.length; i < len; ++i) {
+                        fragment = generateExpression(expr.blocks[i], {
+                            precedence: Precedence.Sequence,
+                            allowIn: true,
+                            allowCall: true
+                        });
+
+                        if (i > 0 || extra.moz.comprehensionExpressionStartsWithAssignment) {
+                            result = join(result, fragment);
+                        } else {
+                            result.push(fragment);
+                        }
+                    }
+                });
             }
 
             if (expr.filter) {
@@ -1422,7 +1439,18 @@
                     result = join(result, fragment);
                 }
             }
-            result.push(']');
+
+            if (!extra.moz.comprehensionExpressionStartsWithAssignment) {
+                fragment = generateExpression(expr.body, {
+                    precedence: Precedence.Assignment,
+                    allowIn: true,
+                    allowCall: true
+                });
+
+                result = join(result, fragment);
+            }
+
+            result.push((type === Syntax.GeneratorExpression) ? ')' : ']');
             break;
 
         case Syntax.ComprehensionBlock:
@@ -1463,7 +1491,15 @@
     }
 
     function generateStatement(stmt, option) {
-        var i, len, result, allowIn, functionBody, directiveContext, fragment, semicolon;
+        var i,
+            len,
+            result,
+            allowIn,
+            functionBody,
+            directiveContext,
+            fragment,
+            semicolon,
+            isGenerator;
 
         allowIn = true;
         semicolon = ';';
@@ -1572,6 +1608,15 @@
             result = ';';
             break;
 
+        case Syntax.ExportDeclaration:
+            result = 'export ';
+            if (stmt.declaration) {
+                // FunctionDeclaration or VariableDeclaration
+                result = [result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' })];
+                break;
+            }
+            break;
+
         case Syntax.ExpressionStatement:
             result = [generateExpression(stmt.expression, {
                 precedence: Precedence.Sequence,
@@ -1581,7 +1626,9 @@
             // 12.4 '{', 'function' is not allowed in this position.
             // wrap expression with parentheses
             fragment = toSourceNode(result).toString();
-            if (fragment.charAt(0) === '{' || (fragment.slice(0, 8) === 'function' && ' ('.indexOf(fragment.charAt(8)) >= 0) || (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
+            if (fragment.charAt(0) === '{' ||  // ObjectExpression
+                    (fragment.slice(0, 8) === 'function' && '* ('.indexOf(fragment.charAt(8)) >= 0) ||  // function or generator
+                    (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
                 result = ['(', result, ')' + semicolon];
             } else {
                 result.push(semicolon);
@@ -1849,9 +1896,13 @@
             break;
 
         case Syntax.FunctionDeclaration:
-            result = [(stmt.generator && !extra.moz.starlessGenerator ? 'function* ' : 'function '),
-                      generateIdentifier(stmt.id),
-                      generateFunctionBody(stmt)];
+            isGenerator = stmt.generator && !extra.moz.starlessGenerator;
+            result = [
+                (isGenerator ? 'function*' : 'function'),
+                (isGenerator ? space : noEmptySpace()),
+                generateIdentifier(stmt.id),
+                generateFunctionBody(stmt)
+            ];
             break;
 
         case Syntax.ReturnStatement:

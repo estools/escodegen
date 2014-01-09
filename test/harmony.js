@@ -255,6 +255,259 @@ data = {
                     end: { line: 1, column: 23 }
                 }
             }
+        },
+
+        'var a = function* () {\n    yield 1;\n};': {
+            generateFrom: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "a"
+                                },
+                                "init": {
+                                    "type": "FunctionExpression",
+                                    "id": null,
+                                    "params": [],
+                                    "defaults": [],
+                                    "body": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                            {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                    "type": "YieldExpression",
+                                                    "argument": {
+                                                        "type": "Literal",
+                                                        "value": 1,
+                                                        "raw": "1"
+                                                    },
+                                                    "delegate": false
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "rest": null,
+                                    "generator": true,
+                                    "expression": false
+                                }
+                            }
+                        ],
+                        "kind": "var"
+                    }
+                ]
+            }
+        },
+
+        'var a = function* b() {\n    yield 1;\n};': {
+            generateFrom: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "a"
+                                },
+                                "init": {
+                                    "type": "FunctionExpression",
+                                    "id": {
+                                        "type": "Identifier",
+                                        "name": "b"
+                                    },
+                                    "params": [],
+                                    "defaults": [],
+                                    "body": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                            {
+                                                "type": "ExpressionStatement",
+                                                "expression": {
+                                                    "type": "YieldExpression",
+                                                    "argument": {
+                                                        "type": "Literal",
+                                                        "value": 1,
+                                                        "raw": "1"
+                                                    },
+                                                    "delegate": false
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "rest": null,
+                                    "generator": true,
+                                    "expression": false
+                                }
+                            }
+                        ],
+                        "kind": "var"
+                    }
+                ]
+            }
+        },
+
+        'function*test(){yield 42}': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'FunctionDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'test',
+                        range: [9, 13],
+                        loc: {
+                            start: { line: 1, column: 9 },
+                            end: { line: 1, column: 13 }
+                        }
+                    },
+                    params: [],
+                    defaults: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [{
+                            type: 'ExpressionStatement',
+                            expression: {
+                                type: 'YieldExpression',
+                                argument: {
+                                    type: 'Literal',
+                                    value: 42,
+                                    raw: '42',
+                                    range: [22, 24],
+                                    loc: {
+                                        start: { line: 1, column: 22 },
+                                        end: { line: 1, column: 24 }
+                                    }
+                                },
+                                delegate: false,
+                                range: [16, 24],
+                                loc: {
+                                    start: { line: 1, column: 16 },
+                                    end: { line: 1, column: 24 }
+                                }
+                            },
+                            range: [16, 24],
+                            loc: {
+                                start: { line: 1, column: 16 },
+                                end: { line: 1, column: 24 }
+                            }
+                        }],
+                        range: [15, 25],
+                        loc: {
+                            start: { line: 1, column: 15 },
+                            end: { line: 1, column: 25 }
+                        }
+                    },
+                    rest: null,
+                    generator: true,
+                    expression: false,
+                    range: [0, 25],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 25 }
+                    }
+                }],
+                range: [0, 25],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 25 }
+                }
+            }
+        },
+
+        '(function*test(){yield 42})': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'FunctionExpression',
+                        id: {
+                            type: 'Identifier',
+                            name: 'test',
+                            range: [10, 14],
+                            loc: {
+                                start: { line: 1, column: 10 },
+                                end: { line: 1, column: 14 }
+                            }
+                        },
+                        params: [],
+                        defaults: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [{
+                                type: 'ExpressionStatement',
+                                expression: {
+                                    type: 'YieldExpression',
+                                    argument: {
+                                        type: 'Literal',
+                                        value: 42,
+                                        raw: '42',
+                                        range: [23, 25],
+                                        loc: {
+                                            start: { line: 1, column: 23 },
+                                            end: { line: 1, column: 25 }
+                                        }
+                                    },
+                                    delegate: false,
+                                    range: [17, 25],
+                                    loc: {
+                                        start: { line: 1, column: 17 },
+                                        end: { line: 1, column: 25 }
+                                    }
+                                },
+                                range: [17, 25],
+                                loc: {
+                                    start: { line: 1, column: 17 },
+                                    end: { line: 1, column: 25 }
+                                }
+                            }],
+                            range: [16, 26],
+                            loc: {
+                                start: { line: 1, column: 16 },
+                                end: { line: 1, column: 26 }
+                            }
+                        },
+                        rest: null,
+                        generator: true,
+                        expression: false,
+                        range: [1, 26],
+                        loc: {
+                            start: { line: 1, column: 1 },
+                            end: { line: 1, column: 26 }
+                        }
+                    },
+                    range: [0, 27],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 27 }
+                    }
+                }],
+                range: [0, 27],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 27 }
+                }
+            }
         }
     },
 
@@ -1405,7 +1658,7 @@ data = {
 
     'Array Comprehension': {
 
-        '[x for x in []];':{
+        '[for x in [] x];':{
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1435,7 +1688,43 @@ data = {
             }
         },
 
-        '[x for x of []];': {
+        '[x for (x in [])];':{
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ComprehensionExpression',
+                        filter: null,
+                        blocks: [{
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'x'
+                            },
+                            right: {
+                                type: 'ArrayExpression',
+                                elements: []
+                            },
+                            each: false,
+                            of: false
+                        }],
+                        body: {
+                            type: 'Identifier',
+                            name: 'x'
+                        }
+                    }
+                }]
+            },
+            options: {
+                moz: {
+                    parenthesizedComprehensionBlock: true,
+                    comprehensionExpressionStartsWithAssignment: true
+                }
+            }
+        },
+
+        '[for x of [] x];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1465,7 +1754,43 @@ data = {
             }
         },
 
-        '[1 for x in y if f(x)];': {
+        '[x for (x of [])];': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ComprehensionExpression',
+                        filter: null,
+                        blocks: [{
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'x'
+                            },
+                            right: {
+                                type: 'ArrayExpression',
+                                elements: []
+                            },
+                            each: false,
+                            of: true
+                        }],
+                        body: {
+                            type: 'Identifier',
+                            name: 'x'
+                        }
+                    }
+                }]
+            },
+            options: {
+                moz: {
+                    parenthesizedComprehensionBlock: true,
+                    comprehensionExpressionStartsWithAssignment: true
+                }
+            }
+        },
+
+        '[for x in y if f(x) 1];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1506,7 +1831,54 @@ data = {
             }
         },
 
-        '[1 for x of y if f(x)];': {
+        '[1 for (x in y) if (f(x))];': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ComprehensionExpression',
+                        filter: {
+                            type: 'CallExpression',
+                            callee: {
+                                type: 'Identifier',
+                                name: 'f'
+                            },
+                            'arguments': [{
+                                type: 'Identifier',
+                                name: 'x'
+                            }]
+                        },
+                        blocks: [{
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'x'
+                            },
+                            right: {
+                                type: 'Identifier',
+                                name: 'y'
+                            },
+                            each: false,
+                            of: false
+                        }],
+                        body: {
+                            type: 'Literal',
+                            value: 1,
+                            raw: '1'
+                        }
+                    }
+                }]
+            },
+            options: {
+                moz: {
+                    parenthesizedComprehensionBlock: true,
+                    comprehensionExpressionStartsWithAssignment: true
+                }
+            }
+        },
+
+        '[for x of y if f(x) 1];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1547,7 +1919,54 @@ data = {
             }
         },
 
-        '[[\n    x,\n    b,\n    c\n] for x in [] for b in [] if b && c];': {
+        '[1 for (x of y) if (f(x))];': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ComprehensionExpression',
+                        filter: {
+                            type: 'CallExpression',
+                            callee: {
+                                type: 'Identifier',
+                                name: 'f'
+                            },
+                            'arguments': [{
+                                type: 'Identifier',
+                                name: 'x'
+                            }]
+                        },
+                        blocks: [{
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'x'
+                            },
+                            right: {
+                                type: 'Identifier',
+                                name: 'y'
+                            },
+                            each: false,
+                            of: true
+                        }],
+                        body: {
+                            type: 'Literal',
+                            value: 1,
+                            raw: '1'
+                        }
+                    }
+                }]
+            },
+            options: {
+                moz: {
+                    parenthesizedComprehensionBlock: true,
+                    comprehensionExpressionStartsWithAssignment: true
+                }
+            }
+        },
+
+        '[for x in [] for b in [] if b && c [\n    x,\n    b,\n    c\n]];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1609,7 +2028,75 @@ data = {
             }
         },
 
-        '[[\n    x,\n    b,\n    c\n] for x of [] for b of [] if b && c];': {
+        '[[\n    x,\n    b,\n    c\n] for (x in []) for (b in []) if (b && c)];': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ComprehensionExpression',
+                        filter: {
+                            type: 'LogicalExpression',
+                            operator: '&&',
+                            left: {
+                                type: 'Identifier',
+                                name: 'b'
+                            },
+                            right: {
+                                type: 'Identifier',
+                                name: 'c'
+                            }
+                        },
+                        blocks: [{
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'x'
+                            },
+                            right: {
+                                type: 'ArrayExpression',
+                                elements: []
+                            },
+                            each: false,
+                            of: false
+                        }, {
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'b'
+                            },
+                            right: {
+                                type: 'ArrayExpression',
+                                elements: []
+                            },
+                            each: false,
+                            of: false
+                        }],
+                        body: {
+                            type: 'ArrayExpression',
+                            elements: [{
+                                type: 'Identifier',
+                                name: 'x'
+                            }, {
+                                type: 'Identifier',
+                                name: 'b'
+                            }, {
+                                type: 'Identifier',
+                                name: 'c'
+                            }]
+                        }
+                    }
+                }]
+            },
+            options: {
+                moz: {
+                    parenthesizedComprehensionBlock: true,
+                    comprehensionExpressionStartsWithAssignment: true
+                }
+            }
+        },
+
+        '[for x of [] for b of [] if b && c [\n    x,\n    b,\n    c\n]];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1668,6 +2155,199 @@ data = {
                         }
                     }
                 }]
+            }
+        },
+
+        '[[\n    x,\n    b,\n    c\n] for (x of []) for (b of []) if (b && c)];': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ComprehensionExpression',
+                        filter: {
+                            type: 'LogicalExpression',
+                            operator: '&&',
+                            left: {
+                                type: 'Identifier',
+                                name: 'b'
+                            },
+                            right: {
+                                type: 'Identifier',
+                                name: 'c'
+                            }
+                        },
+                        blocks: [{
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'x'
+                            },
+                            right: {
+                                type: 'ArrayExpression',
+                                elements: []
+                            },
+                            each: false,
+                            of: true
+                        }, {
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'b'
+                            },
+                            right: {
+                                type: 'ArrayExpression',
+                                elements: []
+                            },
+                            each: false,
+                            of: true
+                        }],
+                        body: {
+                            type: 'ArrayExpression',
+                            elements: [{
+                                type: 'Identifier',
+                                name: 'x'
+                            }, {
+                                type: 'Identifier',
+                                name: 'b'
+                            }, {
+                                type: 'Identifier',
+                                name: 'c'
+                            }]
+                        }
+                    }
+                }]
+            },
+            options: {
+                moz: {
+                    parenthesizedComprehensionBlock: true,
+                    comprehensionExpressionStartsWithAssignment: true
+                }
+            }
+        }
+    },
+
+    'LetStatement and LetExpressions': {
+        'let (a = 6)\n    alert(a);': {
+            generateFrom: {
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'LetExpression',
+                    head: [
+                        {
+                            type: 'VariableDeclarator',
+                            id: {
+                                type: 'Identifier',
+                                name: 'a'
+                            },
+                            init: {
+                                type: 'Literal',
+                                value: 6
+                            }
+                        }
+                    ],
+                    body: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Identifier',
+                            name: 'alert'
+                        },
+                        'arguments': [
+                            {
+                                type: 'Identifier',
+                                name: 'a'
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+
+        'let (i = 0) {\n    for (; i < 10; i++) {\n    }\n}': {
+            generateFrom: {
+                type: 'LetStatement',
+                head: [
+                    {
+                        type: 'VariableDeclarator',
+                        id: {
+                            type: 'Identifier',
+                            name: 'i'
+                        },
+                        init: {
+                            type: 'Literal',
+                            value: 0
+                        }
+                    }
+                ],
+                body: {
+                    type: 'ForStatement',
+                    init: null,
+                    test: {
+                        type: 'BinaryExpression',
+                        operator: '<',
+                        left: {
+                            type: 'Identifier',
+                            name: 'i'
+                        },
+                        right: {
+                            type: 'Literal',
+                            value: 10
+                        }
+                    },
+                    update: {
+                        type: 'UpdateExpression',
+                        operator: '++',
+                        argument: {
+                            type: 'Identifier',
+                            name: 'i'
+                        },
+                        prefix: false
+                    },
+                    body: {
+                        type: 'BlockStatement',
+                        body: []
+                    }
+                }
+            }
+        },
+
+        'let (a = 2) {\n    alert(a);\n}': {
+            generateFrom: {
+                type: 'LetStatement',
+                head: [
+                    {
+                        type: 'VariableDeclarator',
+                        id: {
+                            type: 'Identifier',
+                            name: 'a'
+                        },
+                        init: {
+                            type: 'Literal',
+                            value: 2
+                        }
+                    }
+                ],
+                body: {
+                    type: 'BlockStatement',
+                    body: [
+                        {
+                            type: 'ExpressionStatement',
+                            expression: {
+                                type: 'CallExpression',
+                                callee: {
+                                    type: 'Identifier',
+                                    name: 'alert'
+                                },
+                                'arguments': [
+                                    {
+                                        type: 'Identifier',
+                                        name: 'a'
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
             }
         }
     },
@@ -2122,132 +2802,247 @@ data = {
         }
     },
 
-
-    'LetStatement and LetExpressions': {
-        'let (a = 6)\n    alert(a);': {
-            generateFrom: {
-                type: 'ExpressionStatement',
-                expression: {
-                    type: 'LetExpression',
-                    head: [
-                        {
-                            type: 'VariableDeclarator',
-                            id: {
-                                type: 'Identifier',
-                                name: 'a'
-                            },
-                            init: {
-                                type: 'Literal',
-                                value: 6
-                            }
-                        }
-                    ],
-                    body: {
-                        type: 'CallExpression',
-                        callee: {
-                            type: 'Identifier',
-                            name: 'alert'
-                        },
-                        'arguments': [
-                            {
-                                type: 'Identifier',
-                                name: 'a'
-                            }
-                        ]
-                    }
-                }
-            }
-        },
-
-        'let (i = 0) {\n    for (; i < 10; i++) {\n    }\n}': {
-            generateFrom: {
-                type: 'LetStatement',
-                head: [
-                    {
-                        type: 'VariableDeclarator',
-                        id: {
-                            type: 'Identifier',
-                            name: 'i'
-                        },
-                        init: {
-                            type: 'Literal',
-                            value: 0
-                        }
-                    }
-                ],
-                body: {
-                    type: 'ForStatement',
-                    init: null,
-                    test: {
-                        type: 'BinaryExpression',
-                        operator: '<',
-                        left: {
-                            type: 'Identifier',
-                            name: 'i'
-                        },
-                        right: {
-                            type: 'Literal',
-                            value: 10
+    'Harmony export declaration': {
+        'export function a() { }': {
+            type: 'Program',
+            body: [{
+                type: 'ExportDeclaration',
+                declaration: {
+                    type: 'FunctionDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'a',
+                        range: [16, 17],
+                        loc: {
+                            start: { line: 1, column: 16 },
+                            end: { line: 1, column: 17 }
                         }
                     },
-                    update: {
-                        type: 'UpdateExpression',
-                        operator: '++',
-                        argument: {
-                            type: 'Identifier',
-                            name: 'i'
-                        },
-                        prefix: false
-                    },
+                    params: [],
+                    defaults: [],
                     body: {
                         type: 'BlockStatement',
-                        body: []
+                        body: [],
+                        range: [20, 23],
+                        loc: {
+                            start: { line: 1, column: 20 },
+                            end: { line: 1, column: 23 }
+                        }
+                    },
+                    rest: null,
+                    generator: false,
+                    expression: false,
+                    range: [7, 23],
+                    loc: {
+                        start: { line: 1, column: 7 },
+                        end: { line: 1, column: 23 }
                     }
+                },
+                specifiers: null,
+                source: null,
+                range: [0, 23],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 23 }
                 }
+            }],
+            range: [0, 23],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 23 }
             }
         },
 
-        'let (a = 2) {\n    alert(a);\n}': {
-            generateFrom: {
-                type: 'LetStatement',
-                head: [
-                    {
+        'export var i = 20': {
+            type: 'Program',
+            body: [{
+                type: 'ExportDeclaration',
+                declaration: {
+                    type: 'VariableDeclaration',
+                    declarations: [{
                         type: 'VariableDeclarator',
                         id: {
                             type: 'Identifier',
-                            name: 'a'
+                            name: 'i',
+                            range: [11, 12],
+                            loc: {
+                                start: { line: 1, column: 11 },
+                                end: { line: 1, column: 12 }
+                            }
                         },
                         init: {
                             type: 'Literal',
-                            value: 2
-                        }
-                    }
-                ],
-                body: {
-                    type: 'BlockStatement',
-                    body: [
-                        {
-                            type: 'ExpressionStatement',
-                            expression: {
-                                type: 'CallExpression',
-                                callee: {
-                                    type: 'Identifier',
-                                    name: 'alert'
-                                },
-                                'arguments': [
-                                    {
-                                        type: 'Identifier',
-                                        name: 'a'
-                                    }
-                                ]
+                            value: 20,
+                            raw: '20',
+                            range: [15, 17],
+                            loc: {
+                                start: { line: 1, column: 15 },
+                                end: { line: 1, column: 17 }
                             }
+                        },
+                        range: [11, 17],
+                        loc: {
+                            start: { line: 1, column: 11 },
+                            end: { line: 1, column: 17 }
                         }
-                    ]
+                    }],
+                    kind: 'var',
+                    range: [7, 17],
+                    loc: {
+                        start: { line: 1, column: 7 },
+                        end: { line: 1, column: 17 }
+                    }
+                },
+                specifiers: null,
+                source: null,
+                range: [0, 17],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 17 }
                 }
+            }],
+            range: [0, 17],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 17 }
+            }
+        },
+
+        'export let i = 20': {
+            type: 'Program',
+            body: [{
+                type: 'ExportDeclaration',
+                declaration: {
+                    type: 'VariableDeclaration',
+                    declarations: [{
+                        type: 'VariableDeclarator',
+                        id: {
+                            type: 'Identifier',
+                            name: 'i',
+                            range: [11, 12],
+                            loc: {
+                                start: { line: 1, column: 11 },
+                                end: { line: 1, column: 12 }
+                            }
+                        },
+                        init: {
+                            type: 'Literal',
+                            value: 20,
+                            raw: '20',
+                            range: [15, 17],
+                            loc: {
+                                start: { line: 1, column: 15 },
+                                end: { line: 1, column: 17 }
+                            }
+                        },
+                        range: [11, 17],
+                        loc: {
+                            start: { line: 1, column: 11 },
+                            end: { line: 1, column: 17 }
+                        }
+                    }],
+                    kind: 'let',
+                    range: [7, 17],
+                    loc: {
+                        start: { line: 1, column: 7 },
+                        end: { line: 1, column: 17 }
+                    }
+                },
+                specifiers: null,
+                source: null,
+                range: [0, 17],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 17 }
+                }
+            }],
+            range: [0, 17],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 17 }
+            }
+        },
+
+        'export const i = 20': {
+            type: 'Program',
+            body: [{
+                type: 'ExportDeclaration',
+                declaration: {
+                    type: 'VariableDeclaration',
+                    declarations: [{
+                        type: 'VariableDeclarator',
+                        id: {
+                            type: 'Identifier',
+                            name: 'i',
+                            range: [13, 14],
+                            loc: {
+                                start: { line: 1, column: 13 },
+                                end: { line: 1, column: 14 }
+                            }
+                        },
+                        init: {
+                            type: 'Literal',
+                            value: 20,
+                            raw: '20',
+                            range: [17, 19],
+                            loc: {
+                                start: { line: 1, column: 17 },
+                                end: { line: 1, column: 19 }
+                            }
+                        },
+                        range: [13, 19],
+                        loc: {
+                            start: { line: 1, column: 13 },
+                            end: { line: 1, column: 19 }
+                        }
+                    }],
+                    kind: 'const',
+                    range: [7, 19],
+                    loc: {
+                        start: { line: 1, column: 7 },
+                        end: { line: 1, column: 19 }
+                    }
+                },
+                specifiers: null,
+                source: null,
+                range: [0, 19],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 19 }
+                }
+            }],
+            range: [0, 19],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 19 }
             }
         }
     }
 };
+
+function updateDeeply(target, override) {
+    var key, val;
+
+    function isHashObject(target) {
+        return typeof target === 'object' && target instanceof Object && !(target instanceof RegExp);
+    }
+
+    for (key in override) {
+        if (override.hasOwnProperty(key)) {
+            val = override[key];
+            if (isHashObject(val)) {
+                if (isHashObject(target[key])) {
+                    updateDeeply(target[key], val);
+                } else {
+                    target[key] = updateDeeply({}, val);
+                }
+            } else {
+                target[key] = val;
+            }
+        }
+    }
+    return target;
+}
 
 // Special handling for regular expression literal since we need to
 // convert it to a string literal, otherwise it will be decoded
@@ -2293,6 +3088,10 @@ function testGenerate(expected, result) {
         indent: '    ',
         parse: esprima.parse
     };
+
+    if (result.options) {
+        options = updateDeeply(options, result.options);
+    }
 
     actual = escodegen.generate(result.generateFrom, options);
     expect(actual).to.be.equal(expected);
