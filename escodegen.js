@@ -1648,7 +1648,15 @@
                     })
                 ];
             } else {
-                result = generateIdentifier(stmt.id);
+                if (stmt.id.type === Syntax.ArrayPattern || stmt.id.type === Syntax.ObjectPattern) {
+                    result = generateExpression(stmt.id, {
+                        precedence: Precedence.Assignment,
+                        allowIn: allowIn,
+                        allowCall: true
+                    });
+                } else {
+                    result = generateIdentifier(stmt.id);
+                }
             }
             break;
 

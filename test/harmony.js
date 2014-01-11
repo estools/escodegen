@@ -1408,6 +1408,63 @@ data = {
                 start: { line: 1, column: 0 },
                 end: { line: 1, column: 28 }
             }
+        },
+
+        'for (let {\n            a: b,\n            c: d\n        } in obj) {\n}': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ForInStatement',
+                    left: {
+                        type: 'VariableDeclaration',
+                        kind: 'let',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                id: {
+                                    type: 'ObjectPattern',
+                                    properties: [
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            kind: 'init'
+                                        },
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'c'
+                                            },
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'd'
+                                            },
+                                            kind: 'init'
+                                        }
+                                    ]
+                                },
+                                init: null
+                            }
+                        ]
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'obj'
+                    },
+                    body: {
+                        type: 'BlockStatement',
+                        body: []
+                    },
+                    each: false
+                }]
+            }
         }
     },
 
@@ -1652,6 +1709,47 @@ data = {
             loc: {
                 start: { line: 1, column: 0 },
                 end: { line: 1, column: 17 }
+            }
+        },
+
+        'for (let [\n            a,\n            b\n        ] in obj) {\n}': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ForInStatement',
+                    left: {
+                        type: 'VariableDeclaration',
+                        kind: 'let',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                id: {
+                                    type: 'ArrayPattern',
+                                    elements: [
+                                        {
+                                            type: 'Identifier',
+                                            name: 'a'
+                                        },
+                                        {
+                                            type: 'Identifier',
+                                            name: 'b'
+                                        }
+                                    ]
+                                },
+                                init: null
+                            }
+                        ]
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'obj'
+                    },
+                    body: {
+                        type: 'BlockStatement',
+                        body: []
+                    },
+                    each: false
+                }]
             }
         }
     },
