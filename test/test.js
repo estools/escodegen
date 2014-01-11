@@ -12871,6 +12871,80 @@ data = {
             }
         },
 
+        'try {\n} catch (ex if ex instanceof A) {\n} catch (ex if ex instanceof B) {\n} catch (ex) {\n}': {
+            generateFrom: {
+                type: "Program",
+                body: [{
+                    type: "TryStatement",
+                    block: {
+                        type: "BlockStatement",
+                        body: []
+                    },
+                    guardedHandlers: [
+                        {
+                            type: "CatchClause",
+                            param: {
+                                type: "Identifier",
+                                name: "ex"
+                            },
+                            guard: {
+                                type: "BinaryExpression",
+                                operator: "instanceof",
+                                left: {
+                                    type: "Identifier",
+                                    name: "ex"
+                                },
+                                right: {
+                                    type: "Identifier",
+                                    name: "A"
+                                }
+                            },
+                            body: {
+                                type: "BlockStatement",
+                                body: []
+                            }
+                        },
+                        {
+                            type: "CatchClause",
+                            param: {
+                                type: "Identifier",
+                                name: "ex"
+                            },
+                            guard: {
+                                type: "BinaryExpression",
+                                operator: "instanceof",
+                                left: {
+                                    type: "Identifier",
+                                    name: "ex"
+                                },
+                                right: {
+                                    type: "Identifier",
+                                    name: "B"
+                                }
+                            },
+                            body: {
+                                type: "BlockStatement",
+                                body: []
+                            }
+                        }
+                    ],
+                    handler: {
+                        type: "CatchClause",
+                        param: {
+                            type: "Identifier",
+                            name: "ex"
+                        },
+                        guard: null,
+                        body: {
+                            type: "BlockStatement",
+                            body: []
+                        }
+                    },
+                    finalizer: null
+                }]
+            }
+        },
+
         'try { } finally { cleanup(stuff) }': {
             type: 'TryStatement',
             block: {
