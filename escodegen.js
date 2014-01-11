@@ -814,7 +814,10 @@
         } else {
             result = ['('];
             for (i = 0, len = node.params.length; i < len; ++i) {
-                result.push(generateIdentifier(node.params[i]));
+                result.push(generatePattern(node.params[i], {
+                    precedence: Precedence.Assignment,
+                    allowIn: true
+                }));
                 if (i + 1 < len) {
                     result.push(',' + space);
                 }
