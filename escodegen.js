@@ -787,6 +787,22 @@
         return toSourceNode(node.name, node);
     }
 
+    function generatePattern(node, options) {
+        var result;
+
+        if (node.type === Syntax.ArrayPattern || node.type === Syntax.ObjectPattern) {
+            result = generateExpression(node, {
+                precedence: options.precedence,
+                allowIn: options.allowIn,
+                allowCall: true
+            });
+        } else {
+            result = generateIdentifier(node);
+        }
+
+        return result;
+    }
+
     function generateFunctionBody(node) {
         var result, i, len, expr, arrow;
 
@@ -1648,15 +1664,10 @@
                     })
                 ];
             } else {
-                if (stmt.id.type === Syntax.ArrayPattern || stmt.id.type === Syntax.ObjectPattern) {
-                    result = generateExpression(stmt.id, {
-                        precedence: Precedence.Assignment,
-                        allowIn: allowIn,
-                        allowCall: true
-                    });
-                } else {
-                    result = generateIdentifier(stmt.id);
-                }
+                result = generatePattern(stmt.id, {
+                    precedence: Precedence.Assignment,
+                    allowIn: allowIn
+                });
             }
             break;
 
