@@ -1465,6 +1465,58 @@ data = {
                     each: false
                 }]
             }
+        },
+
+        'function getIdField({\n    foo: bar,\n    foo2: bar2\n}) {\n}': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'FunctionDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'getIdField'
+                    },
+                    params: [
+                        {
+                            type: 'ObjectPattern',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Identifier',
+                                        name: 'foo'
+                                    },
+                                    value: {
+                                        type: 'Identifier',
+                                        name: 'bar'
+                                    },
+                                    kind: 'init'
+                                },
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Identifier',
+                                        name: 'foo2'
+                                    },
+                                    value: {
+                                        type: 'Identifier',
+                                        name: 'bar2'
+                                    },
+                                    kind: 'init'
+                                }
+                            ]
+                        }
+                    ],
+                    defaults: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: []
+                    },
+                    rest: null,
+                    generator: false,
+                    expression: false
+                }]
+            }
         }
     },
 
@@ -1749,6 +1801,46 @@ data = {
                         body: []
                     },
                     each: false
+                }]
+            }
+        },
+
+        'function getIdField([\n    a,\n    b,\n    c\n]) {\n}': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'FunctionDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: "getIdField"
+                    },
+                    params: [
+                        {
+                            type: 'ArrayPattern',
+                            elements: [
+                                {
+                                    type: 'Identifier',
+                                    name: "a"
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: "b"
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: "c"
+                                }
+                            ]
+                        }
+                    ],
+                    defaults: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: []
+                    },
+                    rest: null,
+                    generator: false,
+                    expression: false
                 }]
             }
         }
