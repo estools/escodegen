@@ -790,14 +790,14 @@
     function generatePattern(node, options) {
         var result;
 
-        if (node.type === Syntax.ArrayPattern || node.type === Syntax.ObjectPattern) {
+        if (node.type === Syntax.Identifier) {
+            result = generateIdentifier(node);
+        } else {
             result = generateExpression(node, {
                 precedence: options.precedence,
                 allowIn: options.allowIn,
                 allowCall: true
             });
-        } else {
-            result = generateIdentifier(node);
         }
 
         return result;
