@@ -36,6 +36,21 @@ produces the string `'40 + 2'`
 See the [API page](https://github.com/Constellation/escodegen/wiki/API) for
 options. To run the tests, execute `npm test` in the root directory.
 
+### Building browser bundle / minified browser bundle
+
+At first, executing `npm install` to install the all dev dependencies.
+After that,
+
+    npm run-script build
+
+will generate `escodegen.browser.js`, it is used on the browser environment.
+
+And,
+
+    npm run-script build-min
+
+will generate minified `escodegen.browser.min.js`.
+
 ### License
 
 #### Escodegen
