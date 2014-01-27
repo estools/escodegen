@@ -37,9 +37,9 @@
     "bower": "*",
     "semver": "*",
     "chai": "~1.7.2",
-    "gulp-mocha": "~0.3.0",
     "gulp-jshint": "~1.3.4",
-    "gulp": "~3.4.1"
+    "gulp": "~3.5.0",
+    "gulp-mocha": "~0.4.1"
   },
   "licenses": [
     {
