@@ -31,7 +31,7 @@ var jshint = require('gulp-jshint');
 var TEST = [ 'test/*.js' ];
 
 var LINT = [
-    'Gruntfile.js',
+    'gulpfile.js',
     'escodegen.js'
 ];
 
