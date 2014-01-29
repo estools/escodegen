@@ -175,6 +175,7 @@
             base: null,
             parse: null,
             comment: false,
+            padding: false,
             format: {
                 indent: {
                     style: '    ',
@@ -697,6 +698,24 @@
             }
         }
 
+        return result;
+    }
+
+    function addPadding(stmt, result) {
+        if (stmt.padding) {
+            var save = result;
+            result = [];
+
+            if (stmt.padding.top) {
+                result.push((new Array(stmt.padding.top+1)).join(newline));
+            }
+
+            result.push(addIndent(save));
+
+            if (stmt.padding.bottom) {
+                result.push((new Array(stmt.padding.bottom+1)).join(newline));
+            }
+        }
         return result;
     }
 
@@ -1979,6 +1998,11 @@
 
         if (extra.comment) {
             result = addCommentsToStatement(stmt, result);
+        }
+
+        // Attach newlines
+        if (extra.padding) {
+            result = addPadding(stmt, result);
         }
 
         fragment = toSourceNodeWhenNeeded(result).toString();
