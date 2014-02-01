@@ -2417,6 +2417,131 @@ data = {
         }
     },
 
+    'LetStatement and LetExpressions': {
+        'let (a = 6)\n    alert(a);': {
+            generateFrom: {
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'LetExpression',
+                    head: [
+                        {
+                            type: 'VariableDeclarator',
+                            id: {
+                                type: 'Identifier',
+                                name: 'a'
+                            },
+                            init: {
+                                type: 'Literal',
+                                value: 6
+                            }
+                        }
+                    ],
+                    body: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Identifier',
+                            name: 'alert'
+                        },
+                        'arguments': [
+                            {
+                                type: 'Identifier',
+                                name: 'a'
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+
+        'let (i = 0) {\n    for (; i < 10; i++) {\n    }\n}': {
+            generateFrom: {
+                type: 'LetStatement',
+                head: [
+                    {
+                        type: 'VariableDeclarator',
+                        id: {
+                            type: 'Identifier',
+                            name: 'i'
+                        },
+                        init: {
+                            type: 'Literal',
+                            value: 0
+                        }
+                    }
+                ],
+                body: {
+                    type: 'ForStatement',
+                    init: null,
+                    test: {
+                        type: 'BinaryExpression',
+                        operator: '<',
+                        left: {
+                            type: 'Identifier',
+                            name: 'i'
+                        },
+                        right: {
+                            type: 'Literal',
+                            value: 10
+                        }
+                    },
+                    update: {
+                        type: 'UpdateExpression',
+                        operator: '++',
+                        argument: {
+                            type: 'Identifier',
+                            name: 'i'
+                        },
+                        prefix: false
+                    },
+                    body: {
+                        type: 'BlockStatement',
+                        body: []
+                    }
+                }
+            }
+        },
+
+        'let (a = 2) {\n    alert(a);\n}': {
+            generateFrom: {
+                type: 'LetStatement',
+                head: [
+                    {
+                        type: 'VariableDeclarator',
+                        id: {
+                            type: 'Identifier',
+                            name: 'a'
+                        },
+                        init: {
+                            type: 'Literal',
+                            value: 2
+                        }
+                    }
+                ],
+                body: {
+                    type: 'BlockStatement',
+                    body: [
+                        {
+                            type: 'ExpressionStatement',
+                            expression: {
+                                type: 'CallExpression',
+                                callee: {
+                                    type: 'Identifier',
+                                    name: 'alert'
+                                },
+                                'arguments': [
+                                    {
+                                        type: 'Identifier',
+                                        name: 'a'
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    },
+
     'Harmony egal operators': {
         'a is b': {
             generateFrom: {
