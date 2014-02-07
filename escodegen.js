@@ -86,6 +86,7 @@
         ExpressionStatement: 'ExpressionStatement',
         ForStatement: 'ForStatement',
         ForInStatement: 'ForInStatement',
+        ForOfStatement: 'ForOfStatement',
         FunctionDeclaration: 'FunctionDeclaration',
         FunctionExpression: 'FunctionExpression',
         GeneratorExpression: 'GeneratorExpression',
@@ -809,6 +810,37 @@
         } else {
             result.push(maybeBlock(node.body, false, true));
         }
+        return result;
+    }
+
+    function generateIterationForStatement(operator, stmt, semicolonIsNotNeeded) {
+        var result = ['for' + space + '('];
+        withIndent(function () {
+            if (stmt.left.type === Syntax.VariableDeclaration) {
+                withIndent(function () {
+                    result.push(stmt.left.kind + noEmptySpace(), generateStatement(stmt.left.declarations[0], {
+                        allowIn: false
+                    }));
+                });
+            } else {
+                result.push(generateExpression(stmt.left, {
+                    precedence: Precedence.Call,
+                    allowIn: true,
+                    allowCall: true
+                }));
+            }
+
+            result = join(result, operator);
+            result = [join(
+                result,
+                generateExpression(stmt.right, {
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                })
+            ), ')'];
+        });
+        result.push(maybeBlock(stmt.body, semicolonIsNotNeeded));
         return result;
     }
 
@@ -1866,33 +1898,11 @@
             break;
 
         case Syntax.ForInStatement:
-            result = ['for' + space + '('];
-            withIndent(function () {
-                if (stmt.left.type === Syntax.VariableDeclaration) {
-                    withIndent(function () {
-                        result.push(stmt.left.kind + noEmptySpace(), generateStatement(stmt.left.declarations[0], {
-                            allowIn: false
-                        }));
-                    });
-                } else {
-                    result.push(generateExpression(stmt.left, {
-                        precedence: Precedence.Call,
-                        allowIn: true,
-                        allowCall: true
-                    }));
-                }
+            result = generateIterationForStatement('in', stmt, semicolon === '');
+            break;
 
-                result = join(result, 'in');
-                result = [join(
-                    result,
-                    generateExpression(stmt.right, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    })
-                ), ')'];
-            });
-            result.push(maybeBlock(stmt.body, semicolon === ''));
+        case Syntax.ForOfStatement:
+            result = generateIterationForStatement('of', stmt, semicolon === '');
             break;
 
         case Syntax.LabeledStatement:
@@ -2057,6 +2067,7 @@
         case Syntax.ExpressionStatement:
         case Syntax.ForStatement:
         case Syntax.ForInStatement:
+        case Syntax.ForOfStatement:
         case Syntax.FunctionDeclaration:
         case Syntax.IfStatement:
         case Syntax.LabeledStatement:
