@@ -793,7 +793,8 @@
         }
 
         if (arrow) {
-            result.push(space, '=>');
+            result.push(space);
+            result.push('=>');
         }
 
         if (node.expression) {
@@ -818,7 +819,8 @@
         withIndent(function () {
             if (stmt.left.type === Syntax.VariableDeclaration) {
                 withIndent(function () {
-                    result.push(stmt.left.kind + noEmptySpace(), generateStatement(stmt.left.declarations[0], {
+                    result.push(stmt.left.kind + noEmptySpace());
+                    result.push(generateStatement(stmt.left.declarations[0], {
                         allowIn: false
                     }));
                 });
@@ -971,7 +973,8 @@
             if (expr.operator === '/' && fragment.toString().charAt(0) === '/' ||
             expr.operator.slice(-1) === '<' && fragment.toString().slice(0, 3) === '!--') {
                 // If '/' concats with '/' or `<` concats with `!--`, it is interpreted as comment start
-                result.push(noEmptySpace(), fragment);
+                result.push(noEmptySpace());
+                result.push(fragment);
             } else {
                 result = join(result, fragment);
             }
@@ -1053,11 +1056,13 @@
             })];
 
             if (expr.computed) {
-                result.push('[', generateExpression(expr.property, {
+                result.push('[');
+                result.push(generateExpression(expr.property, {
                     precedence: Precedence.Sequence,
                     allowIn: true,
                     allowCall: allowCall
-                }), ']');
+                }));
+                result.push(']');
             } else {
                 if (expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
                     fragment = toSourceNodeWhenNeeded(result).toString();
@@ -1076,7 +1081,8 @@
                         result.push('.');
                     }
                 }
-                result.push('.', generateIdentifier(expr.property));
+                result.push('.');
+                result.push(generateIdentifier(expr.property));
             }
 
             result = parenthesize(result, Precedence.Member, precedence);
@@ -1106,7 +1112,8 @@
 
                     if (((leftCharCode === 0x2B  /* + */ || leftCharCode === 0x2D  /* - */) && leftCharCode === rightCharCode) ||
                             (esutils.code.isIdentifierPart(leftCharCode) && esutils.code.isIdentifierPart(rightCharCode))) {
-                        result.push(noEmptySpace(), fragment);
+                        result.push(noEmptySpace());
+                        result.push(fragment);
                     } else {
                         result.push(fragment);
                     }
@@ -1196,7 +1203,8 @@
                             result.push(',');
                         }
                     } else {
-                        result.push(multiline ? indent : '', generateExpression(expr.elements[i], {
+                        result.push(multiline ? indent : '');
+                        result.push(generateExpression(expr.elements[i], {
                             precedence: Precedence.Assignment,
                             allowIn: true,
                             allowCall: true
@@ -1210,7 +1218,8 @@
             if (multiline && !endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
                 result.push(newline);
             }
-            result.push(multiline ? base : '', ']');
+            result.push(multiline ? base : '');
+            result.push(']');
             break;
 
         case Syntax.Property:
@@ -1240,7 +1249,8 @@
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
-                    }), generateFunctionBody(expr.value));
+                    }));
+                    result.push(generateFunctionBody(expr.value));
                 } else {
                     result = [
                         generateExpression(expr.key, {
@@ -1296,7 +1306,8 @@
                 if (multiline) {
                     result.push(',' + newline);
                     for (i = 1, len = expr.properties.length; i < len; ++i) {
-                        result.push(indent, generateExpression(expr.properties[i], {
+                        result.push(indent);
+                        result.push(generateExpression(expr.properties[i], {
                             precedence: Precedence.Sequence,
                             allowIn: true,
                             allowCall: true,
@@ -1312,7 +1323,8 @@
             if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
                 result.push(newline);
             }
-            result.push(base, '}');
+            result.push(base);
+            result.push('}');
             break;
 
         case Syntax.ObjectPattern:
@@ -1340,7 +1352,8 @@
 
             withIndent(function (indent) {
                 for (i = 0, len = expr.properties.length; i < len; ++i) {
-                    result.push(multiline ? indent : '', generateExpression(expr.properties[i], {
+                    result.push(multiline ? indent : '');
+                    result.push(generateExpression(expr.properties[i], {
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
@@ -1354,7 +1367,8 @@
             if (multiline && !endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
                 result.push(newline);
             }
-            result.push(multiline ? base : '', '}');
+            result.push(multiline ? base : '');
+            result.push('}');
             break;
 
         case Syntax.ThisExpression:
@@ -1679,7 +1693,8 @@
             // };
             if (stmt.declarations.length === 1 && stmt.declarations[0].init &&
                     stmt.declarations[0].init.type === Syntax.FunctionExpression) {
-                result.push(noEmptySpace(), generateStatement(stmt.declarations[0], {
+                result.push(noEmptySpace());
+                result.push(generateStatement(stmt.declarations[0], {
                     allowIn: allowIn
                 }));
             } else {
@@ -1689,11 +1704,13 @@
                 withIndent(function () {
                     node = stmt.declarations[0];
                     if (extra.comment && node.leadingComments) {
-                        result.push('\n', addIndent(generateStatement(node, {
+                        result.push('\n');
+                        result.push(addIndent(generateStatement(node, {
                             allowIn: allowIn
                         })));
                     } else {
-                        result.push(noEmptySpace(), generateStatement(node, {
+                        result.push(noEmptySpace());
+                        result.push(generateStatement(node, {
                             allowIn: allowIn
                         }));
                     }
@@ -1701,11 +1718,13 @@
                     for (i = 1, len = stmt.declarations.length; i < len; ++i) {
                         node = stmt.declarations[i];
                         if (extra.comment && node.leadingComments) {
-                            result.push(',' + newline, addIndent(generateStatement(node, {
+                            result.push(',' + newline);
+                            result.push(addIndent(generateStatement(node, {
                                 allowIn: allowIn
                             })));
                         } else {
-                            result.push(',' + space, generateStatement(node, {
+                            result.push(',' + space);
+                            result.push(generateStatement(node, {
                                 allowIn: allowIn
                             }));
                         }
@@ -1867,28 +1886,33 @@
                             precedence: Precedence.Sequence,
                             allowIn: false,
                             allowCall: true
-                        }), ';');
+                        }));
+                        result.push(';');
                     }
                 } else {
                     result.push(';');
                 }
 
                 if (stmt.test) {
-                    result.push(space, generateExpression(stmt.test, {
+                    result.push(space);
+                    result.push(generateExpression(stmt.test, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
-                    }), ';');
+                    }));
+                    result.push(';');
                 } else {
                     result.push(';');
                 }
 
                 if (stmt.update) {
-                    result.push(space, generateExpression(stmt.update, {
+                    result.push(space);
+                    result.push(generateExpression(stmt.update, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
-                    }), ')');
+                    }));
+                    result.push(')');
                 } else {
                     result.push(')');
                 }
