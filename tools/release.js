@@ -91,9 +91,6 @@ function exec(cmd) {
     .then(function () {
         return exec('git checkout -b ' + version);
     })
-    .then(function browserify() {
-        return exec('npm run-script build');
-    })
     .then(function generateConfigs() {
         var dependencies = {},
             optionalDependencies = {};
@@ -108,6 +105,12 @@ function exec(cmd) {
             config.optionalDependencies = optionalDependencies;
             fs.writeFileSync(path.join(root, 'component.json'), JSON.stringify(config, null, 4), 'utf-8');
         });
+    })
+    .then(function browserify() {
+        return exec('npm run-script build');
+    })
+    .then(function browserify() {
+        return exec('npm run-script build-min');
     })
     .then(function gitAdd() {
         return exec('git add "' + root + '"');
