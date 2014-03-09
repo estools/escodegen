@@ -25,7 +25,8 @@
   "dependencies": {
     "esprima": "~1.0.4",
     "estraverse": "~1.5.0",
-    "esutils": "~1.0.0"
+    "esutils": "~1.0.0",
+    "clone": "~0.1.11"
   },
   "optionalDependencies": {
     "source-map": "~0.1.30"

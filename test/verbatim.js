@@ -31,7 +31,8 @@ var fs = require('fs'),
     escodegen = require(root),
     chai = require('chai'),
     expect = chai.expect,
-    data;
+    StringData,
+    ObjectData;
 
 function make_eval(code) {
     return {
@@ -48,7 +49,23 @@ function make_eval(code) {
     };
 }
 
-data = {
+function runTest(expected, result, verbatim) {
+    var actual, options;
+
+    options = {
+        indent: '    ',
+        directive: true,
+        parse: esprima.parse,
+        verbatim: verbatim
+    };
+
+    expect(function () {
+        actual = escodegen.generate(result, options);
+    }).not.to.be.throw();
+    expect(expected).to.be.equal(actual);
+}
+
+StringData = {
     'DISABLED': {
         "eval('foo');": {
             type: 'ExpressionStatement',
@@ -117,23 +134,44 @@ data = {
     }
 };
 
-function runTest(expected, result, verbatim) {
-    var actual, options;
+describe('verbatim string test', function () {
+    var data = StringData;
+    Object.keys(data).forEach(function (category) {
+        it(category, function () {
+            Object.keys(data[category]).forEach(function (source) {
+                var expected = data[category][source];
+                runTest(source, expected, category);
+            });
+        });
+    });
+});
 
-    options = {
-        indent: '    ',
-        directive: true,
-        parse: esprima.parse,
-        verbatim: verbatim
-    };
+ObjectData = {
+    'verbatim': {
+        // Floating point
+        "(0).a": {
+            type: 'MemberExpression',
+            object: { type: 'Literal', value: 0, verbatim: { content: '0' } },
+            property: { type: 'Identifier', name: 'a' },
+            computed: false
+        },
+        "([]).a": {
+            type: 'MemberExpression',
+            object: { type: 'Literal', verbatim: { content: '[]' } },
+            property: { type: 'Identifier', name: 'a' },
+            computed: false
+        },
+        "[].a": {
+            type: 'MemberExpression',
+            object: { type: 'Literal', verbatim: { content: '[]', precedence: escodegen.Precedence.Primary } },
+            property: { type: 'Identifier', name: 'a' },
+            computed: false
+        }
+    }
+};
 
-    expect(function () {
-        actual = escodegen.generate(result, options);
-    }).not.to.be.throw();
-    expect(expected).to.be.equal(actual);
-}
-
-describe('verbatim test', function () {
+describe('verbatim object test', function () {
+    var data = ObjectData;
     Object.keys(data).forEach(function (category) {
         it(category, function () {
             Object.keys(data[category]).forEach(function (source) {

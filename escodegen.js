@@ -41,6 +41,7 @@
         SourceNode,
         estraverse,
         esutils,
+        clone,
         isArray,
         base,
         indent,
@@ -63,6 +64,7 @@
 
     estraverse = require('estraverse');
     esutils = require('esutils');
+    clone = require('clone');
 
     Syntax = {
         AssignmentExpression: 'AssignmentExpression',
@@ -739,14 +741,28 @@
         return [result, newline, base];
     }
 
-    function generateVerbatim(expr, option) {
-        var i, result;
-        result = expr[extra.verbatim].split(/\r\n|\n/);
-        for (i = 1; i < result.length; i++) {
+    function generateVerbatimString(string) {
+        var i, iz, result;
+        result = string.split(/\r\n|\n/);
+        for (i = 1, iz = result.length; i < iz; i++) {
             result[i] = newline + base + result[i];
         }
+        return result;
+    }
 
-        result = parenthesize(result, Precedence.Sequence, option.precedence);
+    function generateVerbatim(expr, option) {
+        var verbatim, result, prec;
+        verbatim = expr[extra.verbatim];
+
+        if (typeof verbatim === 'string') {
+            result = parenthesize(generateVerbatimString(verbatim), Precedence.Sequence, option.precedence);
+        } else {
+            // verbatim is object
+            result = generateVerbatimString(verbatim.content);
+            prec = (verbatim.precedence != null) ? verbatim.precedence : Precedence.Sequence;
+            result = parenthesize(result, prec, option.precedence);
+        }
+
         return toSourceNodeWhenNeeded(result, expr);
     }
 
@@ -2181,6 +2197,7 @@
     exports.version = require('./package.json').version;
     exports.generate = generate;
     exports.attachComments = estraverse.attachComments;
+    exports.Precedence = clone(Precedence);
     exports.browser = false;
     exports.FORMAT_MINIFY = FORMAT_MINIFY;
     exports.FORMAT_DEFAULTS = FORMAT_DEFAULTS;
