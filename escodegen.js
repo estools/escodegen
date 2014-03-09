@@ -41,7 +41,6 @@
         SourceNode,
         estraverse,
         esutils,
-        clone,
         isArray,
         base,
         indent,
@@ -64,7 +63,6 @@
 
     estraverse = require('estraverse');
     esutils = require('esutils');
-    clone = require('clone');
 
     Syntax = {
         AssignmentExpression: 'AssignmentExpression',
@@ -2197,7 +2195,7 @@
     exports.version = require('./package.json').version;
     exports.generate = generate;
     exports.attachComments = estraverse.attachComments;
-    exports.Precedence = clone(Precedence);
+    exports.Precedence = updateDeeply({}, Precedence);
     exports.browser = false;
     exports.FORMAT_MINIFY = FORMAT_MINIFY;
     exports.FORMAT_DEFAULTS = FORMAT_DEFAULTS;
