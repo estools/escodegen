@@ -1526,7 +1526,7 @@
             throw new Error('Unknown expression type: ' + expr.type);
         }
 
-        if (expr.leadingComments || expr.trailingComments) {
+        if (extra.comment) {
             result = addCommentsToStatement(expr,result);
         }
         return toSourceNodeWhenNeeded(result, expr);
