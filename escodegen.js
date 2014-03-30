@@ -643,7 +643,7 @@
         return '/*' + comment.value + '*/';
     }
 
-    function addCommentsToStatement(stmt, result) {
+    function addComments(stmt, result) {
         var i, len, comment, save, tailingToStatement, specialBase, fragment;
 
         if (stmt.leadingComments && stmt.leadingComments.length > 0) {
@@ -1527,7 +1527,7 @@
         }
 
         if (extra.comment) {
-            result = addCommentsToStatement(expr,result);
+            result = addComments(expr,result);
         }
         return toSourceNodeWhenNeeded(result, expr);
     }
@@ -2029,7 +2029,7 @@
         // Attach comments
 
         if (extra.comment) {
-            result = addCommentsToStatement(stmt, result);
+            result = addComments(stmt, result);
         }
 
         fragment = toSourceNodeWhenNeeded(result).toString();
