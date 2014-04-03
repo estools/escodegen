@@ -75,8 +75,6 @@ function exec(cmd) {
                     return;
                 }
 
-                console.log(entry);
-
                 console.log('[' + name + '] ' + 'received result');
                 memo[name] = pattern;
                 resolve();
