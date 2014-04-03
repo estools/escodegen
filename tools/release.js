@@ -78,17 +78,7 @@ function exec(cmd) {
                 console.log(entry);
 
                 console.log('[' + name + '] ' + 'received result');
-                for (i = 0, iz = entry.versions.length; i < iz; ++i) {
-                    version = entry.versions[i];
-                    if (semver.satisfies(version, pattern)) {
-                        memo[name] = pattern;
-                        resolve();
-                        return;
-                    }
-                }
-
-                // not satisfies
-                console.error('[' + name + '] ' + pattern + ' is not satisfied');
+                memo[name] = pattern;
                 resolve();
             });
         });

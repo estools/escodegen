@@ -32,7 +32,6 @@
   },
   "devDependencies": {
     "esprima-moz": "*",
-    "bower": "*",
     "semver": "*",
     "chai": "~1.7.2",
     "gulp": "~3.5.0",
@@ -41,7 +40,8 @@
     "jshint-stylish": "~0.1.5",
     "gulp-jshint": "~1.4.0",
     "commonjs-everywhere": "~0.9.6",
-    "bluebird": "~1.2.0"
+    "bluebird": "~1.2.0",
+    "bower-registry-client": "~0.2.0"
   },
   "licenses": [
     {
