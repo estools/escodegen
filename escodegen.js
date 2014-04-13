@@ -200,6 +200,7 @@
             sourceMapRoot: null,
             sourceMapWithCode: false,
             directive: false,
+            raw: true,
             verbatim: null
         };
     }
@@ -1347,7 +1348,7 @@
             break;
 
         case Syntax.Literal:
-            if (expr.hasOwnProperty('raw') && parse) {
+            if (expr.hasOwnProperty('raw') && parse && extra.raw) {
                 try {
                     raw = parse(expr.raw).body[0].expression;
                     if (raw.type === Syntax.Literal) {
@@ -1520,7 +1521,7 @@
             break;
 
         case Syntax.DirectiveStatement:
-            if (stmt.raw) {
+            if (extra.raw && stmt.raw) {
                 result = stmt.raw + semicolon;
             } else {
                 result = escapeDirective(stmt.directive) + semicolon;
