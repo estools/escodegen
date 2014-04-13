@@ -1408,6 +1408,115 @@ data = {
                 start: { line: 1, column: 0 },
                 end: { line: 1, column: 28 }
             }
+        },
+
+        'for (let {\n            a: b,\n            c: d\n        } in obj) {\n}': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ForInStatement',
+                    left: {
+                        type: 'VariableDeclaration',
+                        kind: 'let',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                id: {
+                                    type: 'ObjectPattern',
+                                    properties: [
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            kind: 'init'
+                                        },
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'c'
+                                            },
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'd'
+                                            },
+                                            kind: 'init'
+                                        }
+                                    ]
+                                },
+                                init: null
+                            }
+                        ]
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'obj'
+                    },
+                    body: {
+                        type: 'BlockStatement',
+                        body: []
+                    },
+                    each: false
+                }]
+            }
+        },
+
+        'function getIdField({\n    foo: bar,\n    foo2: bar2\n}) {\n}': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'FunctionDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'getIdField'
+                    },
+                    params: [
+                        {
+                            type: 'ObjectPattern',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Identifier',
+                                        name: 'foo'
+                                    },
+                                    value: {
+                                        type: 'Identifier',
+                                        name: 'bar'
+                                    },
+                                    kind: 'init'
+                                },
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Identifier',
+                                        name: 'foo2'
+                                    },
+                                    value: {
+                                        type: 'Identifier',
+                                        name: 'bar2'
+                                    },
+                                    kind: 'init'
+                                }
+                            ]
+                        }
+                    ],
+                    defaults: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: []
+                    },
+                    rest: null,
+                    generator: false,
+                    expression: false
+                }]
+            }
         }
     },
 
@@ -1653,12 +1762,93 @@ data = {
                 start: { line: 1, column: 0 },
                 end: { line: 1, column: 17 }
             }
+        },
+
+        'for (let [\n            a,\n            b\n        ] in obj) {\n}': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ForInStatement',
+                    left: {
+                        type: 'VariableDeclaration',
+                        kind: 'let',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                id: {
+                                    type: 'ArrayPattern',
+                                    elements: [
+                                        {
+                                            type: 'Identifier',
+                                            name: 'a'
+                                        },
+                                        {
+                                            type: 'Identifier',
+                                            name: 'b'
+                                        }
+                                    ]
+                                },
+                                init: null
+                            }
+                        ]
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'obj'
+                    },
+                    body: {
+                        type: 'BlockStatement',
+                        body: []
+                    },
+                    each: false
+                }]
+            }
+        },
+
+        'function getIdField([\n    a,\n    b,\n    c\n]) {\n}': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'FunctionDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: "getIdField"
+                    },
+                    params: [
+                        {
+                            type: 'ArrayPattern',
+                            elements: [
+                                {
+                                    type: 'Identifier',
+                                    name: "a"
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: "b"
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: "c"
+                                }
+                            ]
+                        }
+                    ],
+                    defaults: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: []
+                    },
+                    rest: null,
+                    generator: false,
+                    expression: false
+                }]
+            }
         }
     },
 
     'Array Comprehension': {
 
-        '[x for x in []];':{
+        '[for x in [] x];':{
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1688,7 +1878,43 @@ data = {
             }
         },
 
-        '[x for x of []];': {
+        '[x for (x in [])];':{
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ComprehensionExpression',
+                        filter: null,
+                        blocks: [{
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'x'
+                            },
+                            right: {
+                                type: 'ArrayExpression',
+                                elements: []
+                            },
+                            each: false,
+                            of: false
+                        }],
+                        body: {
+                            type: 'Identifier',
+                            name: 'x'
+                        }
+                    }
+                }]
+            },
+            options: {
+                moz: {
+                    parenthesizedComprehensionBlock: true,
+                    comprehensionExpressionStartsWithAssignment: true
+                }
+            }
+        },
+
+        '[for x of [] x];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1718,7 +1944,43 @@ data = {
             }
         },
 
-        '[1 for x in y if f(x)];': {
+        '[x for (x of [])];': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ComprehensionExpression',
+                        filter: null,
+                        blocks: [{
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'x'
+                            },
+                            right: {
+                                type: 'ArrayExpression',
+                                elements: []
+                            },
+                            each: false,
+                            of: true
+                        }],
+                        body: {
+                            type: 'Identifier',
+                            name: 'x'
+                        }
+                    }
+                }]
+            },
+            options: {
+                moz: {
+                    parenthesizedComprehensionBlock: true,
+                    comprehensionExpressionStartsWithAssignment: true
+                }
+            }
+        },
+
+        '[for x in y if f(x) 1];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1759,7 +2021,54 @@ data = {
             }
         },
 
-        '[1 for x of y if f(x)];': {
+        '[1 for (x in y) if (f(x))];': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ComprehensionExpression',
+                        filter: {
+                            type: 'CallExpression',
+                            callee: {
+                                type: 'Identifier',
+                                name: 'f'
+                            },
+                            'arguments': [{
+                                type: 'Identifier',
+                                name: 'x'
+                            }]
+                        },
+                        blocks: [{
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'x'
+                            },
+                            right: {
+                                type: 'Identifier',
+                                name: 'y'
+                            },
+                            each: false,
+                            of: false
+                        }],
+                        body: {
+                            type: 'Literal',
+                            value: 1,
+                            raw: '1'
+                        }
+                    }
+                }]
+            },
+            options: {
+                moz: {
+                    parenthesizedComprehensionBlock: true,
+                    comprehensionExpressionStartsWithAssignment: true
+                }
+            }
+        },
+
+        '[for x of y if f(x) 1];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1800,7 +2109,54 @@ data = {
             }
         },
 
-        '[[\n    x,\n    b,\n    c\n] for x in [] for b in [] if b && c];': {
+        '[1 for (x of y) if (f(x))];': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ComprehensionExpression',
+                        filter: {
+                            type: 'CallExpression',
+                            callee: {
+                                type: 'Identifier',
+                                name: 'f'
+                            },
+                            'arguments': [{
+                                type: 'Identifier',
+                                name: 'x'
+                            }]
+                        },
+                        blocks: [{
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'x'
+                            },
+                            right: {
+                                type: 'Identifier',
+                                name: 'y'
+                            },
+                            each: false,
+                            of: true
+                        }],
+                        body: {
+                            type: 'Literal',
+                            value: 1,
+                            raw: '1'
+                        }
+                    }
+                }]
+            },
+            options: {
+                moz: {
+                    parenthesizedComprehensionBlock: true,
+                    comprehensionExpressionStartsWithAssignment: true
+                }
+            }
+        },
+
+        '[for x in [] for b in [] if b && c [\n    x,\n    b,\n    c\n]];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1862,7 +2218,75 @@ data = {
             }
         },
 
-        '[[\n    x,\n    b,\n    c\n] for x of [] for b of [] if b && c];': {
+        '[[\n    x,\n    b,\n    c\n] for (x in []) for (b in []) if (b && c)];': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ComprehensionExpression',
+                        filter: {
+                            type: 'LogicalExpression',
+                            operator: '&&',
+                            left: {
+                                type: 'Identifier',
+                                name: 'b'
+                            },
+                            right: {
+                                type: 'Identifier',
+                                name: 'c'
+                            }
+                        },
+                        blocks: [{
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'x'
+                            },
+                            right: {
+                                type: 'ArrayExpression',
+                                elements: []
+                            },
+                            each: false,
+                            of: false
+                        }, {
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'b'
+                            },
+                            right: {
+                                type: 'ArrayExpression',
+                                elements: []
+                            },
+                            each: false,
+                            of: false
+                        }],
+                        body: {
+                            type: 'ArrayExpression',
+                            elements: [{
+                                type: 'Identifier',
+                                name: 'x'
+                            }, {
+                                type: 'Identifier',
+                                name: 'b'
+                            }, {
+                                type: 'Identifier',
+                                name: 'c'
+                            }]
+                        }
+                    }
+                }]
+            },
+            options: {
+                moz: {
+                    parenthesizedComprehensionBlock: true,
+                    comprehensionExpressionStartsWithAssignment: true
+                }
+            }
+        },
+
+        '[for x of [] for b of [] if b && c [\n    x,\n    b,\n    c\n]];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1921,6 +2345,74 @@ data = {
                         }
                     }
                 }]
+            }
+        },
+
+        '[[\n    x,\n    b,\n    c\n] for (x of []) for (b of []) if (b && c)];': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ComprehensionExpression',
+                        filter: {
+                            type: 'LogicalExpression',
+                            operator: '&&',
+                            left: {
+                                type: 'Identifier',
+                                name: 'b'
+                            },
+                            right: {
+                                type: 'Identifier',
+                                name: 'c'
+                            }
+                        },
+                        blocks: [{
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'x'
+                            },
+                            right: {
+                                type: 'ArrayExpression',
+                                elements: []
+                            },
+                            each: false,
+                            of: true
+                        }, {
+                            type: 'ComprehensionBlock',
+                            left: {
+                                type: 'Identifier',
+                                name: 'b'
+                            },
+                            right: {
+                                type: 'ArrayExpression',
+                                elements: []
+                            },
+                            each: false,
+                            of: true
+                        }],
+                        body: {
+                            type: 'ArrayExpression',
+                            elements: [{
+                                type: 'Identifier',
+                                name: 'x'
+                            }, {
+                                type: 'Identifier',
+                                name: 'b'
+                            }, {
+                                type: 'Identifier',
+                                name: 'c'
+                            }]
+                        }
+                    }
+                }]
+            },
+            options: {
+                moz: {
+                    parenthesizedComprehensionBlock: true,
+                    comprehensionExpressionStartsWithAssignment: true
+                }
             }
         }
     },

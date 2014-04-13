@@ -30,22 +30,22 @@ var fs = require('fs'),
     root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
     escodegen = require(root),
     esprima = require('esprima'),
-    bower = require('bower'),
+    RegistryClient = require('bower-registry-client'),
     semver = require('semver'),
     child_process = require('child_process'),
-    Q = require('q');
+    Promise = require('bluebird');
 
 function exec(cmd) {
-    var ret = Q.defer();
-    console.log(cmd);
-    child_process.exec(cmd, function (error, stdout, stderr) {
-        ret.resolve(error, stdout, stderr);
+    return new Promise(function (resolve, reject) {
+        console.log(cmd);
+        child_process.exec(cmd, function (error, stdout, stderr) {
+            resolve(error, stdout, stderr);
+        });
     });
-    return ret.promise;
 }
 
 (function () {
-    var config, matched, version, devVersion;
+    var config, matched, version, devVersion, registry;
 
     config = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf-8'));
     devVersion = config.version;
@@ -58,56 +58,55 @@ function exec(cmd) {
     version = matched[1];
     config.version = version;
 
+    registry = new RegistryClient();
+
     function ping(memo, name) {
-        var pattern, ret;
+        return new Promise(function (resolve, reject) {
+            var pattern;
+            console.log('[' + name + '] ' + 'send ping');
 
-        ret = Q.defer();
-        pattern = config.dependencies[name];
+            pattern = config.dependencies[name];
 
-        bower.commands.info(name)
-        .on('end', function (result) {
-            var i, iz, version;
-            for (i = 0, iz = result.versions.length; i < iz; ++i) {
-                version = result.versions[i];
-                if (semver.satisfies(version, pattern)) {
-                    memo[name] = pattern;
-                    ret.resolve();
+            registry.lookup(name, function (err, entry) {
+                var i, iz, version;
+
+                if (err) {
+                    console.error('[' + name + '] ' + err.message + '. skip this dependency');
                     return;
                 }
-            }
 
-            // not satisfies
-            console.error(name + ' with ' + pattern + ' is not satisfied');
-            ret.resolve();
-        })
-        .on('error', function (error) {
-            console.error(error.message + '. skip this dependency');
+                console.log('[' + name + '] ' + 'received result');
+                memo[name] = pattern;
+                resolve();
+            });
         });
-
-        return ret.promise;
     }
 
     exec('git branch -D ' + version)
     .then(function () {
         return exec('git checkout -b ' + version);
     })
-    .then(function browserify() {
-        return exec('npm run-script build');
-    })
     .then(function generateConfigs() {
         var dependencies = {},
-            optionalDependencies = {};
+            optionalDependencies = {},
+            promises;
         fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify(config, null, 4), 'utf-8');
 
         // generate component.json
-        return Q.all(
-            Object.keys(config.dependencies).map(ping.bind(null, dependencies)),
-            Object.keys(config.optionalDependencies).map(ping.bind(null, optionalDependencies))
-                ).then(function () {
+        promises =
+            Object.keys(config.dependencies).map(ping.bind(null, dependencies)).concat(
+                Object.keys(config.optionalDependencies).map(ping.bind(null, optionalDependencies)));
+        return Promise.all(promises).then(function () {
             config.dependencies = dependencies;
             config.optionalDependencies = optionalDependencies;
             fs.writeFileSync(path.join(root, 'component.json'), JSON.stringify(config, null, 4), 'utf-8');
         });
+    })
+    .then(function browserify() {
+        return exec('npm run-script build');
+    })
+    .then(function browserify() {
+        return exec('npm run-script build-min');
     })
     .then(function gitAdd() {
         return exec('git add "' + root + '"');

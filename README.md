@@ -1,5 +1,4 @@
-
-### Escodegen [![Build Status](https://secure.travis-ci.org/Constellation/escodegen.png)](http://travis-ci.org/Constellation/escodegen) [![Build Status](https://drone.io/github.com/Constellation/escodegen/status.png)](https://drone.io/github.com/Constellation/escodegen/latest)
+### Escodegen [![Build Status](https://secure.travis-ci.org/Constellation/escodegen.svg)](http://travis-ci.org/Constellation/escodegen) [![Build Status](https://drone.io/github.com/Constellation/escodegen/status.png)](https://drone.io/github.com/Constellation/escodegen/latest)
 
 Escodegen ([escodegen](http://github.com/Constellation/escodegen)) is
 [ECMAScript](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
@@ -35,6 +34,21 @@ produces the string `'40 + 2'`
 
 See the [API page](https://github.com/Constellation/escodegen/wiki/API) for
 options. To run the tests, execute `npm test` in the root directory.
+
+### Building browser bundle / minified browser bundle
+
+At first, executing `npm install` to install the all dev dependencies.
+After that,
+
+    npm run-script build
+
+will generate `escodegen.browser.js`, it is used on the browser environment.
+
+And,
+
+    npm run-script build-min
+
+will generate minified `escodegen.browser.min.js`.
 
 ### License
 
