@@ -862,6 +862,40 @@
         return result;
     }
 
+    function generateLiteral(expr) {
+        var raw;
+        if (expr.hasOwnProperty('raw') && parse && extra.raw) {
+            try {
+                raw = parse(expr.raw).body[0].expression;
+                if (raw.type === Syntax.Literal) {
+                    if (raw.value === expr.value) {
+                        return expr.raw;
+                    }
+                }
+            } catch (e) {
+                // not use raw property
+            }
+        }
+
+        if (expr.value === null) {
+            return 'null';
+        }
+
+        if (typeof expr.value === 'string') {
+            return escapeString(expr.value);
+        }
+
+        if (typeof expr.value === 'number') {
+            return generateNumber(expr.value);
+        }
+
+        if (typeof expr.value === 'boolean') {
+            return expr.value ? 'true' : 'false';
+        }
+
+        return generateRegExp(expr.value);
+    }
+
     function generateExpression(expr, option) {
         var result,
             precedence,
@@ -869,7 +903,6 @@
             currentPrecedence,
             i,
             len,
-            raw,
             fragment,
             multiline,
             leftCharCode,
@@ -1396,41 +1429,7 @@
             break;
 
         case Syntax.Literal:
-            if (expr.hasOwnProperty('raw') && parse && extra.raw) {
-                try {
-                    raw = parse(expr.raw).body[0].expression;
-                    if (raw.type === Syntax.Literal) {
-                        if (raw.value === expr.value) {
-                            result = expr.raw;
-                            break;
-                        }
-                    }
-                } catch (e) {
-                    // not use raw property
-                }
-            }
-
-            if (expr.value === null) {
-                result = 'null';
-                break;
-            }
-
-            if (typeof expr.value === 'string') {
-                result = escapeString(expr.value);
-                break;
-            }
-
-            if (typeof expr.value === 'number') {
-                result = generateNumber(expr.value);
-                break;
-            }
-
-            if (typeof expr.value === 'boolean') {
-                result = expr.value ? 'true' : 'false';
-                break;
-            }
-
-            result = generateRegExp(expr.value);
+            result = generateLiteral(expr);
             break;
 
         case Syntax.GeneratorExpression:
@@ -1539,6 +1538,7 @@
             len,
             result,
             node,
+            specifier,
             allowIn,
             functionBody,
             directiveContext,
@@ -1681,31 +1681,77 @@
             break;
 
         case Syntax.ImportDeclaration:
-            result = ['import '];
             // ES6: 15.2.1 valid import declarations:
             //     - import ImportClause FromClause ;
             //     - import ModuleSpecifier ;
             // If no ImportClause is present,
             // this should be `import ModuleSpecifier` so skip `from`
-            if (stmt.specifiers.length > 0) {
-                if (stmt.kind === 'named') {
-                    result.push(
+            //
+            // ModuleSpecifier is StringLiteral.
+            if (stmt.specifiers.length === 0) {
+                // import ModuleSpecifier ;
+                result = [
+                    'import',
+                    space,
+                    generateLiteral(stmt.source)
+                ];
+            } else {
+                // import ImportClause FromClause ;
+                if (stmt.kind === 'default') {
+                    // import ... from "...";
+                    result = [
+                        'import',
+                        noEmptySpace(),
+                        stmt.specifiers[0].id.name,
+                        noEmptySpace()
+                    ];
+                } else {
+                    // stmt.kind === 'named'
+                    result = [
+                        'import',
+                        space,
                         '{',
-                        stmt.specifiers.map(function (specifier) {
-                            var clause = specifier.id.name;
-                            if (specifier.name) {
-                                clause += ' as ' + specifier.name.name;
+                    ];
+
+                    if (stmt.specifiers.length === 1) {
+                        // import { ... } from "...";
+                        specifier = stmt.specifiers[0];
+                        result.push(space + specifier.id.name);
+                        if (specifier.name) {
+                            result.push(noEmptySpace() + 'as' + noEmptySpace() + specifier.name.name);
+                        }
+                        result.push(space + '}' + space);
+                    } else {
+                        // import {
+                        //    ...,
+                        //    ...,
+                        // } from "...";
+                        withIndent(function (indent) {
+                            var i, iz;
+                            result.push(newline);
+                            for (i = 0, iz = stmt.specifiers.length; i < iz; ++i) {
+                                specifier = stmt.specifiers[i];
+                                result.push(indent + specifier.id.name);
+                                if (specifier.name) {
+                                    result.push(noEmptySpace() + 'as' + noEmptySpace() + specifier.name.name);
+                                }
+
+                                if (i + 1 < iz) {
+                                    result.push(',' + newline);
+                                }
                             }
-                            return clause;
-                        }).join(','),
-                        '} '
-                    );
-                } else if (stmt.kind === 'default') {
-                    result.push(stmt.specifiers[0].id.name + ' ');
+                        });
+                        if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
+                            result.push(newline);
+                        }
+                        result.push(base + '}' + space);
+                    }
                 }
-                result.push('from ');
+
+                result.push('from' + space);
+                result.push(generateLiteral(stmt.source));
             }
-            result.push(stmt.source.raw, semicolon);
+            result.push(semicolon);
             break;
 
         case Syntax.VariableDeclarator:
