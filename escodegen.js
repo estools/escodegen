@@ -92,6 +92,7 @@
         GeneratorExpression: 'GeneratorExpression',
         Identifier: 'Identifier',
         IfStatement: 'IfStatement',
+        ImportDeclaration: 'ImportDeclaration',
         Literal: 'Literal',
         LabeledStatement: 'LabeledStatement',
         LogicalExpression: 'LogicalExpression',
@@ -1677,6 +1678,34 @@
             } else {
                 result.push(semicolon);
             }
+            break;
+
+        case Syntax.ImportDeclaration:
+            result = ['import '];
+            // ES6: 15.2.1 valid import declarations:
+            //     - import ImportClause FromClause ;
+            //     - import ModuleSpecifier ;
+            // If no ImportClause is present,
+            // this should be `import ModuleSpecifier` so skip `from`
+            if (stmt.specifiers.length > 0) {
+                if (stmt.kind === 'named') {
+                    result.push(
+                        '{',
+                        stmt.specifiers.map(function (specifier) {
+                            var clause = specifier.id.name;
+                            if (specifier.name) {
+                                clause += ' as ' + specifier.name.name;
+                            }
+                            return clause;
+                        }).join(','),
+                        '} '
+                    );
+                } else if (stmt.kind === 'default') {
+                    result.push(stmt.specifiers[0].id.name + ' ');
+                }
+                result.push('from ');
+            }
+            result.push(stmt.source.raw, semicolon);
             break;
 
         case Syntax.VariableDeclarator:
