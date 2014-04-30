@@ -52,15 +52,43 @@ function test(code, expected) {
     expect(actual).to.be.equal(expected);
 }
 
+function testMin(code, expected) {
+    var tree, actual, options, StringObject;
+
+    // alias, so that JSLint does not complain.
+    StringObject = String;
+
+    options = {
+        range: true,
+        loc: false,
+        tokens: true,
+        raw: false
+    };
+
+    tree = esprima.parse(code, options);
+
+    // for UNIX text comment
+    actual = escodegen.generate(tree, {
+        format: escodegen.FORMAT_MINIFY,
+        raw: false
+    }).replace(/[\n\r]$/, '') + '\n';
+    expect(actual).to.be.equal(expected);
+}
+
 describe('compare harmony test', function () {
     fs.readdirSync(__dirname + '/compare-harmony').sort().forEach(function(file) {
-        var code, expected, p;
-        if (/\.js$/.test(file) && !/expected\.js$/.test(file)) {
+        var code, expected, exp, min;
+        if (/\.js$/.test(file) && !/expected\.js$/.test(file) && !/expected\.min\.js$/.test(file)) {
             it(file, function () {
-                p = file.replace(/\.js$/, '.expected.js');
+                exp = file.replace(/\.js$/, '.expected.js');
+                min = file.replace(/\.js$/, '.expected.min.js');
                 code = fs.readFileSync(__dirname + '/compare-harmony/' + file, 'utf-8');
-                expected = fs.readFileSync(__dirname + '/compare-harmony/' + p, 'utf-8');
+                expected = fs.readFileSync(__dirname + '/compare-harmony/' + exp, 'utf-8');
                 test(code, expected);
+                if (fs.existsSync(__dirname + '/compare-harmony/' + min)) {
+                    expected = fs.readFileSync(__dirname + '/compare-harmony/' + min, 'utf-8');
+                    testMin(code, expected);
+                }
             });
         }
     });
