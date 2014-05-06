@@ -505,4 +505,22 @@ describe('source map test', function () {
         var consumer = new sourcemap.SourceMapConsumer(output.map.toString());
         expect(consumer.sourceContentFor("sum.ls")).to.be.equal(source);
     });
+
+    it('sourceMapWithCode forces output format', function() {
+        var ast = {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "Literal",
+                "value": 1
+            }
+        };
+
+        // sourceMapWithCode should force result format to be object even with sourceMap:false
+        var result = escodegen.generate(ast, {
+            sourceMapWithCode: true
+        });
+
+        expect(result.code).to.be.a('string');
+        expect(result.map).to.be.equal(null);
+    });
 });
