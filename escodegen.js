@@ -2234,7 +2234,8 @@
         }
 
         if (!sourceMap) {
-            return result.toString();
+            pair = {code: result.toString(), map: null};
+            return options.sourceMapWithCode ? pair : pair.code;
         }
 
 
