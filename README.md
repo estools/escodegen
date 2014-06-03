@@ -1,10 +1,11 @@
 ### Escodegen [![Build Status](https://secure.travis-ci.org/Constellation/escodegen.svg)](http://travis-ci.org/Constellation/escodegen) [![Build Status](https://drone.io/github.com/Constellation/escodegen/status.png)](https://drone.io/github.com/Constellation/escodegen/latest)
 
-Escodegen ([escodegen](http://github.com/Constellation/escodegen)) is
+Escodegen ([escodegen](http://github.com/Constellation/escodegen)) is an
 [ECMAScript](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
 (also popularly known as [JavaScript](http://en.wikipedia.org/wiki/JavaScript>JavaScript))
-code generator from [Parser API](https://developer.mozilla.org/en/SpiderMonkey/Parser_API) AST.
-See [online generator demo](http://constellation.github.com/escodegen/demo/index.html).
+code generator from [Mozilla'ss Parser API](https://developer.mozilla.org/en/SpiderMonkey/Parser_API)
+AST. See the [online generator](https://constellation.github.io/escodegen/demo/index.html)
+for a demo.
 
 
 ### Install
@@ -13,9 +14,9 @@ Escodegen can be used in a web browser:
 
     <script src="escodegen.browser.js"></script>
 
-escodegen.browser.js is found in tagged-revision. See Tags on GitHub.
+escodegen.browser.js can be found in tagged revisions on GitHub.
 
-Or in a Node.js application via the package manager:
+Or in a Node.js application via npm:
 
     npm install escodegen
 
@@ -30,25 +31,25 @@ A simple example: the program
         right: { type: 'Literal', value: 2 }
     });
 
-produces the string `'40 + 2'`
+produces the string `'40 + 2'`.
 
 See the [API page](https://github.com/Constellation/escodegen/wiki/API) for
 options. To run the tests, execute `npm test` in the root directory.
 
 ### Building browser bundle / minified browser bundle
 
-At first, executing `npm install` to install the all dev dependencies.
+At first, execute `npm install` to install the all dev dependencies.
 After that,
 
     npm run-script build
 
-will generate `escodegen.browser.js`, it is used on the browser environment.
+will generate `escodegen.browser.js`, which can be used in browser environments.
 
 And,
 
     npm run-script build-min
 
-will generate minified `escodegen.browser.min.js`.
+will generate the minified file `escodegen.browser.min.js`.
 
 ### License
 
