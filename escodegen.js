@@ -1794,7 +1794,7 @@
                 // VariableDeclarator is typed as Statement,
                 // but joined with comma (not LineTerminator).
                 // So if comment is attached to target node, we should specialize.
-                withIndent(function () {
+                var block = function() {
                     node = stmt.declarations[0];
                     if (extra.comment && node.leadingComments) {
                         result.push('\n');
@@ -1822,7 +1822,12 @@
                             }));
                         }
                     }
-                });
+                }
+                if (stmt.declarations.length > 1) {
+                    withIndent(block);
+                } else {
+                    block();
+                }
             }
             result.push(semicolon);
             break;
