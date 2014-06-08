@@ -1544,7 +1544,8 @@
             directiveContext,
             fragment,
             semicolon,
-            isGenerator;
+            isGenerator,
+            block;
 
         allowIn = true;
         semicolon = ';';
@@ -1781,53 +1782,42 @@
 
         case Syntax.VariableDeclaration:
             result = [stmt.kind];
-            // special path for
-            // var x = function () {
-            // };
-            if (stmt.declarations.length === 1 && stmt.declarations[0].init &&
-                    stmt.declarations[0].init.type === Syntax.FunctionExpression) {
-                result.push(noEmptySpace());
-                result.push(generateStatement(stmt.declarations[0], {
-                    allowIn: allowIn
-                }));
-            } else {
-                // VariableDeclarator is typed as Statement,
-                // but joined with comma (not LineTerminator).
-                // So if comment is attached to target node, we should specialize.
-                var block = function() {
-                    node = stmt.declarations[0];
+            // VariableDeclarator is typed as Statement,
+            // but joined with comma (not LineTerminator).
+            // So if comment is attached to target node, we should specialize.
+            block = function() {
+                node = stmt.declarations[0];
+                if (extra.comment && node.leadingComments) {
+                    result.push('\n');
+                    result.push(addIndent(generateStatement(node, {
+                        allowIn: allowIn
+                    })));
+                } else {
+                    result.push(noEmptySpace());
+                    result.push(generateStatement(node, {
+                        allowIn: allowIn
+                    }));
+                }
+
+                for (i = 1, len = stmt.declarations.length; i < len; ++i) {
+                    node = stmt.declarations[i];
                     if (extra.comment && node.leadingComments) {
-                        result.push('\n');
+                        result.push(',' + newline);
                         result.push(addIndent(generateStatement(node, {
                             allowIn: allowIn
                         })));
                     } else {
-                        result.push(noEmptySpace());
+                        result.push(',' + space);
                         result.push(generateStatement(node, {
                             allowIn: allowIn
                         }));
                     }
-
-                    for (i = 1, len = stmt.declarations.length; i < len; ++i) {
-                        node = stmt.declarations[i];
-                        if (extra.comment && node.leadingComments) {
-                            result.push(',' + newline);
-                            result.push(addIndent(generateStatement(node, {
-                                allowIn: allowIn
-                            })));
-                        } else {
-                            result.push(',' + space);
-                            result.push(generateStatement(node, {
-                                allowIn: allowIn
-                            }));
-                        }
-                    }
                 }
-                if (stmt.declarations.length > 1) {
-                    withIndent(block);
-                } else {
-                    block();
-                }
+            };
+            if (stmt.declarations.length > 1) {
+                withIndent(block);
+            } else {
+                block();
             }
             result.push(semicolon);
             break;
