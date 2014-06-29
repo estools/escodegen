@@ -568,6 +568,10 @@
         return result;
     }
 
+    function restoreIndent() {
+        base = base.slice(0, -indent.length);
+    }
+
     function calculateSpaces(str) {
         var i;
         for (i = str.length - 1; i >= 0; --i) {
@@ -1796,6 +1800,12 @@
                 // So if comment is attached to target node, we should specialize.
                 withIndent(function () {
                     node = stmt.declarations[0];
+                    if (node.type === Syntax.VariableDeclarator &&
+                        node.init &&
+                        node.init.type === Syntax.ObjectExpression) {
+                        restoreIndent();
+                    }
+
                     if (extra.comment && node.leadingComments) {
                         result.push('\n');
                         result.push(addIndent(generateStatement(node, {
