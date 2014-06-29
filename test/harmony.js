@@ -894,7 +894,7 @@ data = {
 
 
     'Object destructuring (and aliasing)':  {
-        'var {\n        a,\n        b: C\n    } = {};' : {
+        'var {\n    a,\n    b: C\n} = {};' : {
             generateFrom: {
                 type: 'Program',
                 body: [{
