@@ -60,7 +60,8 @@ gulp.task('lint', function () {
         .pipe(jshint.reporter(require('jshint-stylish')))
         .pipe(jshint.reporter('fail'))
         .pipe(eslint(ESLINT_OPTION))
-        .pipe(eslint.formatEach('compact', process.stderr));
+        .pipe(eslint.formatEach('compact', process.stderr))
+        .pipe(eslint.failOnError());
 });
 
 gulp.task('travis', [ 'lint', 'test' ]);
