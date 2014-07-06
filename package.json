@@ -34,7 +34,7 @@
     "esprima-moz": "*",
     "semver": "*",
     "chai": "~1.7.2",
-    "gulp": "~3.5.0",
+    "gulp": "~3.8.5",
     "gulp-mocha": "~0.4.1",
     "gulp-eslint": "~0.1.2",
     "jshint-stylish": "~0.1.5",

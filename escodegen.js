@@ -862,6 +862,52 @@
         return result;
     }
 
+    function generateVariableDeclaration(stmt, semicolon, allowIn) {
+        var result, i, iz, node;
+
+        result = [ stmt.kind ];
+
+        function block() {
+            node = stmt.declarations[0];
+            if (extra.comment && node.leadingComments) {
+                result.push('\n');
+                result.push(addIndent(generateStatement(node, {
+                    allowIn: allowIn
+                })));
+            } else {
+                result.push(noEmptySpace());
+                result.push(generateStatement(node, {
+                    allowIn: allowIn
+                }));
+            }
+
+            for (i = 1, iz = stmt.declarations.length; i < iz; ++i) {
+                node = stmt.declarations[i];
+                if (extra.comment && node.leadingComments) {
+                    result.push(',' + newline);
+                    result.push(addIndent(generateStatement(node, {
+                        allowIn: allowIn
+                    })));
+                } else {
+                    result.push(',' + space);
+                    result.push(generateStatement(node, {
+                        allowIn: allowIn
+                    }));
+                }
+            }
+        }
+
+        if (stmt.declarations.length > 1) {
+            withIndent(block);
+        } else {
+            block();
+        }
+
+        result.push(semicolon);
+
+        return result;
+    }
+
     function generateLiteral(expr) {
         var raw;
         if (expr.hasOwnProperty('raw') && parse && extra.raw) {
@@ -1537,15 +1583,13 @@
         var i,
             len,
             result,
-            node,
             specifier,
             allowIn,
             functionBody,
             directiveContext,
             fragment,
             semicolon,
-            isGenerator,
-            block;
+            isGenerator;
 
         allowIn = true;
         semicolon = ';';
@@ -1711,7 +1755,7 @@
                     result = [
                         'import',
                         space,
-                        '{',
+                        '{'
                     ];
 
                     if (stmt.specifiers.length === 1) {
@@ -1781,45 +1825,10 @@
             break;
 
         case Syntax.VariableDeclaration:
-            result = [stmt.kind];
             // VariableDeclarator is typed as Statement,
             // but joined with comma (not LineTerminator).
             // So if comment is attached to target node, we should specialize.
-            block = function() {
-                node = stmt.declarations[0];
-                if (extra.comment && node.leadingComments) {
-                    result.push('\n');
-                    result.push(addIndent(generateStatement(node, {
-                        allowIn: allowIn
-                    })));
-                } else {
-                    result.push(noEmptySpace());
-                    result.push(generateStatement(node, {
-                        allowIn: allowIn
-                    }));
-                }
-
-                for (i = 1, len = stmt.declarations.length; i < len; ++i) {
-                    node = stmt.declarations[i];
-                    if (extra.comment && node.leadingComments) {
-                        result.push(',' + newline);
-                        result.push(addIndent(generateStatement(node, {
-                            allowIn: allowIn
-                        })));
-                    } else {
-                        result.push(',' + space);
-                        result.push(generateStatement(node, {
-                            allowIn: allowIn
-                        }));
-                    }
-                }
-            };
-            if (stmt.declarations.length > 1) {
-                withIndent(block);
-            } else {
-                block();
-            }
-            result.push(semicolon);
+            result = generateVariableDeclaration(stmt, semicolon, allowIn);
             break;
 
         case Syntax.ThrowStatement:
