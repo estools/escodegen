@@ -942,6 +942,20 @@
         return generateRegExp(expr.value);
     }
 
+    function generatePropertyKey(expr, computed, option) {
+        var result = [];
+
+        if (computed) {
+            result.push('[');
+        }
+        result.push(generateExpression(expr, option));
+        if (computed) {
+            result.push(']');
+        }
+
+        return result;
+    }
+
     function generateExpression(expr, option) {
         var result,
             precedence,
@@ -1321,7 +1335,7 @@
             if (expr.kind === 'get' || expr.kind === 'set') {
                 result = [
                     expr.kind, noEmptySpace(),
-                    generateExpression(expr.key, {
+                    generatePropertyKey(expr.key, expr.computed, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
@@ -1330,7 +1344,7 @@
                 ];
             } else {
                 if (expr.shorthand) {
-                    result = generateExpression(expr.key, {
+                    result = generatePropertyKey(expr.key, expr.computed, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
@@ -1340,7 +1354,7 @@
                     if (expr.value.generator) {
                         result.push('*');
                     }
-                    result.push(generateExpression(expr.key, {
+                    result.push(generatePropertyKey(expr.key, expr.computed, {
                         precedence: Precedence.Sequence,
                         allowIn: true,
                         allowCall: true
@@ -1348,7 +1362,7 @@
                     result.push(generateFunctionBody(expr.value));
                 } else {
                     result = [
-                        generateExpression(expr.key, {
+                        generatePropertyKey(expr.key, expr.computed, {
                             precedence: Precedence.Sequence,
                             allowIn: true,
                             allowCall: true
