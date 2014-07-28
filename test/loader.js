@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
+  Copyright (C) 2014 Yusuke Suzuki <utatane.tea@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -21,47 +21,24 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
 'use strict';
 
 var fs = require('fs'),
-    esprima = require('./3rdparty/esprima'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    expect = chai.expect;
+    path = require('path'),
+    root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
+    escodegen = require(root);
 
-function test(code, expected) {
-    var tree, actual, options, StringObject;
-
-    // alias, so that JSLint does not complain.
-    StringObject = String;
-
-    options = {
-        range: true,
-        loc: false,
-        tokens: true,
-        raw: false
+// Make generate's first argument freezed.
+function freezing(escodegen) {
+    var original = escodegen.generate;
+    escodegen.generate = function () {
+        var ast = arguments[0];
+        Object.freeze(ast);
+        return original.apply(this, arguments);
     };
+    return escodegen;
+};
 
-    tree = esprima.parse(code, options);
-
-    // for UNIX text comment
-    actual = escodegen.generate(tree).replace(/[\n\r]$/, '') + '\n';
-    expect(actual).to.be.equal(expected);
-}
-
-describe('compare test', function () {
-    fs.readdirSync(__dirname + '/compare').sort().forEach(function(file) {
-        var code, expected, p;
-        if (/\.js$/.test(file) && !/expected\.js$/.test(file)) {
-            it(file, function () {
-                p = file.replace(/\.js$/, '.expected.js');
-                code = fs.readFileSync(__dirname + '/compare/' + file, 'utf-8');
-                expected = fs.readFileSync(__dirname + '/compare/' + p, 'utf-8');
-                test(code, expected);
-            });
-        }
-    });
-});
+module.exports = freezing(escodegen);
 
 /* vim: set sw=4 ts=4 et tw=80 : */

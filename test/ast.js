@@ -25,11 +25,8 @@
 'use strict';
 
 var data,
-    fs = require('fs'),
-    path = require('path'),
-    root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
     esprima = require('./3rdparty/esprima'),
-    escodegen = require(root),
+    escodegen = require('./loader'),
     chai = require('chai'),
     expect = chai.expect;
 

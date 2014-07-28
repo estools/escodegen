@@ -30,11 +30,8 @@
 
 'use strict';
 
-var fs = require('fs'),
-    path = require('path'),
-    root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
-    esprima = require('esprima-moz'),
-    escodegen = require(root),
+var esprima = require('esprima-moz'),
+    escodegen = require('./loader'),
     chai = require('chai'),
     expect = chai.expect,
     data;
