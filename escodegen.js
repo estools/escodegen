@@ -1603,7 +1603,8 @@
             directiveContext,
             fragment,
             semicolon,
-            isGenerator;
+            isGenerator,
+            guardedHandlers;
 
         allowIn = true;
         semicolon = ';';
@@ -1869,12 +1870,12 @@
                     }
                 }
             } else {
-                stmt.guardedHandlers = stmt.guardedHandlers || [];
+                guardedHandlers = stmt.guardedHandlers || [];
 
-                for (i = 0, len = stmt.guardedHandlers.length; i < len; ++i) {
-                    result = join(result, generateStatement(stmt.guardedHandlers[i]));
+                for (i = 0, len = guardedHandlers.length; i < len; ++i) {
+                    result = join(result, generateStatement(guardedHandlers[i]));
                     if (stmt.finalizer || i + 1 !== len) {
-                        result = maybeBlockSuffix(stmt.guardedHandlers[i].body, result);
+                        result = maybeBlockSuffix(guardedHandlers[i].body, result);
                     }
                 }
 
