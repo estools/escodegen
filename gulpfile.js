@@ -51,7 +51,11 @@ var ESLINT_OPTION = {
 };
 
 gulp.task('test', function () {
-    return gulp.src(TEST).pipe(mocha({ reporter: 'spec' }));
+    return gulp.src(TEST)
+        .pipe(mocha({
+            reporter: 'spec',
+            timeout: 100000 // 100s
+        }));
 });
 
 gulp.task('lint', function () {

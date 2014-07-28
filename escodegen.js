@@ -31,7 +31,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*global exports:true, generateStatement:true, generateExpression:true, require:true, global:true*/
+/*global exports:true, require:true, global:true*/
 (function () {
     'use strict';
 
