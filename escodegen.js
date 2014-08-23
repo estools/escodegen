@@ -805,6 +805,18 @@
                     result.push(',' + space);
                 }
             }
+
+            if (node.rest) {
+                if (node.params.length) {
+                    result.push(',' + space);
+                }
+                result.push('...');
+                result.push(generateIdentifier(node.rest, {
+                    precedence: Precedence.Assignment,
+                    allowIn: true
+                }));
+            }
+
             result.push(')');
         }
 

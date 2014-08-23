@@ -2110,6 +2110,54 @@ data = {
         }
     },
 
+    'Harmony rest parameters': {
+        'function a(...b) {\n}': {
+            generateFrom: {
+                type: 'FunctionDeclaration',
+                id: {
+                    type: 'Identifier',
+                    name: 'a'
+                },
+                params: [],
+                defaults: [],
+                body: {
+                    type: 'BlockStatement',
+                    body: []
+                },
+                rest: {
+                    type: 'Identifier',
+                    name: 'b'
+                },
+                generator: false,
+                expression: false
+            }
+        },
+
+        'function a(b, ...c) {\n}': {
+            generateFrom: {
+                type: 'FunctionDeclaration',
+                id: {
+                    type: 'Identifier',
+                    name: 'a'
+                },
+                params: [{
+                    type: 'Identifier',
+                    name: 'b'
+                }],
+                defaults: [],
+                rest: {
+                    type: 'Identifier',
+                    name: 'c'
+                },
+                generator: false,
+                body: {
+                    type: 'BlockStatement',
+                    body: []
+                },
+                expression: false
+            }
+        }
+    },
 
     'Harmony method property': {
         'var obj = { test() { } }': {
