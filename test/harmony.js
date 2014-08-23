@@ -1463,7 +1463,7 @@ data = {
 
     'Array Comprehension': {
 
-        '[for x in [] x];':{
+        '[for (x in []) x];':{
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1523,13 +1523,12 @@ data = {
             },
             options: {
                 moz: {
-                    parenthesizedComprehensionBlock: true,
                     comprehensionExpressionStartsWithAssignment: true
                 }
             }
         },
 
-        '[for x of [] x];': {
+        '[for (x of []) x];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1589,13 +1588,12 @@ data = {
             },
             options: {
                 moz: {
-                    parenthesizedComprehensionBlock: true,
                     comprehensionExpressionStartsWithAssignment: true
                 }
             }
         },
 
-        '[for x in y if f(x) 1];': {
+        '[for (x in y) if (f(x)) 1];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1677,13 +1675,12 @@ data = {
             },
             options: {
                 moz: {
-                    parenthesizedComprehensionBlock: true,
                     comprehensionExpressionStartsWithAssignment: true
                 }
             }
         },
 
-        '[for x of y if f(x) 1];': {
+        '[for (x of y) if (f(x)) 1];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1765,13 +1762,12 @@ data = {
             },
             options: {
                 moz: {
-                    parenthesizedComprehensionBlock: true,
                     comprehensionExpressionStartsWithAssignment: true
                 }
             }
         },
 
-        '[for x in [] for b in [] if b && c [\n    x,\n    b,\n    c\n]];': {
+        '[for (x in []) for (b in []) if (b && c) [\n    x,\n    b,\n    c\n]];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1895,13 +1891,12 @@ data = {
             },
             options: {
                 moz: {
-                    parenthesizedComprehensionBlock: true,
                     comprehensionExpressionStartsWithAssignment: true
                 }
             }
         },
 
-        '[for x of [] for b of [] if b && c [\n    x,\n    b,\n    c\n]];': {
+        '[for (x of []) for (b of []) if (b && c) [\n    x,\n    b,\n    c\n]];': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -2025,7 +2020,6 @@ data = {
             },
             options: {
                 moz: {
-                    parenthesizedComprehensionBlock: true,
                     comprehensionExpressionStartsWithAssignment: true
                 }
             }

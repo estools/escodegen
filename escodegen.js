@@ -197,8 +197,7 @@
             },
             moz: {
                 comprehensionExpressionStartsWithAssignment: false,
-                starlessGenerator: false,
-                parenthesizedComprehensionBlock: false
+                starlessGenerator: false
             },
             sourceMap: null,
             sourceMapRoot: null,
@@ -1578,11 +1577,7 @@
                     allowIn: true,
                     allowCall: true
                 });
-                if (extra.moz.parenthesizedComprehensionBlock) {
-                    result = join(result, [ '(', fragment, ')' ]);
-                } else {
-                    result = join(result, fragment);
-                }
+                result = join(result, [ '(', fragment, ')' ]);
             }
 
             if (!extra.moz.comprehensionExpressionStartsWithAssignment) {
@@ -1621,11 +1616,7 @@
                 allowCall: true
             }));
 
-            if (extra.moz.parenthesizedComprehensionBlock) {
-                result = [ 'for' + space + '(', fragment, ')' ];
-            } else {
-                result = join('for' + space, fragment);
-            }
+            result = [ 'for' + space + '(', fragment, ')' ];
             break;
 
         default:
