@@ -791,7 +791,7 @@
 
         arrow = node.type === Syntax.ArrowFunctionExpression;
 
-        if (arrow && node.params.length === 1 && node.params[0].type === Syntax.Identifier) {
+        if (arrow && !node.rest && node.params.length === 1 && node.params[0].type === Syntax.Identifier) {
             // arg => { } case
             result = [generateIdentifier(node.params[0])];
         } else {

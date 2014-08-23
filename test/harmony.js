@@ -2156,6 +2156,30 @@ data = {
                 },
                 expression: false
             }
+        },
+
+        '(b, ...c) => {\n};': {
+            generateFrom: {
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'ArrowFunctionExpression',
+                    params: [{
+                        type: 'Identifier',
+                        name: 'b'
+                    }],
+                    defaults: [],
+                    rest: {
+                        type: 'Identifier',
+                        name: 'c'
+                    },
+                    generator: false,
+                    body: {
+                        type: 'BlockStatement',
+                        body: []
+                    },
+                    expression: false
+                }
+            }
         }
     },
 
