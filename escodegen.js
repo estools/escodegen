@@ -786,22 +786,37 @@
         return result;
     }
 
-    function generateFunctionBody(node) {
-        var result, i, len, expr, arrow;
+    function generateFunctionParams(node) {
+        var i, iz, result, hasDefault;
 
-        arrow = node.type === Syntax.ArrowFunctionExpression;
+        hasDefault = false;
 
-        if (arrow && !node.rest && node.params.length === 1 && node.params[0].type === Syntax.Identifier) {
+        if (node.type === Syntax.ArrowFunctionExpression &&
+                !node.rest && (!node.defaults || node.defaults.length === 0) &&
+                node.params.length === 1 && node.params[0].type === Syntax.Identifier) {
             // arg => { } case
             result = [generateIdentifier(node.params[0])];
         } else {
             result = ['('];
-            for (i = 0, len = node.params.length; i < len; ++i) {
-                result.push(generatePattern(node.params[i], {
-                    precedence: Precedence.Assignment,
-                    allowIn: true
-                }));
-                if (i + 1 < len) {
+            if (node.defaults) {
+                hasDefault = true;
+            }
+            for (i = 0, iz = node.params.length; i < iz; ++i) {
+                if (hasDefault && node.defaults[i]) {
+                    // Handle default values.
+                    result.push(generateAssignment(node.params[i], node.defaults[i], '=', {
+                        precedence: Precedence.Assignment,
+                        allowIn: true,
+                        allowCall: true
+                    }));
+                } else {
+                    result.push(generatePattern(node.params[i], {
+                        precedence: Precedence.Assignment,
+                        allowIn: true,
+                        allowCall: true
+                    }));
+                }
+                if (i + 1 < iz) {
                     result.push(',' + space);
                 }
             }
@@ -813,14 +828,23 @@
                 result.push('...');
                 result.push(generateIdentifier(node.rest, {
                     precedence: Precedence.Assignment,
-                    allowIn: true
+                    allowIn: true,
+                    allowCall: true
                 }));
             }
 
             result.push(')');
         }
 
-        if (arrow) {
+        return result;
+    }
+
+    function generateFunctionBody(node) {
+        var result, expr;
+
+        result = generateFunctionParams(node);
+
+        if (node.type === Syntax.ArrowFunctionExpression) {
             result.push(space);
             result.push('=>');
         }
@@ -839,6 +863,7 @@
         } else {
             result.push(maybeBlock(node.body, false, true));
         }
+
         return result;
     }
 
@@ -968,6 +993,31 @@
         return result;
     }
 
+    function generateAssignment(left, right, operator, option) {
+        var allowIn, precedence;
+
+        precedence = option.precedence;
+        allowIn = option.allowIn || (Precedence.Assignment < precedence);
+
+        return parenthesize(
+            [
+                generateExpression(left, {
+                    precedence: Precedence.Call,
+                    allowIn: allowIn,
+                    allowCall: true
+                }),
+                space + operator + space,
+                generateExpression(right, {
+                    precedence: Precedence.Assignment,
+                    allowIn: allowIn,
+                    allowCall: true
+                })
+            ],
+            Precedence.Assignment,
+            precedence
+        );
+    }
+
     function generateExpression(expr, option) {
         var result,
             precedence,
@@ -1013,24 +1063,7 @@
             break;
 
         case Syntax.AssignmentExpression:
-            allowIn |= (Precedence.Assignment < precedence);
-            result = parenthesize(
-                [
-                    generateExpression(expr.left, {
-                        precedence: Precedence.Call,
-                        allowIn: allowIn,
-                        allowCall: true
-                    }),
-                    space + expr.operator + space,
-                    generateExpression(expr.right, {
-                        precedence: Precedence.Assignment,
-                        allowIn: allowIn,
-                        allowCall: true
-                    })
-                ],
-                Precedence.Assignment,
-                precedence
-            );
+            result = generateAssignment(expr.left, expr.right, expr.operator, option);
             break;
 
         case Syntax.ArrowFunctionExpression:
