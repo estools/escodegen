@@ -74,6 +74,9 @@
         BreakStatement: 'BreakStatement',
         CallExpression: 'CallExpression',
         CatchClause: 'CatchClause',
+        ClassBody: 'ClassBody',
+        ClassDeclaration: 'ClassDeclaration',
+        ClassExpression: 'ClassExpression',
         ComprehensionBlock: 'ComprehensionBlock',
         ComprehensionExpression: 'ComprehensionExpression',
         ConditionalExpression: 'ConditionalExpression',
@@ -97,6 +100,7 @@
         LabeledStatement: 'LabeledStatement',
         LogicalExpression: 'LogicalExpression',
         MemberExpression: 'MemberExpression',
+        MethodDefinition: 'MethodDefinition',
         NewExpression: 'NewExpression',
         ObjectExpression: 'ObjectExpression',
         ObjectPattern: 'ObjectPattern',
@@ -538,14 +542,27 @@
     }
 
     function join(left, right) {
-        var leftSource = toSourceNodeWhenNeeded(left).toString(),
-            rightSource = toSourceNodeWhenNeeded(right).toString(),
-            leftCharCode = leftSource.charCodeAt(leftSource.length - 1),
-            rightCharCode = rightSource.charCodeAt(0);
+        var leftSource,
+            rightSource,
+            leftCharCode,
+            rightCharCode;
+
+        leftSource = toSourceNodeWhenNeeded(left).toString();
+        if (leftSource.length === 0) {
+            return [right];
+        }
+
+        rightSource = toSourceNodeWhenNeeded(right).toString();
+        if (rightSource.length === 0) {
+            return [left];
+        }
+
+        leftCharCode = leftSource.charCodeAt(leftSource.length - 1);
+        rightCharCode = rightSource.charCodeAt(0);
 
         if ((leftCharCode === 0x2B  /* + */ || leftCharCode === 0x2D  /* - */) && leftCharCode === rightCharCode ||
-        esutils.code.isIdentifierPart(leftCharCode) && esutils.code.isIdentifierPart(rightCharCode) ||
-        leftCharCode === 0x2F  /* / */ && rightCharCode === 0x69  /* i */) { // infix word operators all start with `i`
+            esutils.code.isIdentifierPart(leftCharCode) && esutils.code.isIdentifierPart(rightCharCode) ||
+            leftCharCode === 0x2F  /* / */ && rightCharCode === 0x69  /* i */) { // infix word operators all start with `i`
             return [left, noEmptySpace(), right];
         } else if (esutils.code.isWhiteSpace(leftCharCode) || esutils.code.isLineTerminator(leftCharCode) ||
                 esutils.code.isWhiteSpace(rightCharCode) || esutils.code.isLineTerminator(rightCharCode)) {
@@ -941,6 +958,34 @@
 
         result.push(semicolon);
 
+        return result;
+    }
+
+    function generateClassBody(classBody) {
+        var result = [ '{', newline];
+
+        withIndent(function (indent) {
+            var i, iz;
+
+            for (i = 0, iz = classBody.body.length; i < iz; ++i) {
+                result.push(indent);
+                result.push(generateExpression(classBody.body[i], {
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true,
+                    type: Syntax.Property
+                }));
+                if (i + 1 < iz) {
+                    result.push(newline);
+                }
+            }
+        });
+
+        if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
+            result.push(newline);
+        }
+        result.push(base);
+        result.push('}');
         return result;
     }
 
@@ -1375,6 +1420,63 @@
             result.push(']');
             break;
 
+        case Syntax.ClassExpression:
+            result = ['class'];
+            if (expr.id) {
+                result = join(result, generateExpression(expr.id, {
+                    allowIn: true,
+                    allowCall: true
+                }));
+            }
+            if (expr.superClass) {
+                fragment = join('extends', generateExpression(expr.superClass, {
+                    precedence: Precedence.Assignment,
+                    allowIn: true,
+                    allowCall: true
+                }));
+                result = join(result, fragment);
+            }
+            result.push(space);
+            result.push(generateStatement(expr.body, {
+                semicolonOptional: true,
+                directiveContext: false
+            }));
+            break;
+
+        case Syntax.MethodDefinition:
+            if (expr['static']) {
+                result = ['static' + space];
+            } else {
+                result = [];
+            }
+
+            if (expr.kind === 'get' || expr.kind === 'set') {
+                result = join(result, [
+                    join(expr.kind, generatePropertyKey(expr.key, expr.computed, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    })),
+                    generateFunctionBody(expr.value)
+                ]);
+            } else {
+                fragment = [
+                    generatePropertyKey(expr.key, expr.computed, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }),
+                    generateFunctionBody(expr.value)
+                ];
+                if (expr.value.generator) {
+                    result.push('*');
+                    result.push(fragment);
+                } else {
+                    result = join(result, fragment);
+                }
+            }
+            break;
+
         case Syntax.Property:
             if (expr.kind === 'get' || expr.kind === 'set') {
                 result = [
@@ -1691,6 +1793,27 @@
             }
             break;
 
+        case Syntax.ClassBody:
+            result = generateClassBody(stmt);
+            break;
+
+        case Syntax.ClassDeclaration:
+            result = ['class ' + stmt.id.name];
+            if (stmt.superClass) {
+                fragment = join('extends', generateExpression(stmt.superClass, {
+                    precedence: Precedence.Assignment,
+                    allowIn: true,
+                    allowCall: true
+                }));
+                result = join(result, fragment);
+            }
+            result.push(space);
+            result.push(generateStatement(stmt.body, {
+                semicolonOptional: true,
+                directiveContext: false
+            }));
+            break;
+
         case Syntax.DirectiveStatement:
             if (extra.raw && stmt.raw) {
                 result = stmt.raw + semicolon;
@@ -1764,10 +1887,11 @@
                 allowIn: true,
                 allowCall: true
             })];
-            // 12.4 '{', 'function' is not allowed in this position.
+            // 12.4 '{', 'function', 'class' is not allowed in this position.
             // wrap expression with parentheses
             fragment = toSourceNodeWhenNeeded(result).toString();
             if (fragment.charAt(0) === '{' ||  // ObjectExpression
+                    (fragment.slice(0, 5) === 'class' && ' {'.indexOf(fragment.charAt(5)) >= 0) ||  // class
                     (fragment.slice(0, 8) === 'function' && '* ('.indexOf(fragment.charAt(8)) >= 0) ||  // function or generator
                     (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
                 result = ['(', result, ')' + semicolon];
@@ -2232,6 +2356,8 @@
         case Syntax.BreakStatement:
         case Syntax.CatchClause:
         case Syntax.ContinueStatement:
+        case Syntax.ClassDeclaration:
+        case Syntax.ClassBody:
         case Syntax.DirectiveStatement:
         case Syntax.DoWhileStatement:
         case Syntax.DebuggerStatement:
@@ -2262,11 +2388,13 @@
         case Syntax.BinaryExpression:
         case Syntax.CallExpression:
         case Syntax.ConditionalExpression:
+        case Syntax.ClassExpression:
         case Syntax.FunctionExpression:
         case Syntax.Identifier:
         case Syntax.Literal:
         case Syntax.LogicalExpression:
         case Syntax.MemberExpression:
+        case Syntax.MethodDefinition:
         case Syntax.NewExpression:
         case Syntax.ObjectExpression:
         case Syntax.ObjectPattern:

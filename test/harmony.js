@@ -2763,6 +2763,1503 @@ data = {
                 end: { line: 1, column: 19 }
             }
         }
+    },
+
+    'Harmony classes': {
+        'class hello{}': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'hello',
+                        range: [6, 11],
+                        loc: {
+                            start: { line: 1, column: 6 },
+                            end: { line: 1, column: 11 }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [],
+                        range: [11, 13],
+                        loc: {
+                            start: { line: 1, column: 11 },
+                            end: { line: 1, column: 13 }
+                        }
+                    },
+                    range: [0, 13],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 13 }
+                    }
+                }],
+                range: [0, 13],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 13 }
+                }
+            }
+        },
+
+        'class hello extends[]{}': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'hello',
+                        range: [6, 11],
+                        loc: {
+                            start: { line: 1, column: 6 },
+                            end: { line: 1, column: 11 }
+                        }
+                    },
+                    superClass: {
+                        type: 'ArrayExpression',
+                        elements: [],
+                        range: [19, 21],
+                        loc: {
+                            start: { line: 1, column: 19 },
+                            end: { line: 1, column: 21 }
+                        }
+                    },
+                    body: {
+                        type: 'ClassBody',
+                        body: [],
+                        range: [21, 23],
+                        loc: {
+                            start: { line: 1, column: 21 },
+                            end: { line: 1, column: 23 }
+                        }
+                    },
+                    range: [0, 23],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 23 }
+                    }
+                }],
+                range: [0, 23],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 23 }
+                }
+            }
+        },
+
+        'class hello extends[]{static[ok](){}}': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'hello',
+                        range: [6, 11],
+                        loc: {
+                            start: { line: 1, column: 6 },
+                            end: { line: 1, column: 11 }
+                        }
+                    },
+                    superClass: {
+                        type: 'ArrayExpression',
+                        elements: [],
+                        range: [19, 21],
+                        loc: {
+                            start: { line: 1, column: 19 },
+                            end: { line: 1, column: 21 }
+                        }
+                    },
+                    body: {
+                        type: 'ClassBody',
+                        body: [{
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Identifier',
+                                name: 'ok',
+                                range: [29, 31],
+                                loc: {
+                                    start: { line: 1, column: 29 },
+                                    end: { line: 1, column: 31 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [34, 36],
+                                    loc: {
+                                        start: { line: 1, column: 34 },
+                                        end: { line: 1, column: 36 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [34, 36],
+                                loc: {
+                                    start: { line: 1, column: 34 },
+                                    end: { line: 1, column: 36 }
+                                }
+                            },
+                            kind: '',
+                            'static': true,
+                            computed: true,
+                            range: [22, 36],
+                            loc: {
+                                start: { line: 1, column: 22 },
+                                end: { line: 1, column: 36 }
+                            }
+                        }],
+                        range: [21, 37],
+                        loc: {
+                            start: { line: 1, column: 21 },
+                            end: { line: 1, column: 37 }
+                        }
+                    },
+                    range: [0, 37],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 37 }
+                    }
+                }],
+                range: [0, 37],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 37 }
+                }
+            }
+        },
+
+        'class hello extends[]{static"ok"(){}static get"g1"(){}static set"s1"(v){}static*gen(){}}': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'hello',
+                        range: [6, 11],
+                        loc: {
+                            start: { line: 1, column: 6 },
+                            end: { line: 1, column: 11 }
+                        }
+                    },
+                    superClass: {
+                        type: 'ArrayExpression',
+                        elements: [],
+                        range: [19, 21],
+                        loc: {
+                            start: { line: 1, column: 19 },
+                            end: { line: 1, column: 21 }
+                        }
+                    },
+                    body: {
+                        type: 'ClassBody',
+                        body: [{
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Literal',
+                                value: 'ok',
+                                raw: '"ok"',
+                                range: [28, 32],
+                                loc: {
+                                    start: { line: 1, column: 28 },
+                                    end: { line: 1, column: 32 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [34, 36],
+                                    loc: {
+                                        start: { line: 1, column: 34 },
+                                        end: { line: 1, column: 36 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [34, 36],
+                                loc: {
+                                    start: { line: 1, column: 34 },
+                                    end: { line: 1, column: 36 }
+                                }
+                            },
+                            kind: '',
+                            'static': true,
+                            computed: false,
+                            range: [22, 36],
+                            loc: {
+                                start: { line: 1, column: 22 },
+                                end: { line: 1, column: 36 }
+                            }
+                        }, {
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Literal',
+                                value: 'g1',
+                                raw: '"g1"',
+                                range: [46, 50],
+                                loc: {
+                                    start: { line: 1, column: 46 },
+                                    end: { line: 1, column: 50 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [52, 54],
+                                    loc: {
+                                        start: { line: 1, column: 52 },
+                                        end: { line: 1, column: 54 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [52, 54],
+                                loc: {
+                                    start: { line: 1, column: 52 },
+                                    end: { line: 1, column: 54 }
+                                }
+                            },
+                            kind: 'get',
+                            'static': true,
+                            computed: false,
+                            range: [36, 54],
+                            loc: {
+                                start: { line: 1, column: 36 },
+                                end: { line: 1, column: 54 }
+                            }
+                        }, {
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Literal',
+                                value: 's1',
+                                raw: '"s1"',
+                                range: [64, 68],
+                                loc: {
+                                    start: { line: 1, column: 64 },
+                                    end: { line: 1, column: 68 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [{
+                                    type: 'Identifier',
+                                    name: 'v',
+                                    range: [69, 70],
+                                    loc: {
+                                        start: { line: 1, column: 69 },
+                                        end: { line: 1, column: 70 }
+                                    }
+                                }],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [71, 73],
+                                    loc: {
+                                        start: { line: 1, column: 71 },
+                                        end: { line: 1, column: 73 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [71, 73],
+                                loc: {
+                                    start: { line: 1, column: 71 },
+                                    end: { line: 1, column: 73 }
+                                }
+                            },
+                            kind: 'set',
+                            'static': true,
+                            computed: false,
+                            range: [54, 73],
+                            loc: {
+                                start: { line: 1, column: 54 },
+                                end: { line: 1, column: 73 }
+                            }
+                        }, {
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Identifier',
+                                name: 'gen',
+                                range: [80, 83],
+                                loc: {
+                                    start: { line: 1, column: 80 },
+                                    end: { line: 1, column: 83 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [85, 87],
+                                    loc: {
+                                        start: { line: 1, column: 85 },
+                                        end: { line: 1, column: 87 }
+                                    }
+                                },
+                                rest: null,
+                                generator: true,
+                                expression: false,
+                                range: [85, 87],
+                                loc: {
+                                    start: { line: 1, column: 85 },
+                                    end: { line: 1, column: 87 }
+                                }
+                            },
+                            kind: '',
+                            'static': true,
+                            computed: false,
+                            range: [73, 87],
+                            loc: {
+                                start: { line: 1, column: 73 },
+                                end: { line: 1, column: 87 }
+                            }
+                        }],
+                        range: [21, 88],
+                        loc: {
+                            start: { line: 1, column: 21 },
+                            end: { line: 1, column: 88 }
+                        }
+                    },
+                    range: [0, 88],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 88 }
+                    }
+                }],
+                range: [0, 88],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 88 }
+                }
+            }
+        },
+
+        'class hello extends[]{"ok"(){}get"g1"(){}set"s1"(v){}*gen(){}}': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'hello',
+                        range: [6, 11],
+                        loc: {
+                            start: { line: 1, column: 6 },
+                            end: { line: 1, column: 11 }
+                        }
+                    },
+                    superClass: {
+                        type: 'ArrayExpression',
+                        elements: [],
+                        range: [19, 21],
+                        loc: {
+                            start: { line: 1, column: 19 },
+                            end: { line: 1, column: 21 }
+                        }
+                    },
+                    body: {
+                        type: 'ClassBody',
+                        body: [{
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Literal',
+                                value: 'ok',
+                                raw: '"ok"',
+                                range: [22, 26],
+                                loc: {
+                                    start: { line: 1, column: 22 },
+                                    end: { line: 1, column: 26 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [28, 30],
+                                    loc: {
+                                        start: { line: 1, column: 28 },
+                                        end: { line: 1, column: 30 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [28, 30],
+                                loc: {
+                                    start: { line: 1, column: 28 },
+                                    end: { line: 1, column: 30 }
+                                }
+                            },
+                            kind: '',
+                            'static': false,
+                            computed: false,
+                            range: [22, 30],
+                            loc: {
+                                start: { line: 1, column: 22 },
+                                end: { line: 1, column: 30 }
+                            }
+                        }, {
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Literal',
+                                value: 'g1',
+                                raw: '"g1"',
+                                range: [33, 37],
+                                loc: {
+                                    start: { line: 1, column: 33 },
+                                    end: { line: 1, column: 37 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [39, 41],
+                                    loc: {
+                                        start: { line: 1, column: 39 },
+                                        end: { line: 1, column: 41 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [39, 41],
+                                loc: {
+                                    start: { line: 1, column: 39 },
+                                    end: { line: 1, column: 41 }
+                                }
+                            },
+                            kind: 'get',
+                            'static': false,
+                            computed: false,
+                            range: [30, 41],
+                            loc: {
+                                start: { line: 1, column: 30 },
+                                end: { line: 1, column: 41 }
+                            }
+                        }, {
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Literal',
+                                value: 's1',
+                                raw: '"s1"',
+                                range: [44, 48],
+                                loc: {
+                                    start: { line: 1, column: 44 },
+                                    end: { line: 1, column: 48 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [{
+                                    type: 'Identifier',
+                                    name: 'v',
+                                    range: [49, 50],
+                                    loc: {
+                                        start: { line: 1, column: 49 },
+                                        end: { line: 1, column: 50 }
+                                    }
+                                }],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [51, 53],
+                                    loc: {
+                                        start: { line: 1, column: 51 },
+                                        end: { line: 1, column: 53 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [51, 53],
+                                loc: {
+                                    start: { line: 1, column: 51 },
+                                    end: { line: 1, column: 53 }
+                                }
+                            },
+                            kind: 'set',
+                            'static': false,
+                            computed: false,
+                            range: [41, 53],
+                            loc: {
+                                start: { line: 1, column: 41 },
+                                end: { line: 1, column: 53 }
+                            }
+                        }, {
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Identifier',
+                                name: 'gen',
+                                range: [54, 57],
+                                loc: {
+                                    start: { line: 1, column: 54 },
+                                    end: { line: 1, column: 57 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [59, 61],
+                                    loc: {
+                                        start: { line: 1, column: 59 },
+                                        end: { line: 1, column: 61 }
+                                    }
+                                },
+                                rest: null,
+                                generator: true,
+                                expression: false,
+                                range: [59, 61],
+                                loc: {
+                                    start: { line: 1, column: 59 },
+                                    end: { line: 1, column: 61 }
+                                }
+                            },
+                            kind: '',
+                            'static': false,
+                            computed: false,
+                            range: [53, 61],
+                            loc: {
+                                start: { line: 1, column: 53 },
+                                end: { line: 1, column: 61 }
+                            }
+                        }],
+                        range: [21, 62],
+                        loc: {
+                            start: { line: 1, column: 21 },
+                            end: { line: 1, column: 62 }
+                        }
+                    },
+                    range: [0, 62],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 62 }
+                    }
+                }],
+                range: [0, 62],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 62 }
+                }
+            }
+        },
+
+        'class hello extends[]{ok(){}get g1(){}set s1(v){}*gen(){}}': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'hello',
+                        range: [6, 11],
+                        loc: {
+                            start: { line: 1, column: 6 },
+                            end: { line: 1, column: 11 }
+                        }
+                    },
+                    superClass: {
+                        type: 'ArrayExpression',
+                        elements: [],
+                        range: [19, 21],
+                        loc: {
+                            start: { line: 1, column: 19 },
+                            end: { line: 1, column: 21 }
+                        }
+                    },
+                    body: {
+                        type: 'ClassBody',
+                        body: [{
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Identifier',
+                                name: 'ok',
+                                range: [22, 24],
+                                loc: {
+                                    start: { line: 1, column: 22 },
+                                    end: { line: 1, column: 24 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [26, 28],
+                                    loc: {
+                                        start: { line: 1, column: 26 },
+                                        end: { line: 1, column: 28 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [26, 28],
+                                loc: {
+                                    start: { line: 1, column: 26 },
+                                    end: { line: 1, column: 28 }
+                                }
+                            },
+                            kind: '',
+                            'static': false,
+                            computed: false,
+                            range: [22, 28],
+                            loc: {
+                                start: { line: 1, column: 22 },
+                                end: { line: 1, column: 28 }
+                            }
+                        }, {
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Identifier',
+                                name: 'g1',
+                                range: [32, 34],
+                                loc: {
+                                    start: { line: 1, column: 32 },
+                                    end: { line: 1, column: 34 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [36, 38],
+                                    loc: {
+                                        start: { line: 1, column: 36 },
+                                        end: { line: 1, column: 38 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [36, 38],
+                                loc: {
+                                    start: { line: 1, column: 36 },
+                                    end: { line: 1, column: 38 }
+                                }
+                            },
+                            kind: 'get',
+                            'static': false,
+                            computed: false,
+                            range: [28, 38],
+                            loc: {
+                                start: { line: 1, column: 28 },
+                                end: { line: 1, column: 38 }
+                            }
+                        }, {
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Identifier',
+                                name: 's1',
+                                range: [42, 44],
+                                loc: {
+                                    start: { line: 1, column: 42 },
+                                    end: { line: 1, column: 44 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [{
+                                    type: 'Identifier',
+                                    name: 'v',
+                                    range: [45, 46],
+                                    loc: {
+                                        start: { line: 1, column: 45 },
+                                        end: { line: 1, column: 46 }
+                                    }
+                                }],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [47, 49],
+                                    loc: {
+                                        start: { line: 1, column: 47 },
+                                        end: { line: 1, column: 49 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [47, 49],
+                                loc: {
+                                    start: { line: 1, column: 47 },
+                                    end: { line: 1, column: 49 }
+                                }
+                            },
+                            kind: 'set',
+                            'static': false,
+                            computed: false,
+                            range: [38, 49],
+                            loc: {
+                                start: { line: 1, column: 38 },
+                                end: { line: 1, column: 49 }
+                            }
+                        }, {
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Identifier',
+                                name: 'gen',
+                                range: [50, 53],
+                                loc: {
+                                    start: { line: 1, column: 50 },
+                                    end: { line: 1, column: 53 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [55, 57],
+                                    loc: {
+                                        start: { line: 1, column: 55 },
+                                        end: { line: 1, column: 57 }
+                                    }
+                                },
+                                rest: null,
+                                generator: true,
+                                expression: false,
+                                range: [55, 57],
+                                loc: {
+                                    start: { line: 1, column: 55 },
+                                    end: { line: 1, column: 57 }
+                                }
+                            },
+                            kind: '',
+                            'static': false,
+                            computed: false,
+                            range: [49, 57],
+                            loc: {
+                                start: { line: 1, column: 49 },
+                                end: { line: 1, column: 57 }
+                            }
+                        }],
+                        range: [21, 58],
+                        loc: {
+                            start: { line: 1, column: 21 },
+                            end: { line: 1, column: 58 }
+                        }
+                    },
+                    range: [0, 58],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 58 }
+                    }
+                }],
+                range: [0, 58],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 58 }
+                }
+            }
+        },
+
+        'class hello extends[]{2(){}get 3(){}set 42(v){}*4(){}}': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'hello',
+                        range: [6, 11],
+                        loc: {
+                            start: { line: 1, column: 6 },
+                            end: { line: 1, column: 11 }
+                        }
+                    },
+                    superClass: {
+                        type: 'ArrayExpression',
+                        elements: [],
+                        range: [19, 21],
+                        loc: {
+                            start: { line: 1, column: 19 },
+                            end: { line: 1, column: 21 }
+                        }
+                    },
+                    body: {
+                        type: 'ClassBody',
+                        body: [{
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Literal',
+                                value: 2,
+                                raw: '2',
+                                range: [22, 23],
+                                loc: {
+                                    start: { line: 1, column: 22 },
+                                    end: { line: 1, column: 23 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [25, 27],
+                                    loc: {
+                                        start: { line: 1, column: 25 },
+                                        end: { line: 1, column: 27 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [25, 27],
+                                loc: {
+                                    start: { line: 1, column: 25 },
+                                    end: { line: 1, column: 27 }
+                                }
+                            },
+                            kind: '',
+                            'static': false,
+                            computed: false,
+                            range: [22, 27],
+                            loc: {
+                                start: { line: 1, column: 22 },
+                                end: { line: 1, column: 27 }
+                            }
+                        }, {
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Literal',
+                                value: 3,
+                                raw: '3',
+                                range: [31, 32],
+                                loc: {
+                                    start: { line: 1, column: 31 },
+                                    end: { line: 1, column: 32 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [34, 36],
+                                    loc: {
+                                        start: { line: 1, column: 34 },
+                                        end: { line: 1, column: 36 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [34, 36],
+                                loc: {
+                                    start: { line: 1, column: 34 },
+                                    end: { line: 1, column: 36 }
+                                }
+                            },
+                            kind: 'get',
+                            'static': false,
+                            computed: false,
+                            range: [27, 36],
+                            loc: {
+                                start: { line: 1, column: 27 },
+                                end: { line: 1, column: 36 }
+                            }
+                        }, {
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Literal',
+                                value: 42,
+                                raw: '42',
+                                range: [40, 42],
+                                loc: {
+                                    start: { line: 1, column: 40 },
+                                    end: { line: 1, column: 42 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [{
+                                    type: 'Identifier',
+                                    name: 'v',
+                                    range: [43, 44],
+                                    loc: {
+                                        start: { line: 1, column: 43 },
+                                        end: { line: 1, column: 44 }
+                                    }
+                                }],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [45, 47],
+                                    loc: {
+                                        start: { line: 1, column: 45 },
+                                        end: { line: 1, column: 47 }
+                                    }
+                                },
+                                rest: null,
+                                generator: false,
+                                expression: false,
+                                range: [45, 47],
+                                loc: {
+                                    start: { line: 1, column: 45 },
+                                    end: { line: 1, column: 47 }
+                                }
+                            },
+                            kind: 'set',
+                            'static': false,
+                            computed: false,
+                            range: [36, 47],
+                            loc: {
+                                start: { line: 1, column: 36 },
+                                end: { line: 1, column: 47 }
+                            }
+                        }, {
+                            type: 'MethodDefinition',
+                            key: {
+                                type: 'Literal',
+                                value: 4,
+                                raw: '4',
+                                range: [48, 49],
+                                loc: {
+                                    start: { line: 1, column: 48 },
+                                    end: { line: 1, column: 49 }
+                                }
+                            },
+                            value: {
+                                type: 'FunctionExpression',
+                                id: null,
+                                params: [],
+                                defaults: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    range: [51, 53],
+                                    loc: {
+                                        start: { line: 1, column: 51 },
+                                        end: { line: 1, column: 53 }
+                                    }
+                                },
+                                rest: null,
+                                generator: true,
+                                expression: false,
+                                range: [51, 53],
+                                loc: {
+                                    start: { line: 1, column: 51 },
+                                    end: { line: 1, column: 53 }
+                                }
+                            },
+                            kind: '',
+                            'static': false,
+                            computed: false,
+                            range: [47, 53],
+                            loc: {
+                                start: { line: 1, column: 47 },
+                                end: { line: 1, column: 53 }
+                            }
+                        }],
+                        range: [21, 54],
+                        loc: {
+                            start: { line: 1, column: 21 },
+                            end: { line: 1, column: 54 }
+                        }
+                    },
+                    range: [0, 54],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 54 }
+                    }
+                }],
+                range: [0, 54],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 54 }
+                }
+            }
+        },
+
+        '(class extends[]{static[ok](){}})': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ClassExpression',
+                        superClass: {
+                            type: 'ArrayExpression',
+                            elements: [],
+                            range: [14, 16],
+                            loc: {
+                                start: { line: 1, column: 14 },
+                                end: { line: 1, column: 16 }
+                            }
+                        },
+                        body: {
+                            type: 'ClassBody',
+                            body: [{
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'ok',
+                                    range: [24, 26],
+                                    loc: {
+                                        start: { line: 1, column: 24 },
+                                        end: { line: 1, column: 26 }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    id: null,
+                                    params: [],
+                                    defaults: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        range: [29, 31],
+                                        loc: {
+                                            start: { line: 1, column: 29 },
+                                            end: { line: 1, column: 31 }
+                                        }
+                                    },
+                                    rest: null,
+                                    generator: false,
+                                    expression: false,
+                                    range: [29, 31],
+                                    loc: {
+                                        start: { line: 1, column: 29 },
+                                        end: { line: 1, column: 31 }
+                                    }
+                                },
+                                kind: '',
+                                'static': true,
+                                computed: true,
+                                range: [17, 31],
+                                loc: {
+                                    start: { line: 1, column: 17 },
+                                    end: { line: 1, column: 31 }
+                                }
+                            }],
+                            range: [16, 32],
+                            loc: {
+                                start: { line: 1, column: 16 },
+                                end: { line: 1, column: 32 }
+                            }
+                        },
+                        range: [1, 32],
+                        loc: {
+                            start: { line: 1, column: 1 },
+                            end: { line: 1, column: 32 }
+                        }
+                    },
+                    range: [0, 33],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 33 }
+                    }
+                }],
+                range: [0, 33],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 33 }
+                }
+            }
+        },
+
+        '(class extends"hello"{static[ok](){}})': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ClassExpression',
+                        superClass: {
+                            type: 'Literal',
+                            value: 'hello',
+                            raw: '"hello"',
+                            range: [14, 21],
+                            loc: {
+                                start: { line: 1, column: 14 },
+                                end: { line: 1, column: 21 }
+                            }
+                        },
+                        body: {
+                            type: 'ClassBody',
+                            body: [{
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'ok',
+                                    range: [29, 31],
+                                    loc: {
+                                        start: { line: 1, column: 29 },
+                                        end: { line: 1, column: 31 }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    id: null,
+                                    params: [],
+                                    defaults: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        range: [34, 36],
+                                        loc: {
+                                            start: { line: 1, column: 34 },
+                                            end: { line: 1, column: 36 }
+                                        }
+                                    },
+                                    rest: null,
+                                    generator: false,
+                                    expression: false,
+                                    range: [34, 36],
+                                    loc: {
+                                        start: { line: 1, column: 34 },
+                                        end: { line: 1, column: 36 }
+                                    }
+                                },
+                                kind: '',
+                                'static': true,
+                                computed: true,
+                                range: [22, 36],
+                                loc: {
+                                    start: { line: 1, column: 22 },
+                                    end: { line: 1, column: 36 }
+                                }
+                            }],
+                            range: [21, 37],
+                            loc: {
+                                start: { line: 1, column: 21 },
+                                end: { line: 1, column: 37 }
+                            }
+                        },
+                        range: [1, 37],
+                        loc: {
+                            start: { line: 1, column: 1 },
+                            end: { line: 1, column: 37 }
+                        }
+                    },
+                    range: [0, 38],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 38 }
+                    }
+                }],
+                range: [0, 38],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 38 }
+                }
+            }
+        },
+
+        '(class extends Hello{static[ok](){}})': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ClassExpression',
+                        superClass: {
+                            type: 'Identifier',
+                            name: 'Hello',
+                            range: [15, 20],
+                            loc: {
+                                start: { line: 1, column: 15 },
+                                end: { line: 1, column: 20 }
+                            }
+                        },
+                        body: {
+                            type: 'ClassBody',
+                            body: [{
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'ok',
+                                    range: [28, 30],
+                                    loc: {
+                                        start: { line: 1, column: 28 },
+                                        end: { line: 1, column: 30 }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    id: null,
+                                    params: [],
+                                    defaults: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        range: [33, 35],
+                                        loc: {
+                                            start: { line: 1, column: 33 },
+                                            end: { line: 1, column: 35 }
+                                        }
+                                    },
+                                    rest: null,
+                                    generator: false,
+                                    expression: false,
+                                    range: [33, 35],
+                                    loc: {
+                                        start: { line: 1, column: 33 },
+                                        end: { line: 1, column: 35 }
+                                    }
+                                },
+                                kind: '',
+                                'static': true,
+                                computed: true,
+                                range: [21, 35],
+                                loc: {
+                                    start: { line: 1, column: 21 },
+                                    end: { line: 1, column: 35 }
+                                }
+                            }],
+                            range: [20, 36],
+                            loc: {
+                                start: { line: 1, column: 20 },
+                                end: { line: 1, column: 36 }
+                            }
+                        },
+                        range: [1, 36],
+                        loc: {
+                            start: { line: 1, column: 1 },
+                            end: { line: 1, column: 36 }
+                        }
+                    },
+                    range: [0, 37],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 37 }
+                    }
+                }],
+                range: [0, 37],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 37 }
+                }
+            }
+        },
+
+        '(class id extends Hello{static[ok](){}})': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ClassExpression',
+                        id: {
+                            type: 'Identifier',
+                            name: 'id',
+                            range: [7, 9],
+                            loc: {
+                                start: { line: 1, column: 7 },
+                                end: { line: 1, column: 9 }
+                            }
+                        },
+                        superClass: {
+                            type: 'Identifier',
+                            name: 'Hello',
+                            range: [18, 23],
+                            loc: {
+                                start: { line: 1, column: 18 },
+                                end: { line: 1, column: 23 }
+                            }
+                        },
+                        body: {
+                            type: 'ClassBody',
+                            body: [{
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'ok',
+                                    range: [31, 33],
+                                    loc: {
+                                        start: { line: 1, column: 31 },
+                                        end: { line: 1, column: 33 }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    id: null,
+                                    params: [],
+                                    defaults: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        range: [36, 38],
+                                        loc: {
+                                            start: { line: 1, column: 36 },
+                                            end: { line: 1, column: 38 }
+                                        }
+                                    },
+                                    rest: null,
+                                    generator: false,
+                                    expression: false,
+                                    range: [36, 38],
+                                    loc: {
+                                        start: { line: 1, column: 36 },
+                                        end: { line: 1, column: 38 }
+                                    }
+                                },
+                                kind: '',
+                                'static': true,
+                                computed: true,
+                                range: [24, 38],
+                                loc: {
+                                    start: { line: 1, column: 24 },
+                                    end: { line: 1, column: 38 }
+                                }
+                            }],
+                            range: [23, 39],
+                            loc: {
+                                start: { line: 1, column: 23 },
+                                end: { line: 1, column: 39 }
+                            }
+                        },
+                        range: [1, 39],
+                        loc: {
+                            start: { line: 1, column: 1 },
+                            end: { line: 1, column: 39 }
+                        }
+                    },
+                    range: [0, 40],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 40 }
+                    }
+                }],
+                range: [0, 40],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 40 }
+                }
+            }
+        },
+
     }
 };
 
