@@ -1073,6 +1073,7 @@ parseYieldExpression: true
                     if (ch ===  '\r' && source[index] === '\n') {
                         ++index;
                     }
+                    lineStart = index;
                 }
             } else if (isLineTerminator(ch.charCodeAt(0))) {
                 break;
@@ -1188,12 +1189,14 @@ parseYieldExpression: true
                     if (ch ===  '\r' && source[index] === '\n') {
                         ++index;
                     }
+                    lineStart = index;
                 }
             } else if (isLineTerminator(ch.charCodeAt(0))) {
                 ++lineNumber;
                 if (ch ===  '\r' && source[index] === '\n') {
                     ++index;
                 }
+                lineStart = index;
                 cooked += '\n';
             } else {
                 cooked += ch;
@@ -1524,6 +1527,57 @@ parseYieldExpression: true
         return {offset: index, line: lineNumber, col: index - lineStart};
     }
 
+    function processComment(node) {
+        var lastChild,
+            trailingComments,
+            bottomRight = extra.bottomRightStack,
+            last = bottomRight[bottomRight.length - 1];
+
+        if (node.type === Syntax.Program) {
+            if (node.body.length > 0) {
+                return;
+            }
+        }
+
+        if (extra.trailingComments.length > 0) {
+            if (extra.trailingComments[0].range[0] >= node.range[1]) {
+                trailingComments = extra.trailingComments;
+                extra.trailingComments = [];
+            } else {
+                extra.trailingComments.length = 0;
+            }
+        } else {
+            if (last && last.trailingComments && last.trailingComments[0].range[0] >= node.range[1]) {
+                trailingComments = last.trailingComments;
+                delete last.trailingComments;
+            }
+        }
+
+        // Eating the stack.
+        if (last) {
+            while (last && last.range[0] >= node.range[0]) {
+                lastChild = last;
+                last = bottomRight.pop();
+            }
+        }
+
+        if (lastChild) {
+            if (lastChild.leadingComments && lastChild.leadingComments[lastChild.leadingComments.length - 1].range[1] <= node.range[0]) {
+                node.leadingComments = lastChild.leadingComments;
+                delete lastChild.leadingComments;
+            }
+        } else if (extra.leadingComments.length > 0 && extra.leadingComments[extra.leadingComments.length - 1].range[1] <= node.range[0]) {
+            node.leadingComments = extra.leadingComments;
+            extra.leadingComments = [];
+        }
+
+        if (trailingComments) {
+            node.trailingComments = trailingComments;
+        }
+
+        bottomRight.push(node);
+    }
+
     function markerApply(marker, node) {
         if (extra.range) {
             node.range = [marker.offset, index];
@@ -1540,6 +1594,9 @@ parseYieldExpression: true
                 }
             };
             node = delegate.postProcess(node);
+        }
+        if (extra.attachComment) {
+            processComment(node);
         }
         return node;
     }
@@ -1937,13 +1994,14 @@ parseYieldExpression: true
             };
         },
 
-        createMethodDefinition: function (propertyType, kind, key, value) {
+        createMethodDefinition: function (propertyType, kind, key, value, computed) {
             return {
                 type: Syntax.MethodDefinition,
                 key: key,
                 value: value,
                 kind: kind,
-                'static': propertyType === ClassPropertyType.static
+                'static': propertyType === ClassPropertyType.static,
+                computed: computed
             };
         },
 
@@ -2199,7 +2257,8 @@ parseYieldExpression: true
     }
 
     function consumeSemicolon() {
-        var line;
+        var line, oldIndex = index, oldLineNumber = lineNumber,
+            oldLineStart = lineStart, oldLookahead = lookahead;
 
         // Catch the very common case first: immediately a semicolon (char #59).
         if (source.charCodeAt(index) === 59) {
@@ -2210,6 +2269,10 @@ parseYieldExpression: true
         line = lineNumber;
         skipComment();
         if (lineNumber !== line) {
+            index = oldIndex;
+            lineNumber = oldLineNumber;
+            lineStart = oldLineStart;
+            lookahead = oldLookahead;
             return;
         }
 
@@ -4398,7 +4461,7 @@ parseYieldExpression: true
     // 14 Classes
 
     function parseMethodDefinition(existingPropNames) {
-        var token, key, param, propType, isValidDuplicateProp = false,
+        var token, key, param, propType, isValidDuplicateProp = false, computed,
             marker = markerCreate();
 
         if (lookahead.value === 'static') {
@@ -4410,11 +4473,13 @@ parseYieldExpression: true
 
         if (match('*')) {
             lex();
+            computed = (lookahead.value === '[');
             return markerApply(marker, delegate.createMethodDefinition(
                 propType,
                 '',
                 parseObjectPropertyKey(),
-                parsePropertyMethodFunction({ generator: true })
+                parsePropertyMethodFunction({ generator: true }),
+                computed
             ));
         }
 
@@ -4422,25 +4487,28 @@ parseYieldExpression: true
         key = parseObjectPropertyKey();
 
         if (token.value === 'get' && !match('(')) {
+            computed = (lookahead.value === '[');
             key = parseObjectPropertyKey();
 
             // It is a syntax error if any other properties have a name
             // duplicating this one unless they are a setter
-            if (existingPropNames[propType].hasOwnProperty(key.name)) {
-                isValidDuplicateProp =
-                    // There isn't already a getter for this prop
-                    existingPropNames[propType][key.name].get === undefined
-                    // There isn't already a data prop by this name
-                    && existingPropNames[propType][key.name].data === undefined
-                    // The only existing prop by this name is a setter
-                    && existingPropNames[propType][key.name].set !== undefined;
-                if (!isValidDuplicateProp) {
-                    throwError(key, Messages.IllegalDuplicateClassProperty);
+            if (!computed) {
+                if (existingPropNames[propType].hasOwnProperty(key.name)) {
+                    isValidDuplicateProp =
+                        // There isn't already a getter for this prop
+                        existingPropNames[propType][key.name].get === undefined
+                        // There isn't already a data prop by this name
+                        && existingPropNames[propType][key.name].data === undefined
+                        // The only existing prop by this name is a setter
+                        && existingPropNames[propType][key.name].set !== undefined;
+                    if (!isValidDuplicateProp) {
+                        throwError(key, Messages.IllegalDuplicateClassProperty);
+                    }
+                } else {
+                    existingPropNames[propType][key.name] = {};
                 }
-            } else {
-                existingPropNames[propType][key.name] = {};
+                existingPropNames[propType][key.name].get = true;
             }
-            existingPropNames[propType][key.name].get = true;
 
             expect('(');
             expect(')');
@@ -4448,29 +4516,33 @@ parseYieldExpression: true
                 propType,
                 'get',
                 key,
-                parsePropertyFunction({ generator: false })
+                parsePropertyFunction({ generator: false }),
+                computed
             ));
         }
         if (token.value === 'set' && !match('(')) {
+            computed = (lookahead.value === '[');
             key = parseObjectPropertyKey();
 
             // It is a syntax error if any other properties have a name
             // duplicating this one unless they are a getter
-            if (existingPropNames[propType].hasOwnProperty(key.name)) {
-                isValidDuplicateProp =
-                    // There isn't already a setter for this prop
-                    existingPropNames[propType][key.name].set === undefined
-                    // There isn't already a data prop by this name
-                    && existingPropNames[propType][key.name].data === undefined
-                    // The only existing prop by this name is a getter
-                    && existingPropNames[propType][key.name].get !== undefined;
-                if (!isValidDuplicateProp) {
-                    throwError(key, Messages.IllegalDuplicateClassProperty);
+            if (!computed) {
+                if (existingPropNames[propType].hasOwnProperty(key.name)) {
+                    isValidDuplicateProp =
+                        // There isn't already a setter for this prop
+                        existingPropNames[propType][key.name].set === undefined
+                        // There isn't already a data prop by this name
+                        && existingPropNames[propType][key.name].data === undefined
+                        // The only existing prop by this name is a getter
+                        && existingPropNames[propType][key.name].get !== undefined;
+                    if (!isValidDuplicateProp) {
+                        throwError(key, Messages.IllegalDuplicateClassProperty);
+                    }
+                } else {
+                    existingPropNames[propType][key.name] = {};
                 }
-            } else {
-                existingPropNames[propType][key.name] = {};
+                existingPropNames[propType][key.name].set = true;
             }
-            existingPropNames[propType][key.name].set = true;
 
             expect('(');
             token = lookahead;
@@ -4480,24 +4552,30 @@ parseYieldExpression: true
                 propType,
                 'set',
                 key,
-                parsePropertyFunction({ params: param, generator: false, name: token })
+                parsePropertyFunction({ params: param, generator: false, name: token }),
+                computed
             ));
         }
 
+        computed = (token.value === '[');
+
         // It is a syntax error if any other properties have the same name as a
         // non-getter, non-setter method
-        if (existingPropNames[propType].hasOwnProperty(key.name)) {
-            throwError(key, Messages.IllegalDuplicateClassProperty);
-        } else {
-            existingPropNames[propType][key.name] = {};
+        if (!computed) {
+            if (existingPropNames[propType].hasOwnProperty(key.name)) {
+                throwError(key, Messages.IllegalDuplicateClassProperty);
+            } else {
+                existingPropNames[propType][key.name] = {};
+            }
+            existingPropNames[propType][key.name].data = true;
         }
-        existingPropNames[propType][key.name].data = true;
 
         return markerApply(marker, delegate.createMethodDefinition(
             propType,
             '',
             key,
-            parsePropertyMethodFunction({ generator: false })
+            parsePropertyMethodFunction({ generator: false }),
+            computed
         ));
     }
 
@@ -4733,6 +4811,10 @@ parseYieldExpression: true
             comment.loc = loc;
         }
         extra.comments.push(comment);
+        if (extra.attachComment) {
+            extra.leadingComments.push(comment);
+            extra.trailingComments.push(comment);
+        }
     }
 
     function scanComment() {
@@ -5131,6 +5213,7 @@ parseYieldExpression: true
         if (typeof options !== 'undefined') {
             extra.range = (typeof options.range === 'boolean') && options.range;
             extra.loc = (typeof options.loc === 'boolean') && options.loc;
+            extra.attachComment = (typeof options.attachComment === 'boolean') && options.attachComment;
 
             if (extra.loc && options.source !== null && options.source !== undefined) {
                 delegate = extend(delegate, {
@@ -5149,6 +5232,13 @@ parseYieldExpression: true
             }
             if (typeof options.tolerant === 'boolean' && options.tolerant) {
                 extra.errors = [];
+            }
+            if (extra.attachComment) {
+                extra.range = true;
+                extra.comments = [];
+                extra.bottomRightStack = [];
+                extra.trailingComments = [];
+                extra.leadingComments = [];
             }
         }
 
