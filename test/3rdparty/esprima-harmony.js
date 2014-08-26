@@ -274,6 +274,7 @@ parseYieldExpression: true
     StringMap.prototype.set = function (key, value) {
         key = '$' + key;
         this.$data[key] = value;
+        return this;
     };
 
     StringMap.prototype.has = function (key) {
@@ -283,7 +284,7 @@ parseYieldExpression: true
 
     StringMap.prototype['delete'] = function (key) {
         key = '$' + key;
-        delete this.$data[key];
+        return delete this.$data[key];
     };
 
     function isDecimalDigit(ch) {
