@@ -108,6 +108,7 @@
         Property: 'Property',
         ReturnStatement: 'ReturnStatement',
         SequenceExpression: 'SequenceExpression',
+        SpreadElement: 'SpreadElement',
         SwitchStatement: 'SwitchStatement',
         SwitchCase: 'SwitchCase',
         ThisExpression: 'ThisExpression',
@@ -1719,6 +1720,17 @@
             }));
 
             result = [ 'for' + space + '(', fragment, ')' ];
+            break;
+
+        case Syntax.SpreadElement:
+            result = [
+                '...',
+                generateExpression(expr.argument, {
+                    precedence: Precedence.Assignment,
+                    allowIn: true,
+                    allowCall: true
+                })
+            ];
             break;
 
         default:

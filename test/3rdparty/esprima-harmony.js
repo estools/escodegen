@@ -3070,6 +3070,8 @@ parseYieldExpression: true
 
     // 11.13 Assignment Operators
 
+    // 12.14.5 AssignmentPattern
+
     function reinterpretAsAssignmentBindingPattern(expr) {
         var i, len, property, element;
 
@@ -3106,6 +3108,7 @@ parseYieldExpression: true
         }
     }
 
+    // 13.2.3 BindingPattern
 
     function reinterpretAsDestructuredParameter(options, expr) {
         var i, len, property, element;
@@ -3129,10 +3132,14 @@ parseYieldExpression: true
             }
         } else if (expr.type === Syntax.Identifier) {
             validateParam(options, expr, expr.name);
-        } else {
-            if (expr.type !== Syntax.MemberExpression) {
+        } else if (expr.type === Syntax.SpreadElement) {
+            // BindingRestElement only allows BindingIdentifier
+            if (expr.argument.type !== Syntax.Identifier) {
                 throwError({}, Messages.InvalidLHSInFormalsList);
             }
+            validateParam(options, expr.argument, expr.argument.name);
+        } else {
+            throwError({}, Messages.InvalidLHSInFormalsList);
         }
     }
 
@@ -3159,6 +3166,9 @@ parseYieldExpression: true
                 defaults.push(null);
             } else if (param.type === Syntax.SpreadElement) {
                 assert(i === len - 1, 'It is guaranteed that SpreadElement is last element by parseExpression');
+                if (param.argument.type !== Syntax.Identifier) {
+                    throwError({}, Messages.InvalidLHSInFormalsList);
+                }
                 reinterpretAsDestructuredParameter(options, param.argument);
                 rest = param.argument;
             } else if (param.type === Syntax.AssignmentExpression) {
@@ -4486,8 +4496,46 @@ parseYieldExpression: true
 
     // 14 Classes
 
+    function validateDuplicateProp(propMap, key, accessor) {
+        var propInfo, reversed, name, isValidDuplicateProp;
+
+        name = getFieldName(key);
+
+        if (propMap.has(name)) {
+            propInfo = propMap.get(name);
+            if (accessor === 'data') {
+                isValidDuplicateProp = false;
+            } else {
+                if (accessor === 'get') {
+                    reversed = 'set';
+                } else {
+                    reversed = 'get';
+                }
+
+                isValidDuplicateProp =
+                    // There isn't already a specified accessor for this prop
+                    propInfo[accessor] === undefined
+                    // There isn't already a data prop by this name
+                    && propInfo.data === undefined
+                    // The only existing prop by this name is a reversed accessor
+                    && propInfo[reversed] !== undefined;
+            }
+            if (!isValidDuplicateProp) {
+                throwError(key, Messages.IllegalDuplicateClassProperty);
+            }
+        } else {
+            propInfo = {
+                get: undefined,
+                set: undefined,
+                data: undefined
+            };
+            propMap.set(name, propInfo);
+        }
+        propInfo[accessor] = true;
+    }
+
     function parseMethodDefinition(existingPropNames) {
-        var token, key, param, propType, isValidDuplicateProp = false, computed, name, propInfo,
+        var token, key, param, propType, computed, propMap,
             marker = markerCreate();
 
         if (lookahead.value === 'static') {
@@ -4496,6 +4544,8 @@ parseYieldExpression: true
         } else {
             propType = ClassPropertyType.prototype;
         }
+
+        propMap = existingPropNames[propType];
 
         if (match('*')) {
             lex();
@@ -4519,23 +4569,7 @@ parseYieldExpression: true
             // It is a syntax error if any other properties have a name
             // duplicating this one unless they are a setter
             if (!computed) {
-                name = getFieldName(key);
-                if (existingPropNames[propType].has(name)) {
-                    propInfo = existingPropNames[propType].get(name);
-                    isValidDuplicateProp =
-                        // There isn't already a getter for this prop
-                        propInfo.get === undefined
-                        // There isn't already a data prop by this name
-                        && propInfo.data === undefined
-                        // The only existing prop by this name is a setter
-                        && propInfo.set !== undefined;
-                    if (!isValidDuplicateProp) {
-                        throwError(key, Messages.IllegalDuplicateClassProperty);
-                    }
-                } else {
-                    existingPropNames[propType].set(name, {});
-                }
-                existingPropNames[propType].get(name).get = true;
+                validateDuplicateProp(propMap, key, 'get');
             }
 
             expect('(');
@@ -4555,23 +4589,7 @@ parseYieldExpression: true
             // It is a syntax error if any other properties have a name
             // duplicating this one unless they are a getter
             if (!computed) {
-                name = getFieldName(key);
-                if (existingPropNames[propType].has(name)) {
-                    propInfo = existingPropNames[propType].get(name);
-                    isValidDuplicateProp =
-                        // There isn't already a setter for this prop
-                        propInfo.set === undefined
-                        // There isn't already a data prop by this name
-                        && propInfo.data === undefined
-                        // The only existing prop by this name is a getter
-                        && propInfo.get !== undefined;
-                    if (!isValidDuplicateProp) {
-                        throwError(key, Messages.IllegalDuplicateClassProperty);
-                    }
-                } else {
-                    existingPropNames[propType].set(name, {});
-                }
-                existingPropNames[propType].get(name).set = true;
+                validateDuplicateProp(propMap, key, 'set');
             }
 
             expect('(');
@@ -4592,13 +4610,7 @@ parseYieldExpression: true
         // It is a syntax error if any other properties have the same name as a
         // non-getter, non-setter method
         if (!computed) {
-            name = getFieldName(key);
-            if (existingPropNames[propType].has(name)) {
-                throwError(key, Messages.IllegalDuplicateClassProperty);
-            } else {
-                existingPropNames[propType].set(name, {});
-            }
-            existingPropNames[propType].get(name).data = true;
+            validateDuplicateProp(propMap, key, 'data');
         }
 
         return markerApply(marker, delegate.createMethodDefinition(
