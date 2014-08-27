@@ -36,7 +36,7 @@
     "bluebird": "^2.2.2",
     "jshint-stylish": "^0.4.0",
     "chai": "^1.9.1",
-    "gulp-mocha": "^0.5.2",
+    "gulp-mocha": "^1.0.0",
     "gulp-eslint": "^0.1.8",
     "gulp": "^3.8.6",
     "bower-registry-client": "^0.2.1",
