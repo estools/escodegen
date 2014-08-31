@@ -1743,11 +1743,93 @@
         return toSourceNodeWhenNeeded(result, expr);
     }
 
+    // ES6: 15.2.1 valid import declarations:
+    //     - import ImportClause FromClause ;
+    //     - import ModuleSpecifier ;
+    function generateImportDeclaration(stmt, semicolon) {
+        var result, namedStart, specifier;
+
+        // If no ImportClause is present,
+        // this should be `import ModuleSpecifier` so skip `from`
+        // ModuleSpecifier is StringLiteral.
+        if (stmt.specifiers.length === 0) {
+            // import ModuleSpecifier ;
+            return [
+                'import',
+                space,
+                generateLiteral(stmt.source),
+                semicolon
+            ];
+        }
+
+        // import ImportClause FromClause ;
+        result = [
+            'import'
+        ];
+        namedStart = 0;
+
+        // ImportedBinding
+        if (stmt.specifiers[0]['default']) {
+            result = join(result, [
+                    stmt.specifiers[0].id.name
+            ]);
+            ++namedStart;
+        }
+
+        // NamedImports
+        if (stmt.specifiers[namedStart]) {
+            if (namedStart !== 0) {
+                result.push(',');
+            }
+            result.push(space + '{');
+
+            if ((stmt.specifiers.length - namedStart) === 1) {
+                // import { ... } from "...";
+                specifier = stmt.specifiers[namedStart];
+                result.push(space + specifier.id.name);
+                if (specifier.name) {
+                    result.push(noEmptySpace() + 'as' + noEmptySpace() + specifier.name.name);
+                }
+                result.push(space + '}' + space);
+            } else {
+                // import {
+                //    ...,
+                //    ...,
+                // } from "...";
+                withIndent(function (indent) {
+                    var i, iz;
+                    result.push(newline);
+                    for (i = namedStart, iz = stmt.specifiers.length; i < iz; ++i) {
+                        specifier = stmt.specifiers[i];
+                        result.push(indent + specifier.id.name);
+                        if (specifier.name) {
+                            result.push(noEmptySpace() + 'as' + noEmptySpace() + specifier.name.name);
+                        }
+
+                        if (i + 1 < iz) {
+                            result.push(',' + newline);
+                        }
+                    }
+                });
+                if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
+                    result.push(newline);
+                }
+                result.push(base + '}' + space);
+            }
+        }
+
+        result = join(result, [
+            'from' + space,
+            generateLiteral(stmt.source),
+            semicolon
+        ]);
+        return result;
+    }
+
     function generateStatement(stmt, option) {
         var i,
             len,
             result,
-            specifier,
             allowIn,
             functionBody,
             directiveContext,
@@ -1913,77 +1995,7 @@
             break;
 
         case Syntax.ImportDeclaration:
-            // ES6: 15.2.1 valid import declarations:
-            //     - import ImportClause FromClause ;
-            //     - import ModuleSpecifier ;
-            // If no ImportClause is present,
-            // this should be `import ModuleSpecifier` so skip `from`
-            //
-            // ModuleSpecifier is StringLiteral.
-            if (stmt.specifiers.length === 0) {
-                // import ModuleSpecifier ;
-                result = [
-                    'import',
-                    space,
-                    generateLiteral(stmt.source)
-                ];
-            } else {
-                // import ImportClause FromClause ;
-                if (stmt.kind === 'default') {
-                    // import ... from "...";
-                    result = [
-                        'import',
-                        noEmptySpace(),
-                        stmt.specifiers[0].id.name,
-                        noEmptySpace()
-                    ];
-                } else {
-                    // stmt.kind === 'named'
-                    result = [
-                        'import',
-                        space,
-                        '{'
-                    ];
-
-                    if (stmt.specifiers.length === 1) {
-                        // import { ... } from "...";
-                        specifier = stmt.specifiers[0];
-                        result.push(space + specifier.id.name);
-                        if (specifier.name) {
-                            result.push(noEmptySpace() + 'as' + noEmptySpace() + specifier.name.name);
-                        }
-                        result.push(space + '}' + space);
-                    } else {
-                        // import {
-                        //    ...,
-                        //    ...,
-                        // } from "...";
-                        withIndent(function (indent) {
-                            var i, iz;
-                            result.push(newline);
-                            for (i = 0, iz = stmt.specifiers.length; i < iz; ++i) {
-                                specifier = stmt.specifiers[i];
-                                result.push(indent + specifier.id.name);
-                                if (specifier.name) {
-                                    result.push(noEmptySpace() + 'as' + noEmptySpace() + specifier.name.name);
-                                }
-
-                                if (i + 1 < iz) {
-                                    result.push(',' + newline);
-                                }
-                            }
-                        });
-                        if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
-                            result.push(newline);
-                        }
-                        result.push(base + '}' + space);
-                    }
-                }
-
-                result.push('from' + space);
-                result.push(generateLiteral(stmt.source));
-            }
-            result.push(semicolon);
+            result = generateImportDeclaration(stmt, semicolon);
             break;
 
         case Syntax.VariableDeclarator:
