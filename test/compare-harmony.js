@@ -51,7 +51,7 @@ function test(code, expected) {
 }
 
 function testMin(code, expected) {
-    var tree, actual, options, StringObject;
+    var tree, tree2, actual, actual2, options, StringObject;
 
     // alias, so that JSLint does not complain.
     StringObject = String;
@@ -71,6 +71,14 @@ function testMin(code, expected) {
         raw: false
     }).replace(/[\n\r]$/, '') + '\n';
     expect(actual).to.be.equal(expected);
+
+    // And ensure that minified value is exactly equal.
+    tree2 = esprima.parse(actual, options);
+    actual2 = escodegen.generate(tree2, {
+        format: escodegen.FORMAT_MINIFY,
+        raw: false
+    }).replace(/[\n\r]$/, '') + '\n';
+    expect(actual2).to.be.equal(actual);
 }
 
 describe('compare harmony test', function () {
