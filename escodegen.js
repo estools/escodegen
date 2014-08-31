@@ -2475,6 +2475,22 @@
         return toSourceNodeWhenNeeded(result, stmt);
     }
 
+    function generateInternal(node) {
+        if (isStatement(node)) {
+            return generateStatement(node);
+        }
+
+        if (isExpression(node)) {
+            return generateExpression(node, {
+                precedence: Precedence.Sequence,
+                allowIn: true,
+                allowCall: true
+            });
+        }
+
+        throw new Error('Unknown node type: ' + node.type);
+    }
+
     function generate(node, options) {
         var defaultOptions = getDefaultOptions(), result, pair;
 
@@ -2531,17 +2547,7 @@
             }
         }
 
-        if (isStatement(node)) {
-            result = generateStatement(node);
-        } else if (isExpression(node)) {
-            result = generateExpression(node, {
-                precedence: Precedence.Sequence,
-                allowIn: true,
-                allowCall: true
-            });
-        } else {
-            throw new Error('Unknown node type: ' + node.type);
-        }
+        result = generateInternal(node);
 
         if (!sourceMap) {
             pair = {code: result.toString(), map: null};
