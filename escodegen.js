@@ -95,6 +95,7 @@
         GeneratorExpression: 'GeneratorExpression',
         Identifier: 'Identifier',
         IfStatement: 'IfStatement',
+        ImportSpecifier: 'ImportSpecifier',
         ImportDeclaration: 'ImportDeclaration',
         Literal: 'Literal',
         LabeledStatement: 'LabeledStatement',
@@ -1635,6 +1636,13 @@
             result = generateIdentifier(expr);
             break;
 
+        case Syntax.ImportSpecifier:
+            result = [ expr.id.name ];
+            if (expr.name) {
+                result.push(noEmptySpace() + 'as' + noEmptySpace() + expr.name.name);
+            }
+            break;
+
         case Syntax.Literal:
             result = generateLiteral(expr);
             break;
@@ -1747,7 +1755,7 @@
     //     - import ImportClause FromClause ;
     //     - import ModuleSpecifier ;
     function generateImportDeclaration(stmt, semicolon) {
-        var result, namedStart, specifier;
+        var result, namedStart;
 
         // If no ImportClause is present,
         // this should be `import ModuleSpecifier` so skip `from`
@@ -1785,11 +1793,12 @@
 
             if ((stmt.specifiers.length - namedStart) === 1) {
                 // import { ... } from "...";
-                specifier = stmt.specifiers[namedStart];
-                result.push(space + specifier.id.name);
-                if (specifier.name) {
-                    result.push(noEmptySpace() + 'as' + noEmptySpace() + specifier.name.name);
-                }
+                result.push(space);
+                result.push(generateExpression(stmt.specifiers[namedStart], {
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                }));
                 result.push(space + '}' + space);
             } else {
                 // import {
@@ -1800,12 +1809,12 @@
                     var i, iz;
                     result.push(newline);
                     for (i = namedStart, iz = stmt.specifiers.length; i < iz; ++i) {
-                        specifier = stmt.specifiers[i];
-                        result.push(indent + specifier.id.name);
-                        if (specifier.name) {
-                            result.push(noEmptySpace() + 'as' + noEmptySpace() + specifier.name.name);
-                        }
-
+                        result.push(indent);
+                        result.push(generateExpression(stmt.specifiers[i], {
+                            precedence: Precedence.Sequence,
+                            allowIn: true,
+                            allowCall: true
+                        }));
                         if (i + 1 < iz) {
                             result.push(',' + newline);
                         }
@@ -2415,6 +2424,7 @@
         case Syntax.ClassExpression:
         case Syntax.FunctionExpression:
         case Syntax.Identifier:
+        case Syntax.ImportSpecifier:
         case Syntax.Literal:
         case Syntax.LogicalExpression:
         case Syntax.MemberExpression:
