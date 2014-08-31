@@ -85,7 +85,9 @@
         DoWhileStatement: 'DoWhileStatement',
         DebuggerStatement: 'DebuggerStatement',
         EmptyStatement: 'EmptyStatement',
+        ExportBatchSpecifier: 'ExportBatchSpecifier',
         ExportDeclaration: 'ExportDeclaration',
+        ExportSpecifier: 'ExportSpecifier',
         ExpressionStatement: 'ExpressionStatement',
         ForStatement: 'ForStatement',
         ForInStatement: 'ForInStatement',
@@ -123,6 +125,74 @@
         WithStatement: 'WithStatement',
         YieldExpression: 'YieldExpression'
     };
+
+    // Generation is done by generateExpression.
+    function isExpression(node) {
+        switch (node.type) {
+        case Syntax.AssignmentExpression:
+        case Syntax.ArrayExpression:
+        case Syntax.ArrayPattern:
+        case Syntax.BinaryExpression:
+        case Syntax.CallExpression:
+        case Syntax.ConditionalExpression:
+        case Syntax.ClassExpression:
+        case Syntax.ExportBatchSpecifier:
+        case Syntax.ExportSpecifier:
+        case Syntax.FunctionExpression:
+        case Syntax.Identifier:
+        case Syntax.ImportSpecifier:
+        case Syntax.Literal:
+        case Syntax.LogicalExpression:
+        case Syntax.MemberExpression:
+        case Syntax.MethodDefinition:
+        case Syntax.NewExpression:
+        case Syntax.ObjectExpression:
+        case Syntax.ObjectPattern:
+        case Syntax.Property:
+        case Syntax.SequenceExpression:
+        case Syntax.ThisExpression:
+        case Syntax.UnaryExpression:
+        case Syntax.UpdateExpression:
+        case Syntax.YieldExpression:
+            return true;
+        }
+        return false;
+    }
+
+    // Generation is done by generateStatement.
+    function isStatement(node) {
+        switch (node.type) {
+        case Syntax.BlockStatement:
+        case Syntax.BreakStatement:
+        case Syntax.CatchClause:
+        case Syntax.ContinueStatement:
+        case Syntax.ClassDeclaration:
+        case Syntax.ClassBody:
+        case Syntax.DirectiveStatement:
+        case Syntax.DoWhileStatement:
+        case Syntax.DebuggerStatement:
+        case Syntax.EmptyStatement:
+        case Syntax.ExpressionStatement:
+        case Syntax.ForStatement:
+        case Syntax.ForInStatement:
+        case Syntax.ForOfStatement:
+        case Syntax.FunctionDeclaration:
+        case Syntax.IfStatement:
+        case Syntax.LabeledStatement:
+        case Syntax.Program:
+        case Syntax.ReturnStatement:
+        case Syntax.SwitchStatement:
+        case Syntax.SwitchCase:
+        case Syntax.ThrowStatement:
+        case Syntax.TryStatement:
+        case Syntax.VariableDeclaration:
+        case Syntax.VariableDeclarator:
+        case Syntax.WhileStatement:
+        case Syntax.WithStatement:
+            return true;
+        }
+        return false;
+    }
 
     Precedence = {
         Sequence: 0,
@@ -1382,7 +1452,10 @@
             } else {
                 result = [result + space, generateFunctionBody(expr)];
             }
+            break;
 
+        case Syntax.ExportBatchSpecifier:
+            result = '*';
             break;
 
         case Syntax.ArrayPattern:
@@ -1637,6 +1710,7 @@
             break;
 
         case Syntax.ImportSpecifier:
+        case Syntax.ExportSpecifier:
             result = [ expr.id.name ];
             if (expr.name) {
                 result.push(noEmptySpace() + 'as' + noEmptySpace() + expr.name.name);
@@ -1976,11 +2050,69 @@
             break;
 
         case Syntax.ExportDeclaration:
-            result = 'export ';
-            if (stmt.declaration) {
-                // FunctionDeclaration or VariableDeclaration
-                result = [result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' })];
+            result = [ 'export' ];
+
+            // export default AssignmentExpression[In] ;
+            if (stmt['default']) {
+                result = join(result, 'default');
+                result = join(result, generateExpression(stmt.declaration, {
+                    precedence: Precedence.Assignment,
+                    allowIn: true,
+                    allowCall: true
+                }) + semicolon);
                 break;
+            }
+
+            // export * FromClause ;
+            // export ExportClause[NoReference] FromClause ;
+            // export ExportClause ;
+            if (stmt.specifiers) {
+                if (stmt.specifiers.length === 0) {
+                    result = join(result, '{' + space + '}');
+                } else if (stmt.specifiers[0].type === Syntax.ExportBatchSpecifier) {
+                    result = join(result, generateExpression(stmt.specifiers[0], {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }));
+                } else {
+                    result = join(result, '{');
+                    withIndent(function (indent) {
+                        var i, iz;
+                        result.push(newline);
+                        for (i = 0, iz = stmt.specifiers.length; i < iz; ++i) {
+                            result.push(indent);
+                            result.push(generateExpression(stmt.specifiers[i], {
+                                precedence: Precedence.Sequence,
+                                allowIn: true,
+                                allowCall: true
+                            }));
+                            if (i + 1 < iz) {
+                                result.push(',' + newline);
+                            }
+                        }
+                    });
+                    if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
+                        result.push(newline);
+                    }
+                    result.push(base + '}');
+                }
+                if (stmt.source) {
+                    result = join(result, [
+                        'from' + space,
+                        generateLiteral(stmt.source),
+                        semicolon
+                    ]);
+                } else {
+                    result.push(semicolon);
+                }
+                break;
+            }
+
+            // export VariableStatement
+            // export Declaration[Default]
+            if (stmt.declaration) {
+                result = join(result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' }));
             }
             break;
 
@@ -2384,69 +2516,15 @@
             }
         }
 
-        switch (node.type) {
-        case Syntax.BlockStatement:
-        case Syntax.BreakStatement:
-        case Syntax.CatchClause:
-        case Syntax.ContinueStatement:
-        case Syntax.ClassDeclaration:
-        case Syntax.ClassBody:
-        case Syntax.DirectiveStatement:
-        case Syntax.DoWhileStatement:
-        case Syntax.DebuggerStatement:
-        case Syntax.EmptyStatement:
-        case Syntax.ExpressionStatement:
-        case Syntax.ForStatement:
-        case Syntax.ForInStatement:
-        case Syntax.ForOfStatement:
-        case Syntax.FunctionDeclaration:
-        case Syntax.IfStatement:
-        case Syntax.LabeledStatement:
-        case Syntax.Program:
-        case Syntax.ReturnStatement:
-        case Syntax.SwitchStatement:
-        case Syntax.SwitchCase:
-        case Syntax.ThrowStatement:
-        case Syntax.TryStatement:
-        case Syntax.VariableDeclaration:
-        case Syntax.VariableDeclarator:
-        case Syntax.WhileStatement:
-        case Syntax.WithStatement:
+        if (isStatement(node)) {
             result = generateStatement(node);
-            break;
-
-        case Syntax.AssignmentExpression:
-        case Syntax.ArrayExpression:
-        case Syntax.ArrayPattern:
-        case Syntax.BinaryExpression:
-        case Syntax.CallExpression:
-        case Syntax.ConditionalExpression:
-        case Syntax.ClassExpression:
-        case Syntax.FunctionExpression:
-        case Syntax.Identifier:
-        case Syntax.ImportSpecifier:
-        case Syntax.Literal:
-        case Syntax.LogicalExpression:
-        case Syntax.MemberExpression:
-        case Syntax.MethodDefinition:
-        case Syntax.NewExpression:
-        case Syntax.ObjectExpression:
-        case Syntax.ObjectPattern:
-        case Syntax.Property:
-        case Syntax.SequenceExpression:
-        case Syntax.ThisExpression:
-        case Syntax.UnaryExpression:
-        case Syntax.UpdateExpression:
-        case Syntax.YieldExpression:
-
+        } else if (isExpression(node)) {
             result = generateExpression(node, {
                 precedence: Precedence.Sequence,
                 allowIn: true,
                 allowCall: true
             });
-            break;
-
-        default:
+        } else {
             throw new Error('Unknown node type: ' + node.type);
         }
 
