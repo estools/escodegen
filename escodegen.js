@@ -115,6 +115,9 @@
         SpreadElement: 'SpreadElement',
         SwitchStatement: 'SwitchStatement',
         SwitchCase: 'SwitchCase',
+        TaggedTemplateExpression: 'TaggedTemplateExpression',
+        TemplateElement: 'TemplateElement',
+        TemplateLiteral: 'TemplateLiteral',
         ThisExpression: 'ThisExpression',
         ThrowStatement: 'ThrowStatement',
         TryStatement: 'TryStatement',
@@ -216,8 +219,9 @@
         Postfix: 14,
         Call: 15,
         New: 16,
-        Member: 17,
-        Primary: 18
+        TaggedTemplate: 17,
+        Member: 18,
+        Primary: 19
     };
 
     BinaryPrecedence = {
@@ -1815,6 +1819,48 @@
                     allowCall: true
                 })
             ];
+            break;
+
+        case Syntax.TaggedTemplateExpression:
+            result = [
+                generateExpression(expr.tag, {
+                    precedence: Precedence.Call,
+                    allowIn: true,
+                    allowCall: allowCall,
+                    allowUnparenthesizedNew: false
+                }),
+                generateExpression(expr.quasi, {
+                    precedence: Precedence.Primary
+                })
+            ];
+            result = parenthesize(result, Precedence.TaggedTemplate, precedence);
+            break;
+
+        case Syntax.TemplateElement:
+            // Don't use "cooked". Since tagged template can use raw template
+            // representation. So if we do so, it breaks the script semantics.
+            result = expr.value.raw;
+            break;
+
+        case Syntax.TemplateLiteral:
+            result = [ '`' ];
+            for (i = 0, len = expr.quasis.length; i < len; ++i) {
+                result.push(generateExpression(expr.quasis[i], {
+                    precedence: Precedence.Primary,
+                    allowIn: true,
+                    allowCall: true
+                }));
+                if (i + 1 < len) {
+                    result.push('${' + space);
+                    result.push(generateExpression(expr.expressions[i], {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }));
+                    result.push(space + '}');
+                }
+            }
+            result.push('`');
             break;
 
         default:
