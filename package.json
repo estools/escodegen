@@ -25,7 +25,8 @@
   "dependencies": {
     "estraverse": "^1.5.1",
     "esutils": "^1.1.4",
-    "esprima": "^1.2.2"
+    "esprima": "^1.2.2",
+    "optionator": "^0.4.0"
   },
   "optionalDependencies": {
     "source-map": "~0.1.37"

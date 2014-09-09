@@ -30,16 +30,48 @@ var fs = require('fs'),
     root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
     esprima = require('esprima'),
     escodegen = require(root),
-    files = process.argv.splice(2);
+    optionator = require('optionator')({
+        prepend: 'Usage: escodegen [options] file...',
+        options: [
+            {
+                option: 'config',
+                alias: 'c',
+                type: 'String',
+                description: 'configuration json for escodegen'
+            }
+        ]
+    }),
+    args = optionator.parse(process.argv),
+    files = args._,
+    options,
+    esprimaOptions = {
+        raw: true,
+        tokens: true,
+        range: true,
+        comment: true
+    };
 
 if (files.length === 0) {
-    console.log('Usage:');
-    console.log('   escodegen file.js');
+    console.log(optionator.generateHelp());
     process.exit(1);
 }
 
+if (args.config) {
+    try {
+        options = JSON.parse(fs.readFileSync(args.config, 'utf-8'));
+    } catch (err) {
+        console.error('Error parsing config: ', err);
+    }
+}
+
 files.forEach(function (filename) {
-    var content = fs.readFileSync(filename, 'utf-8');
-    console.log(escodegen.generate(esprima.parse(content)));
+    var content = fs.readFileSync(filename, 'utf-8'),
+        syntax = esprima.parse(content, esprimaOptions);
+
+    if (options.comment) {
+        escodegen.attachComments(syntax, syntax.comments, syntax.tokens);
+    }
+
+    console.log(escodegen.generate(syntax, options));
 });
 /* vim: set sw=4 ts=4 et tw=80 : */
