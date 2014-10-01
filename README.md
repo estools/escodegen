@@ -3,7 +3,7 @@
 Escodegen ([escodegen](http://github.com/Constellation/escodegen)) is an
 [ECMAScript](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
 (also popularly known as [JavaScript](http://en.wikipedia.org/wiki/JavaScript>JavaScript))
-code generator from [Mozilla'ss Parser API](https://developer.mozilla.org/en/SpiderMonkey/Parser_API)
+code generator from [Mozilla's Parser API](https://developer.mozilla.org/en/SpiderMonkey/Parser_API)
 AST. See the [online generator](https://constellation.github.io/escodegen/demo/index.html)
 for a demo.
 
