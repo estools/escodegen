@@ -33,9 +33,9 @@
   },
   "devDependencies": {
     "esprima-moz": "*",
-    "semver": "^3.0.1",
+    "semver": "^4.0.3",
     "bluebird": "^2.2.2",
-    "jshint-stylish": "^0.4.0",
+    "jshint-stylish": "^1.0.0",
     "chai": "^1.9.1",
     "gulp-mocha": "^1.0.0",
     "gulp-eslint": "^0.1.8",
