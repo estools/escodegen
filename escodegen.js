@@ -104,7 +104,6 @@
         LogicalExpression: 'LogicalExpression',
         MemberExpression: 'MemberExpression',
         MethodDefinition: 'MethodDefinition',
-        ModuleDeclaration: 'ModuleDeclaration',
         ModuleSpecifier: 'ModuleSpecifier',
         NewExpression: 'NewExpression',
         ObjectExpression: 'ObjectExpression',
@@ -184,7 +183,6 @@
         case Syntax.FunctionDeclaration:
         case Syntax.IfStatement:
         case Syntax.LabeledStatement:
-        case Syntax.ModuleDeclaration:
         case Syntax.Program:
         case Syntax.ReturnStatement:
         case Syntax.SwitchStatement:
@@ -2425,19 +2423,6 @@
 
         case Syntax.LabeledStatement:
             result = [stmt.label.name + ':', maybeBlock(stmt.body, semicolon === '')];
-            break;
-
-        case Syntax.ModuleDeclaration:
-            result = [
-                'module',
-                noEmptySpace(),
-                stmt.id.name,
-                noEmptySpace(),
-                'from',
-                space,
-                generateExpression(stmt.source),  // ModuleSpecifier
-                semicolon
-            ];
             break;
 
         case Syntax.Program:

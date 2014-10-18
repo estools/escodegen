@@ -1,1 +1,0 @@
-module Cocoa from 'RabbitHouse';
