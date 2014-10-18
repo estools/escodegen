@@ -4,7 +4,7 @@
 });
 (class Derived2 extends Super() {
 });
-(class Methods {
+(class StaticMethods {
     static n1() {
     }
     static get get1() {
@@ -13,6 +13,8 @@
     }
     static *gen1() {
     }
+});
+(class Methods {
     n2() {
     }
     get get2() {
@@ -21,21 +23,25 @@
     }
     *gen1() {
     }
-    static [n1]() {
+});
+(class ComputedStaticMethods {
+    static n1() {
     }
-    static get [get1]() {
+    static get get1() {
     }
-    static set [set1](value) {
+    static set set1(value) {
     }
-    static *[gen1]() {
+    static *gen1() {
     }
-    [n2]() {
+});
+(class ComputedMethods {
+    n2() {
     }
-    get [get2]() {
+    get get2() {
     }
-    set [set2](value) {
+    set set2(value) {
     }
-    *[gen1]() {
+    *gen1() {
     }
 });
 (class {

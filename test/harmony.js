@@ -30,7 +30,7 @@
 
 'use strict';
 
-var esprima = require('./3rdparty/esprima-harmony'),
+var esprima = require('./3rdparty/esprima-harmony.original'),
     escodegen = require('./loader'),
     chai = require('chai'),
     expect = chai.expect,

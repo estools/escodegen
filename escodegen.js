@@ -97,8 +97,10 @@
         GeneratorExpression: 'GeneratorExpression',
         Identifier: 'Identifier',
         IfStatement: 'IfStatement',
-        ImportSpecifier: 'ImportSpecifier',
         ImportDeclaration: 'ImportDeclaration',
+        ImportDefaultSpecifier: 'ImportDefaultSpecifier',
+        ImportNamespaceSpecifier: 'ImportNamespaceSpecifier',
+        ImportSpecifier: 'ImportSpecifier',
         Literal: 'Literal',
         LabeledStatement: 'LabeledStatement',
         LogicalExpression: 'LogicalExpression',
@@ -144,11 +146,14 @@
         case Syntax.ExportSpecifier:
         case Syntax.FunctionExpression:
         case Syntax.Identifier:
+        case Syntax.ImportDefaultSpecifier:
+        case Syntax.ImportNamespaceSpecifier:
         case Syntax.ImportSpecifier:
         case Syntax.Literal:
         case Syntax.LogicalExpression:
         case Syntax.MemberExpression:
         case Syntax.MethodDefinition:
+        case Syntax.ModuleSpecifier:
         case Syntax.NewExpression:
         case Syntax.ObjectExpression:
         case Syntax.ObjectPattern:
@@ -1718,11 +1723,22 @@
             result = generateIdentifier(expr);
             break;
 
+        case Syntax.ImportDefaultSpecifier:
+            result = generateIdentifier(expr.id);
+            break;
+
+        case Syntax.ImportNamespaceSpecifier:
+            result = ['*'];
+            if (expr.id) {
+                result.push(space + 'as' + noEmptySpace() + generateIdentifier(expr.id));
+            }
+            break;
+
         case Syntax.ImportSpecifier:
         case Syntax.ExportSpecifier:
             result = [ expr.id.name ];
             if (expr.name) {
-                result.push(noEmptySpace() + 'as' + noEmptySpace() + expr.name.name);
+                result.push(noEmptySpace() + 'as' + noEmptySpace() + generateIdentifier(expr.name));
             }
             break;
 
@@ -1884,7 +1900,7 @@
     //     - import ImportClause FromClause ;
     //     - import ModuleSpecifier ;
     function generateImportDeclaration(stmt, semicolon) {
-        var result, namedStart;
+        var result, cursor;
 
         // If no ImportClause is present,
         // this should be `import ModuleSpecifier` so skip `from`
@@ -1894,7 +1910,12 @@
             return [
                 'import',
                 space,
-                generateExpression(stmt.source),  // ModuleSpecifier
+                // ModuleSpecifier
+                generateExpression(stmt.source, {
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                }),
                 semicolon
             ];
         }
@@ -1903,62 +1924,84 @@
         result = [
             'import'
         ];
-        namedStart = 0;
+        cursor = 0;
 
         // ImportedBinding
-        if (stmt.specifiers[0]['default']) {
+        if (stmt.specifiers[cursor].type === Syntax.ImportDefaultSpecifier) {
             result = join(result, [
-                    stmt.specifiers[0].id.name
+                    generateExpression(stmt.specifiers[cursor], {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    })
             ]);
-            ++namedStart;
+            ++cursor;
         }
 
-        // NamedImports
-        if (stmt.specifiers[namedStart]) {
-            if (namedStart !== 0) {
+        if (stmt.specifiers[cursor]) {
+            if (cursor !== 0) {
                 result.push(',');
             }
-            result.push(space + '{');
 
-            if ((stmt.specifiers.length - namedStart) === 1) {
-                // import { ... } from "...";
-                result.push(space);
-                result.push(generateExpression(stmt.specifiers[namedStart], {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }));
-                result.push(space + '}' + space);
-            } else {
-                // import {
-                //    ...,
-                //    ...,
-                // } from "...";
-                withIndent(function (indent) {
-                    var i, iz;
-                    result.push(newline);
-                    for (i = namedStart, iz = stmt.specifiers.length; i < iz; ++i) {
-                        result.push(indent);
-                        result.push(generateExpression(stmt.specifiers[i], {
+            if (stmt.specifiers[cursor].type === Syntax.ImportNamespaceSpecifier) {
+                // NameSpaceImport
+                result = join(result, [
+                        space,
+                        generateExpression(stmt.specifiers[cursor], {
                             precedence: Precedence.Sequence,
                             allowIn: true,
                             allowCall: true
-                        }));
-                        if (i + 1 < iz) {
-                            result.push(',' + newline);
+                        })
+                ]);
+            } else {
+                // NamedImports
+                result.push(space + '{');
+
+                if ((stmt.specifiers.length - cursor) === 1) {
+                    // import { ... } from "...";
+                    result.push(space);
+                    result.push(generateExpression(stmt.specifiers[cursor], {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }));
+                    result.push(space + '}' + space);
+                } else {
+                    // import {
+                    //    ...,
+                    //    ...,
+                    // } from "...";
+                    withIndent(function (indent) {
+                        var i, iz;
+                        result.push(newline);
+                        for (i = cursor, iz = stmt.specifiers.length; i < iz; ++i) {
+                            result.push(indent);
+                            result.push(generateExpression(stmt.specifiers[i], {
+                                precedence: Precedence.Sequence,
+                                allowIn: true,
+                                allowCall: true
+                            }));
+                            if (i + 1 < iz) {
+                                result.push(',' + newline);
+                            }
                         }
+                    });
+                    if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
+                        result.push(newline);
                     }
-                });
-                if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
-                    result.push(newline);
+                    result.push(base + '}' + space);
                 }
-                result.push(base + '}' + space);
             }
         }
 
         result = join(result, [
             'from' + space,
-            generateExpression(stmt.source),  // ModuleSpecifier
+            // ModuleSpecifier
+            generateExpression(stmt.source, {
+                precedence: Precedence.Sequence,
+                allowIn: true,
+                allowCall: true
+            }),
             semicolon
         ]);
         return result;
@@ -2107,6 +2150,7 @@
         case Syntax.ExportDeclaration:
             result = [ 'export' ];
 
+            // export default HoistableDeclaration[Default]
             // export default AssignmentExpression[In] ;
             if (stmt['default']) {
                 result = join(result, 'default');
@@ -2155,7 +2199,12 @@
                 if (stmt.source) {
                     result = join(result, [
                         'from' + space,
-                        generateExpression(stmt.source),  // ModuleSpecifier
+                        // ModuleSpecifier
+                        generateExpression(stmt.source, {
+                            precedence: Precedence.Sequence,
+                            allowIn: true,
+                            allowCall: true
+                        }),
                         semicolon
                     ]);
                 } else {

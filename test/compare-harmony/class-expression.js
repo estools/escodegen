@@ -1,7 +1,7 @@
 (class Test { });
 (class Derived extends Super { });
 (class Derived2 extends Super() { });
-(class Methods {
+(class StaticMethods {
     static n1() {
     }
 
@@ -13,7 +13,8 @@
 
     static *gen1() {
     }
-
+});
+(class Methods {
     n2() {
     }
 
@@ -25,7 +26,8 @@
 
     *gen1() {
     }
-
+});
+(class ComputedStaticMethods {
     static [n1]() {
     }
 
@@ -37,7 +39,8 @@
 
     static *[gen1]() {
     }
-
+});
+(class ComputedMethods {
     [n2]() {
     }
 

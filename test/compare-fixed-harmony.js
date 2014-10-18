@@ -25,11 +25,10 @@
 'use strict';
 
 var fs = require('fs'),
-    esprima = require('./3rdparty/esprima-harmony.original'),
+    esprima = require('./3rdparty/esprima-harmony.patched'),
     escodegen = require('./loader'),
     chai = require('chai'),
-    expect = chai.expect,
-    DIR;
+    expect = chai.expect;
 
 function test(code, expected) {
     var tree, actual, options, StringObject;
@@ -82,20 +81,18 @@ function testMin(code, expected) {
     expect(actual2).to.be.equal(actual);
 }
 
-DIR = 'compare-harmony';
-
 describe('compare harmony test', function () {
-    fs.readdirSync(__dirname + '/' + DIR).sort().forEach(function(file) {
+    fs.readdirSync(__dirname + '/compare-fixed-harmony').sort().forEach(function(file) {
         var code, expected, exp, min;
         if (/\.js$/.test(file) && !/expected\.js$/.test(file) && !/expected\.min\.js$/.test(file)) {
             it(file, function () {
                 exp = file.replace(/\.js$/, '.expected.js');
                 min = file.replace(/\.js$/, '.expected.min.js');
-                code = fs.readFileSync(__dirname + '/' + DIR + '/' + file, 'utf-8');
-                expected = fs.readFileSync(__dirname + '/' + DIR + '/' + exp, 'utf-8');
+                code = fs.readFileSync(__dirname + '/compare-fixed-harmony/' + file, 'utf-8');
+                expected = fs.readFileSync(__dirname + '/compare-fixed-harmony/' + exp, 'utf-8');
                 test(code, expected);
-                if (fs.existsSync(__dirname + '/' + DIR + '/' + min)) {
-                    expected = fs.readFileSync(__dirname + '/' + DIR + '/' + min, 'utf-8');
+                if (fs.existsSync(__dirname + '/compare-fixed-harmony/' + min)) {
+                    expected = fs.readFileSync(__dirname + '/compare-fixed-harmony/' + min, 'utf-8');
                     testMin(code, expected);
                 }
             });
