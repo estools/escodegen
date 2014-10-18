@@ -2154,11 +2154,22 @@
             // export default AssignmentExpression[In] ;
             if (stmt['default']) {
                 result = join(result, 'default');
-                result = join(result, generateExpression(stmt.declaration, {
-                    precedence: Precedence.Assignment,
-                    allowIn: true,
-                    allowCall: true
-                }) + semicolon);
+                if (isStatement(stmt.declaration)) {
+                    result = join(result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' }));
+                } else {
+                    result = join(result, generateExpression(stmt.declaration, {
+                        precedence: Precedence.Assignment,
+                        allowIn: true,
+                        allowCall: true
+                    }) + semicolon);
+                }
+                break;
+            }
+
+            // export VariableStatement
+            // export Declaration[Default]
+            if (stmt.declaration) {
+                result = join(result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' }));
                 break;
             }
 
@@ -2196,6 +2207,7 @@
                     }
                     result.push(base + '}');
                 }
+
                 if (stmt.source) {
                     result = join(result, [
                         'from' + space,
@@ -2211,12 +2223,6 @@
                     result.push(semicolon);
                 }
                 break;
-            }
-
-            // export VariableStatement
-            // export Declaration[Default]
-            if (stmt.declaration) {
-                result = join(result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' }));
             }
             break;
 
