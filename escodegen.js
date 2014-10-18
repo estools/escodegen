@@ -105,6 +105,7 @@
         MemberExpression: 'MemberExpression',
         MethodDefinition: 'MethodDefinition',
         ModuleDeclaration: 'ModuleDeclaration',
+        ModuleSpecifier: 'ModuleSpecifier',
         NewExpression: 'NewExpression',
         ObjectExpression: 'ObjectExpression',
         ObjectPattern: 'ObjectPattern',
@@ -1101,6 +1102,10 @@
         return generateRegExp(expr.value);
     }
 
+    function generateModuleSpecifier(specifier) {
+        return generateLiteral(specifier);
+    }
+
     function generatePropertyKey(expr, computed, option) {
         var result = [];
 
@@ -1863,6 +1868,10 @@
             result.push('`');
             break;
 
+        case Syntax.ModuleSpecifier:
+            result = generateModuleSpecifier(expr);
+            break;
+
         default:
             throw new Error('Unknown expression type: ' + expr.type);
         }
@@ -1887,7 +1896,7 @@
             return [
                 'import',
                 space,
-                generateLiteral(stmt.source),
+                generateExpression(stmt.source),  // ModuleSpecifier
                 semicolon
             ];
         }
@@ -1951,7 +1960,7 @@
 
         result = join(result, [
             'from' + space,
-            generateLiteral(stmt.source),
+            generateExpression(stmt.source),  // ModuleSpecifier
             semicolon
         ]);
         return result;
@@ -2148,7 +2157,7 @@
                 if (stmt.source) {
                     result = join(result, [
                         'from' + space,
-                        generateLiteral(stmt.source),
+                        generateExpression(stmt.source),  // ModuleSpecifier
                         semicolon
                     ]);
                 } else {
@@ -2426,7 +2435,7 @@
                 noEmptySpace(),
                 'from',
                 space,
-                generateLiteral(stmt.source),
+                generateExpression(stmt.source),  // ModuleSpecifier
                 semicolon
             ];
             break;
