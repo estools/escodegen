@@ -23,25 +23,25 @@
     "url": "http://github.com/Constellation/escodegen.git"
   },
   "dependencies": {
-    "estraverse": "^1.6.0",
+    "estraverse": "^1.7.0",
     "esutils": "^1.1.4",
     "esprima": "^1.2.2",
     "optionator": "^0.4.0"
   },
   "optionalDependencies": {
-    "source-map": "~0.1.37"
+    "source-map": "~0.1.40"
   },
   "devDependencies": {
     "esprima-moz": "*",
-    "semver": "^4.0.3",
-    "bluebird": "^2.2.2",
+    "semver": "^4.1.0",
+    "bluebird": "^2.3.6",
     "jshint-stylish": "^1.0.0",
-    "chai": "^1.9.1",
-    "gulp-mocha": "^1.0.0",
+    "chai": "^1.9.2",
+    "gulp-mocha": "^1.1.1",
     "gulp-eslint": "^0.1.8",
-    "gulp": "^3.8.6",
+    "gulp": "^3.8.8",
     "bower-registry-client": "^0.2.1",
-    "gulp-jshint": "^1.8.0",
+    "gulp-jshint": "^1.8.5",
     "commonjs-everywhere": "^0.9.7"
   },
   "licenses": [
