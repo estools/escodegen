@@ -43,7 +43,8 @@ var ESLINT_OPTION = {
         'quotes': 0,
         'eqeqeq': 0,
         'no-use-before-define': 0,
-        'no-shadow': 0
+        'no-shadow': 0,
+        'no-multi-spaces': false
     },
     'env': {
         'node': true
