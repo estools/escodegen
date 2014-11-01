@@ -57,7 +57,9 @@
         directive,
         extra,
         parse,
+        sourceCode,
         sourceMap,
+        preserveBlankLines,
         FORMAT_MINIFY,
         FORMAT_DEFAULTS;
 
@@ -279,7 +281,8 @@
                 compact: false,
                 parentheses: true,
                 semicolons: true,
-                safeConcatenation: false
+                safeConcatenation: false,
+                preserveBlankLines: false
             },
             moz: {
                 comprehensionExpressionStartsWithAssignment: false,
@@ -290,7 +293,8 @@
             sourceMapWithCode: false,
             directive: false,
             raw: true,
-            verbatim: null
+            verbatim: null,
+            sourceCode: null
         };
     }
 
@@ -729,18 +733,47 @@
     }
 
     function generateComment(comment, specialBase) {
+        var result;
+
         if (comment.type === 'Line') {
             if (endsWithLineTerminator(comment.value)) {
-                return '//' + comment.value;
+                result = '//' + comment.value;
             } else {
                 // Always use LineTerminator
-                return '//' + comment.value + '\n';
+                result = '//' + comment.value;
+                if (!preserveBlankLines) {
+                    result += '\n';
+                }
             }
+
+            if (preserveBlankLines) {
+                if (comment.extendedRange[0] < comment.range[0]) {
+                    result = sourceCode.substring(comment.extendedRange[0], comment.range[0]) + result;
+                }
+                if (comment.extendedRange[1] > comment.range[1]) {
+                    result = result + sourceCode.substring(comment.range[1], comment.extendedRange[1]);
+                }
+            }
+
+            // trim
+            return result.replace(/[ ]+$/g, '');
         }
         if (extra.format.indent.adjustMultilineComment && /[\n\r]/.test(comment.value)) {
             return adjustMultilineComment('/*' + comment.value + '*/', specialBase);
         }
-        return '/*' + comment.value + '*/';
+
+        result = '/*' + comment.value + '*/';
+
+        if (preserveBlankLines) {
+            if (comment.extendedRange[0] < comment.range[0]) {
+                result = sourceCode.substring(comment.extendedRange[0], comment.range[0]) + result;
+            }
+            if (comment.extendedRange[1] > comment.range[1]) {
+                result = result + sourceCode.substring(comment.range[1], comment.extendedRange[1]);
+            }
+        }
+
+        return result.replace(/[ ]+$/g, '');
     }
 
     function addComments(stmt, result) {
@@ -756,7 +789,9 @@
             }
             result.push(generateComment(comment));
             if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
-                result.push('\n');
+                if (!preserveBlankLines) {
+                    result.push('\n');
+                }
             }
 
             for (i = 1, len = stmt.leadingComments.length; i < len; ++i) {
@@ -773,7 +808,12 @@
 
         if (stmt.trailingComments) {
             tailingToStatement = !endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString());
-            specialBase = stringRepeat(' ', calculateSpaces(toSourceNodeWhenNeeded([base, result, indent]).toString()));
+            if (preserveBlankLines) {
+                specialBase = stringRepeat(' ', calculateSpaces(toSourceNodeWhenNeeded([base, result, '']).toString()));
+            } else {
+                specialBase = stringRepeat(' ', calculateSpaces(toSourceNodeWhenNeeded([base, result, indent]).toString()));
+            }
+
             for (i = 0, len = stmt.trailingComments.length; i < len; ++i) {
                 comment = stmt.trailingComments[i];
                 if (tailingToStatement) {
@@ -784,7 +824,11 @@
                     //               */
                     if (i === 0) {
                         // first case
-                        result = [result, indent];
+                        if (preserveBlankLines) {
+                            result = [result, ''];
+                        } else {
+                            result = [result, indent];
+                        }
                     } else {
                         result = [result, specialBase];
                     }
@@ -1896,6 +1940,21 @@
         return toSourceNodeWhenNeeded(result, expr);
     }
 
+    function generateBlankLines(start, end, result) {
+        var j;
+
+        var newlineCount = 0;
+        for (j = start; j < end; j++) {
+            if (sourceCode[j] === '\n') {
+                newlineCount++;
+            }
+        }
+
+        for (j = 1; j < newlineCount; j++) {
+            result.push(newline);
+        }
+    }
+
     // ES6: 15.2.1 valid import declarations:
     //     - import ImportClause FromClause ;
     //     - import ModuleSpecifier ;
@@ -2037,14 +2096,69 @@
             result = ['{', newline];
 
             withIndent(function () {
+                // handle functions without any code
+                if (stmt.body.length === 0 && preserveBlankLines) {
+                    var range = stmt.range;
+                    if (range[1] - range[0] > 2) {
+                        var contents = sourceCode.substring(range[0] + 1, range[1] - 1);
+                        if (contents[0] === '\n') {
+                            contents = contents.substring(1);
+                        }
+                        result.push(contents);
+                    }
+                }
+
                 for (i = 0, len = stmt.body.length; i < len; ++i) {
-                    fragment = addIndent(generateStatement(stmt.body[i], {
-                        semicolonOptional: i === len - 1,
-                        directiveContext: functionBody
-                    }));
+
+                    if (preserveBlankLines) {
+                        // handle spaces before the first line
+                        if (i === 0) {
+                            if (!stmt.body[i].leadingComments && !stmt.body[i].trailingComments) {
+                                generateBlankLines(stmt.range[0], stmt.body[i].range[0], result);
+                            }
+                        }
+
+                        // handle spaces between lines
+                        if (i > 0) {
+                            if (!stmt.body[i].leadingComments && !stmt.body[i].trailingComments) {
+                                generateBlankLines(stmt.body[i - 1].range[1], stmt.body[i].range[0], result);
+                            }
+                        }
+                    }
+
+                    if (stmt.body[i].leadingComments && preserveBlankLines) {
+                        // don't indent if there are leading comments
+                        fragment = generateStatement(stmt.body[i], {
+                            semicolonOptional: i === len - 1,
+                            directiveContext: functionBody
+                        });
+                    } else {
+                        fragment = addIndent(generateStatement(stmt.body[i], {
+                            semicolonOptional: i === len - 1,
+                            directiveContext: functionBody
+                        }));
+                    }
+
                     result.push(fragment);
                     if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
-                        result.push(newline);
+                        if (preserveBlankLines && i < len - 1) {
+                            // don't add a new line if there are leading coments
+                            // in the next statement
+                            if (!stmt.body[i + 1].leadingComments) {
+                                result.push(newline);
+                            }
+                        } else {
+                            result.push(newline);
+                        }
+                    }
+
+                    if (preserveBlankLines) {
+                        // handle spaces after the last line
+                        if (i === len - 1) {
+                            if (!stmt.body[i].leadingComments && !stmt.body[i].trailingComments) {
+                                generateBlankLines(stmt.body[i].range[1], stmt.range[1], result);
+                            }
+                        }
                     }
                 }
             });
@@ -2484,6 +2598,22 @@
             len = stmt.body.length;
             result = [safeConcatenation && len > 0 ? '\n' : ''];
             for (i = 0; i < len; ++i) {
+                if (preserveBlankLines) {
+                    // handle spaces before the first line
+                    if (i === 0) {
+                        if (!stmt.body[i].leadingComments && !stmt.body[i].trailingComments) {
+                            generateBlankLines(stmt.range[0], stmt.body[i].range[0], result);
+                        }
+                    }
+
+                    // handle spaces between lines
+                    if (i > 0) {
+                        if (!stmt.body[i].leadingComments && !stmt.body[i].trailingComments) {
+                            generateBlankLines(stmt.body[i - 1].range[1], stmt.body[i].range[0], result);
+                        }
+                    }
+                }
+
                 fragment = addIndent(
                     generateStatement(stmt.body[i], {
                         semicolonOptional: !safeConcatenation && i === len - 1,
@@ -2492,7 +2622,22 @@
                 );
                 result.push(fragment);
                 if (i + 1 < len && !endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
-                    result.push(newline);
+                    if (preserveBlankLines) {
+                        if (!stmt.body[i + 1].leadingComments) {
+                            result.push(newline);
+                        }
+                    } else {
+                        result.push(newline);
+                    }
+                }
+
+                if (preserveBlankLines) {
+                    // handle spaces after the last line
+                    if (i === len - 1) {
+                        if (!stmt.body[i].leadingComments && !stmt.body[i].trailingComments) {
+                            generateBlankLines(stmt.body[i].range[1], stmt.range[1], result);
+                        }
+                    }
                 }
             }
             break;
@@ -2630,6 +2775,8 @@
         directive = options.directive;
         parse = json ? null : options.parse;
         sourceMap = options.sourceMap;
+        sourceCode = options.sourceCode;
+        preserveBlankLines = options.format.preserveBlankLines && sourceCode !== null;
         extra = options;
 
         if (sourceMap) {
