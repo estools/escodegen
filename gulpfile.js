@@ -36,9 +36,9 @@ var LINT = [
 ];
 
 var ESLINT_OPTION = {
-    'rulesdir': 'tools/rules/',
+    'rulesPaths': [ 'tools/rules/' ],
     'rules': {
-        'push-with-multiple-arguments': 2,
+        // 'push-with-multiple-arguments': 2,
         'quotes': 0,
         'eqeqeq': 0,
         'no-use-before-define': 0,
