@@ -50,7 +50,13 @@ var ESLINT_OPTION = {
                 'args': 'none'
             }
         ],
-        'no-multi-spaces': false
+        'no-multi-spaces': false,
+        'new-cap': [
+            2,
+            {
+                'capIsNew': false
+            }
+        ]
     },
     'env': {
         'node': true
