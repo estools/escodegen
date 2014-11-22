@@ -10,7 +10,7 @@
     "license": "MIT",
     "dependencies": {
         "benchmark": "~1.0.0",
-        "escodegen": "*"
+        "esotope": "*"
     },
     "optionalDependencies": {
         "microtime": "~0.4.0"
