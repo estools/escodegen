@@ -658,12 +658,11 @@
     }
 
     function withIndent(fn) {
-        var previousBase, result;
+        var previousBase;
         previousBase = base;
         base += indent;
-        result = fn.call(this, base);
+        fn(base);
         base = previousBase;
-        return result;
     }
 
     function calculateSpaces(str) {
