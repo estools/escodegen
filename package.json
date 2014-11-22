@@ -35,13 +35,11 @@
     "esprima-moz": "*",
     "semver": "^4.1.0",
     "bluebird": "^2.3.6",
-    "jshint-stylish": "^1.0.0",
     "chai": "^1.9.2",
     "gulp-mocha": "^1.1.1",
     "gulp-eslint": "^0.1.8",
     "gulp": "^3.8.8",
     "bower-registry-client": "^0.2.1",
-    "gulp-jshint": "^1.8.5",
     "commonjs-everywhere": "^0.9.7"
   },
   "licenses": [

@@ -26,7 +26,6 @@
 
 var gulp = require('gulp');
 var mocha = require('gulp-mocha');
-var jshint = require('gulp-jshint');
 var eslint = require('gulp-eslint');
 
 var TEST = [ 'test/*.js' ];
@@ -44,6 +43,13 @@ var ESLINT_OPTION = {
         'eqeqeq': 0,
         'no-use-before-define': 0,
         'no-shadow': 0,
+        'no-unused-vars': [
+            2,
+            {
+                'vars': 'all',
+                'args': 'none'
+            }
+        ],
         'no-multi-spaces': false
     },
     'env': {
@@ -61,11 +67,8 @@ gulp.task('test', function () {
 
 gulp.task('lint', function () {
     return gulp.src(LINT)
-        .pipe(jshint('.jshintrc'))
-        .pipe(jshint.reporter(require('jshint-stylish')))
-        .pipe(jshint.reporter('fail'))
         .pipe(eslint(ESLINT_OPTION))
-        .pipe(eslint.formatEach('compact', process.stderr))
+        .pipe(eslint.formatEach('stylish', process.stderr))
         .pipe(eslint.failOnError());
 });
 
