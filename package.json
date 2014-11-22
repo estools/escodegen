@@ -23,7 +23,7 @@
     "url": "http://github.com/estools/escodegen.git"
   },
   "dependencies": {
-    "estraverse": "^1.7.0",
+    "estraverse": "^1.8.0",
     "esutils": "^1.1.6",
     "esprima": "^1.2.2",
     "optionator": "^0.4.0"
@@ -34,11 +34,11 @@
   "devDependencies": {
     "esprima-moz": "*",
     "semver": "^4.1.0",
-    "bluebird": "^2.3.6",
-    "chai": "^1.9.2",
-    "gulp-mocha": "^1.1.1",
-    "gulp-eslint": "^0.1.8",
-    "gulp": "^3.8.8",
+    "bluebird": "^2.3.11",
+    "chai": "^1.10.0",
+    "gulp-mocha": "^2.0.0",
+    "gulp-eslint": "^0.2.0",
+    "gulp": "^3.8.10",
     "bower-registry-client": "^0.2.1",
     "commonjs-everywhere": "^0.9.7"
   },
