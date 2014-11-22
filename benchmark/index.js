@@ -1,5 +1,6 @@
 var Benchmark = require('benchmark'),
     escodegen = require('../'),
+    old = require('./old.js'),
     esotope = require('esotope'),
     asts = require('./asts');
 
@@ -16,6 +17,10 @@ new Benchmark.Suite()
 
     .add('escodegen', function () {
         cycle(escodegen);
+    })
+
+    .add('old', function () {
+        cycle(old);
     })
 
     .on('start', function () {
