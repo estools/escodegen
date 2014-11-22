@@ -463,58 +463,54 @@
     }
 
     function escapeAllowedCharacter(code, next) {
-        var hex, result = '\\';
+        var hex;
 
-        switch (code) {
-        case 0x08  /* \b */:
-            result += 'b';
-            break;
-        case 0x0C  /* \f */:
-            result += 'f';
-            break;
-        case 0x09  /* \t */:
-            result += 't';
-            break;
-        default:
-            hex = code.toString(16).toUpperCase();
-            if (json || code > 0xFF) {
-                result += 'u' + '0000'.slice(hex.length) + hex;
-            } else if (code === 0x0000 && !esutils.code.isDecimalDigit(next)) {
-                result += '0';
-            } else if (code === 0x000B  /* \v */) { // '\v'
-                result += 'x0B';
-            } else {
-                result += 'x' + '00'.slice(hex.length) + hex;
-            }
-            break;
+        if (code === 0x08  /* \b */) {
+            return '\\b';
         }
 
-        return result;
+        if (code === 0x0C  /* \f */) {
+            return '\\f';
+        }
+
+        if (code === 0x09  /* \t */) {
+            return '\\t';
+        }
+
+        hex = code.toString(16).toUpperCase();
+        if (json || code > 0xFF) {
+            return '\\u' + '0000'.slice(hex.length) + hex;
+        } else if (code === 0x0000 && !esutils.code.isDecimalDigit(next)) {
+            return '\\0';
+        } else if (code === 0x000B  /* \v */) { // '\v'
+            return '\\x0B';
+        } else {
+            return '\\x' + '00'.slice(hex.length) + hex;
+        }
     }
 
     function escapeDisallowedCharacter(code) {
-        var result = '\\';
-        switch (code) {
-        case 0x5C  /* \ */:
-            result += '\\';
-            break;
-        case 0x0A  /* \n */:
-            result += 'n';
-            break;
-        case 0x0D  /* \r */:
-            result += 'r';
-            break;
-        case 0x2028:
-            result += 'u2028';
-            break;
-        case 0x2029:
-            result += 'u2029';
-            break;
-        default:
-            throw new Error('Incorrectly classified character');
+        if (code === 0x5C  /* \ */) {
+            return '\\\\';
         }
 
-        return result;
+        if (code === 0x0A  /* \n */) {
+            return '\\n';
+        }
+
+        if (code === 0x0D  /* \r */) {
+            return '\\r';
+        }
+
+        if (code === 0x2028) {
+            return '\\u2028';
+        }
+
+        if (code === 0x2029) {
+            return '\\u2029';
+        }
+
+        throw new Error('Incorrectly classified character');
     }
 
     function escapeDirective(str) {
