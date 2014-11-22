@@ -902,11 +902,7 @@
             for (i = 0, iz = node.params.length; i < iz; ++i) {
                 if (hasDefault && node.defaults[i]) {
                     // Handle default values.
-                    result.push(generateAssignment(node.params[i], node.defaults[i], '=', {
-                        precedence: Precedence.Assignment,
-                        allowIn: true,
-                        allowCall: true
-                    }));
+                    result.push(generateAssignment(node.params[i], node.defaults[i], '=', Precedence.Assignment, true));
                 } else {
                     result.push(generatePattern(node.params[i], {
                         precedence: Precedence.Assignment,
@@ -1123,11 +1119,8 @@
         return result;
     }
 
-    function generateAssignment(left, right, operator, option) {
-        var allowIn, precedence;
-
-        precedence = option.precedence;
-        allowIn = option.allowIn || (Precedence.Assignment < precedence);
+    function generateAssignment(left, right, operator, precedence, allowIn) {
+        allowIn = allowIn || (Precedence.Assignment < precedence);
 
         return parenthesize(
             [
@@ -1152,6 +1145,8 @@
     }
 
     (function (prototype) {
+
+        // Statements.
 
         prototype.BlockStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
             var result = ['{', newline];
@@ -1717,6 +1712,7 @@
         allowIn = option.allowIn;
         allowCall = option.allowCall;
         type = expr.type || option.type;
+        allowUnparenthesizedNew = option.allowUnparenthesizedNew === undefined || option.allowUnparenthesizedNew;
 
         if (extra.verbatim && expr.hasOwnProperty(extra.verbatim)) {
             return generateVerbatim(expr, option);
@@ -1740,7 +1736,7 @@
             break;
 
         case Syntax.AssignmentExpression:
-            result = generateAssignment(expr.left, expr.right, expr.operator, option);
+            result = generateAssignment(expr.left, expr.right, expr.operator, precedence, allowIn);
             break;
 
         case Syntax.ArrowFunctionExpression:
@@ -1848,7 +1844,6 @@
 
         case Syntax.NewExpression:
             len = expr['arguments'].length;
-            allowUnparenthesizedNew = option.allowUnparenthesizedNew === undefined || option.allowUnparenthesizedNew;
 
             result = join(
                 'new',
