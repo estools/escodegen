@@ -1148,6 +1148,553 @@
         );
     }
 
+    function CodeGenerator() {
+    }
+
+    (function (prototype) {
+
+        prototype.BlockStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result = ['{', newline];
+
+            withIndent(function () {
+                var i, iz, fragment;
+                for (i = 0, iz = stmt.body.length; i < iz; ++i) {
+                    fragment = addIndent(generateStatement(stmt.body[i], {
+                        semicolonOptional: i === iz - 1,
+                        directiveContext: functionBody
+                    }));
+                    result.push(fragment);
+                    if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
+                        result.push(newline);
+                    }
+                }
+            });
+
+            result.push(addIndent('}'));
+            return result;
+        };
+
+        prototype.BreakStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            if (stmt.label) {
+                return 'break ' + stmt.label.name + semicolon;
+            }
+            return 'break' + semicolon;
+        };
+
+        prototype.ContinueStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            if (stmt.label) {
+                return 'continue ' + stmt.label.name + semicolon;
+            }
+            return 'continue' + semicolon;
+        };
+
+        prototype.ClassBody = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            return generateClassBody(stmt);
+        };
+
+        prototype.ClassDeclaration = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result, fragment;
+            result  = ['class ' + stmt.id.name];
+            if (stmt.superClass) {
+                fragment = join('extends', generateExpression(stmt.superClass, {
+                    precedence: Precedence.Assignment,
+                    allowIn: true,
+                    allowCall: true
+                }));
+                result = join(result, fragment);
+            }
+            result.push(space);
+            result.push(generateStatement(stmt.body, {
+                semicolonOptional: true,
+                directiveContext: false
+            }));
+            return result;
+        };
+
+        prototype.DirectiveStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            if (extra.raw && stmt.raw) {
+                return stmt.raw + semicolon;
+            }
+            return escapeDirective(stmt.directive) + semicolon;
+        };
+
+        prototype.DoWhileStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            // Because `do 42 while (cond)` is Syntax Error. We need semicolon.
+            var result = join('do', maybeBlock(stmt.body));
+            result = maybeBlockSuffix(stmt.body, result);
+            return join(result, [
+                'while' + space + '(',
+                generateExpression(stmt.test, {
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                }),
+                ')' + semicolon
+            ]);
+        };
+
+        prototype.CatchClause = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result;
+            withIndent(function () {
+                var guard;
+
+                result = [
+                    'catch' + space + '(',
+                    generateExpression(stmt.param, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }),
+                    ')'
+                ];
+
+                if (stmt.guard) {
+                    guard = generateExpression(stmt.guard, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    });
+
+                    result.splice(2, 0, ' if ', guard);
+                }
+            });
+            result.push(maybeBlock(stmt.body));
+            return result;
+        };
+
+        prototype.DebuggerStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            return 'debugger' + semicolon;
+        };
+
+        prototype.EmptyStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            return ';';
+        };
+
+        prototype.ExportDeclaration = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result = [ 'export' ];
+
+            // export default HoistableDeclaration[Default]
+            // export default AssignmentExpression[In] ;
+            if (stmt['default']) {
+                result = join(result, 'default');
+                if (isStatement(stmt.declaration)) {
+                    result = join(result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' }));
+                } else {
+                    result = join(result, generateExpression(stmt.declaration, {
+                        precedence: Precedence.Assignment,
+                        allowIn: true,
+                        allowCall: true
+                    }) + semicolon);
+                }
+                return result;
+            }
+
+            // export VariableStatement
+            // export Declaration[Default]
+            if (stmt.declaration) {
+                return join(result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' }));
+            }
+
+            // export * FromClause ;
+            // export ExportClause[NoReference] FromClause ;
+            // export ExportClause ;
+            if (stmt.specifiers) {
+                if (stmt.specifiers.length === 0) {
+                    result = join(result, '{' + space + '}');
+                } else if (stmt.specifiers[0].type === Syntax.ExportBatchSpecifier) {
+                    result = join(result, generateExpression(stmt.specifiers[0], {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }));
+                } else {
+                    result = join(result, '{');
+                    withIndent(function (indent) {
+                        var i, iz;
+                        result.push(newline);
+                        for (i = 0, iz = stmt.specifiers.length; i < iz; ++i) {
+                            result.push(indent);
+                            result.push(generateExpression(stmt.specifiers[i], {
+                                precedence: Precedence.Sequence,
+                                allowIn: true,
+                                allowCall: true
+                            }));
+                            if (i + 1 < iz) {
+                                result.push(',' + newline);
+                            }
+                        }
+                    });
+                    if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
+                        result.push(newline);
+                    }
+                    result.push(base + '}');
+                }
+
+                if (stmt.source) {
+                    result = join(result, [
+                        'from' + space,
+                        // ModuleSpecifier
+                        generateExpression(stmt.source, {
+                            precedence: Precedence.Sequence,
+                            allowIn: true,
+                            allowCall: true
+                        }),
+                        semicolon
+                    ]);
+                } else {
+                    result.push(semicolon);
+                }
+            }
+            return result;
+        };
+
+        prototype.ExpressionStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result, fragment;
+
+            result = [generateExpression(stmt.expression, {
+                precedence: Precedence.Sequence,
+                allowIn: true,
+                allowCall: true
+            })];
+            // 12.4 '{', 'function', 'class' is not allowed in this position.
+            // wrap expression with parentheses
+            fragment = toSourceNodeWhenNeeded(result).toString();
+            if (fragment.charAt(0) === '{' ||  // ObjectExpression
+                    (fragment.slice(0, 5) === 'class' && ' {'.indexOf(fragment.charAt(5)) >= 0) ||  // class
+                    (fragment.slice(0, 8) === 'function' && '* ('.indexOf(fragment.charAt(8)) >= 0) ||  // function or generator
+                    (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
+                result = ['(', result, ')' + semicolon];
+            } else {
+                result.push(semicolon);
+            }
+            return result;
+        };
+
+        prototype.ImportDeclaration = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            return generateImportDeclaration(stmt, semicolon);
+        };
+
+        prototype.VariableDeclarator = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            if (stmt.init) {
+                return [
+                    generateExpression(stmt.id, {
+                        precedence: Precedence.Assignment,
+                        allowIn: allowIn,
+                        allowCall: true
+                    }),
+                    space,
+                    '=',
+                    space,
+                    generateExpression(stmt.init, {
+                        precedence: Precedence.Assignment,
+                        allowIn: allowIn,
+                        allowCall: true
+                    })
+                ];
+            }
+            return generatePattern(stmt.id, {
+                precedence: Precedence.Assignment,
+                allowIn: allowIn
+            });
+        };
+
+        prototype.VariableDeclaration = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            // VariableDeclarator is typed as Statement,
+            // but joined with comma (not LineTerminator).
+            // So if comment is attached to target node, we should specialize.
+            return generateVariableDeclaration(stmt, semicolon, allowIn);
+        };
+
+        prototype.ThrowStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            return [join(
+                'throw',
+                generateExpression(stmt.argument, {
+                    precedence: Precedence.Sequence,
+                    allowIn: true,
+                    allowCall: true
+                })
+            ), semicolon];
+        };
+
+        prototype.TryStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result, i, iz, guardedHandlers;
+
+            result = ['try', maybeBlock(stmt.block)];
+            result = maybeBlockSuffix(stmt.block, result);
+
+            if (stmt.handlers) {
+                // old interface
+                for (i = 0, iz = stmt.handlers.length; i < iz; ++i) {
+                    result = join(result, generateStatement(stmt.handlers[i]));
+                    if (stmt.finalizer || i + 1 !== iz) {
+                        result = maybeBlockSuffix(stmt.handlers[i].body, result);
+                    }
+                }
+            } else {
+                guardedHandlers = stmt.guardedHandlers || [];
+
+                for (i = 0, iz = guardedHandlers.length; i < iz; ++i) {
+                    result = join(result, generateStatement(guardedHandlers[i]));
+                    if (stmt.finalizer || i + 1 !== iz) {
+                        result = maybeBlockSuffix(guardedHandlers[i].body, result);
+                    }
+                }
+
+                // new interface
+                if (stmt.handler) {
+                    if (isArray(stmt.handler)) {
+                        for (i = 0, iz = stmt.handler.length; i < iz; ++i) {
+                            result = join(result, generateStatement(stmt.handler[i]));
+                            if (stmt.finalizer || i + 1 !== iz) {
+                                result = maybeBlockSuffix(stmt.handler[i].body, result);
+                            }
+                        }
+                    } else {
+                        result = join(result, generateStatement(stmt.handler));
+                        if (stmt.finalizer) {
+                            result = maybeBlockSuffix(stmt.handler.body, result);
+                        }
+                    }
+                }
+            }
+            if (stmt.finalizer) {
+                result = join(result, ['finally', maybeBlock(stmt.finalizer)]);
+            }
+            return result;
+        };
+
+        prototype.SwitchStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result, fragment, i, iz;
+            withIndent(function () {
+                result = [
+                    'switch' + space + '(',
+                    generateExpression(stmt.discriminant, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }),
+                    ')' + space + '{' + newline
+                ];
+            });
+            if (stmt.cases) {
+                for (i = 0, iz = stmt.cases.length; i < iz; ++i) {
+                    fragment = addIndent(generateStatement(stmt.cases[i], {semicolonOptional: i === iz - 1}));
+                    result.push(fragment);
+                    if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
+                        result.push(newline);
+                    }
+                }
+            }
+            result.push(addIndent('}'));
+            return result;
+        };
+
+        prototype.SwitchCase = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result, fragment, i, iz;
+            withIndent(function () {
+                if (stmt.test) {
+                    result = [
+                        join('case', generateExpression(stmt.test, {
+                            precedence: Precedence.Sequence,
+                            allowIn: true,
+                            allowCall: true
+                        })),
+                        ':'
+                    ];
+                } else {
+                    result = ['default:'];
+                }
+
+                i = 0;
+                iz = stmt.consequent.length;
+                if (iz && stmt.consequent[0].type === Syntax.BlockStatement) {
+                    fragment = maybeBlock(stmt.consequent[0]);
+                    result.push(fragment);
+                    i = 1;
+                }
+
+                if (i !== iz && !endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
+                    result.push(newline);
+                }
+
+                for (; i < iz; ++i) {
+                    fragment = addIndent(generateStatement(stmt.consequent[i], {
+                        semicolonOptional: i === iz - 1 && semicolon === ''
+                    }));
+                    result.push(fragment);
+                    if (i + 1 !== iz && !endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
+                        result.push(newline);
+                    }
+                }
+            });
+            return result;
+        };
+
+        prototype.IfStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result;
+            withIndent(function () {
+                result = [
+                    'if' + space + '(',
+                    generateExpression(stmt.test, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }),
+                    ')'
+                ];
+            });
+            if (stmt.alternate) {
+                result.push(maybeBlock(stmt.consequent));
+                result = maybeBlockSuffix(stmt.consequent, result);
+                if (stmt.alternate.type === Syntax.IfStatement) {
+                    result = join(result, ['else ', generateStatement(stmt.alternate, {semicolonOptional: semicolon === ''})]);
+                } else {
+                    result = join(result, join('else', maybeBlock(stmt.alternate, semicolon === '')));
+                }
+            } else {
+                result.push(maybeBlock(stmt.consequent, semicolon === ''));
+            }
+            return result;
+        };
+
+        prototype.ForStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result;
+            withIndent(function () {
+                result = ['for' + space + '('];
+                if (stmt.init) {
+                    if (stmt.init.type === Syntax.VariableDeclaration) {
+                        result.push(generateStatement(stmt.init, {allowIn: false}));
+                    } else {
+                        result.push(generateExpression(stmt.init, {
+                            precedence: Precedence.Sequence,
+                            allowIn: false,
+                            allowCall: true
+                        }));
+                        result.push(';');
+                    }
+                } else {
+                    result.push(';');
+                }
+
+                if (stmt.test) {
+                    result.push(space);
+                    result.push(generateExpression(stmt.test, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }));
+                    result.push(';');
+                } else {
+                    result.push(';');
+                }
+
+                if (stmt.update) {
+                    result.push(space);
+                    result.push(generateExpression(stmt.update, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }));
+                    result.push(')');
+                } else {
+                    result.push(')');
+                }
+            });
+
+            result.push(maybeBlock(stmt.body, semicolon === ''));
+            return result;
+        };
+
+        prototype.ForInStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            return generateIterationForStatement('in', stmt, semicolon === '');
+        };
+
+        prototype.ForOfStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            return generateIterationForStatement('of', stmt, semicolon === '');
+        };
+
+        prototype.LabeledStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            return [stmt.label.name + ':', maybeBlock(stmt.body, semicolon === '')];
+        };
+
+        prototype.Program = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result, fragment, i, iz;
+            iz = stmt.body.length;
+            result = [safeConcatenation && iz > 0 ? '\n' : ''];
+            for (i = 0; i < iz; ++i) {
+                fragment = addIndent(
+                    generateStatement(stmt.body[i], {
+                        semicolonOptional: !safeConcatenation && i === iz - 1,
+                        directiveContext: true
+                    })
+                );
+                result.push(fragment);
+                if (i + 1 < iz && !endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
+                    result.push(newline);
+                }
+            }
+            return result;
+        };
+
+        prototype.FunctionDeclaration = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var isGenerator = stmt.generator && !extra.moz.starlessGenerator;
+            return [
+                (isGenerator ? 'function*' : 'function'),
+                (isGenerator ? space : noEmptySpace()),
+                generateIdentifier(stmt.id),
+                generateFunctionBody(stmt)
+            ];
+        };
+
+        prototype.ReturnStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            if (stmt.argument) {
+                return [join(
+                    'return',
+                    generateExpression(stmt.argument, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    })
+                ), semicolon];
+            }
+            return ['return' + semicolon];
+        };
+
+        prototype.WhileStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result;
+            withIndent(function () {
+                result = [
+                    'while' + space + '(',
+                    generateExpression(stmt.test, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }),
+                    ')'
+                ];
+            });
+            result.push(maybeBlock(stmt.body, semicolon === ''));
+            return result;
+        };
+
+        prototype.WithStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+            var result;
+            withIndent(function () {
+                result = [
+                    'with' + space + '(',
+                    generateExpression(stmt.object, {
+                        precedence: Precedence.Sequence,
+                        allowIn: true,
+                        allowCall: true
+                    }),
+                    ')'
+                ];
+            });
+            result.push(maybeBlock(stmt.body, semicolon === ''));
+            return result;
+        };
+    }(CodeGenerator.prototype));
+
     function generateExpression(expr, option) {
         var result,
             precedence,
@@ -2008,16 +2555,13 @@
     }
 
     function generateStatement(stmt, option) {
-        var i,
-            len,
-            result,
+        var result,
+            codegen,
             allowIn,
             functionBody,
             directiveContext,
             fragment,
-            semicolon,
-            isGenerator,
-            guardedHandlers;
+            semicolon;
 
         allowIn = true;
         semicolon = ';';
@@ -2032,529 +2576,8 @@
             directiveContext = option.directiveContext;
         }
 
-        switch (stmt.type) {
-        case Syntax.BlockStatement:
-            result = ['{', newline];
-
-            withIndent(function () {
-                for (i = 0, len = stmt.body.length; i < len; ++i) {
-                    fragment = addIndent(generateStatement(stmt.body[i], {
-                        semicolonOptional: i === len - 1,
-                        directiveContext: functionBody
-                    }));
-                    result.push(fragment);
-                    if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
-                        result.push(newline);
-                    }
-                }
-            });
-
-            result.push(addIndent('}'));
-            break;
-
-        case Syntax.BreakStatement:
-            if (stmt.label) {
-                result = 'break ' + stmt.label.name + semicolon;
-            } else {
-                result = 'break' + semicolon;
-            }
-            break;
-
-        case Syntax.ContinueStatement:
-            if (stmt.label) {
-                result = 'continue ' + stmt.label.name + semicolon;
-            } else {
-                result = 'continue' + semicolon;
-            }
-            break;
-
-        case Syntax.ClassBody:
-            result = generateClassBody(stmt);
-            break;
-
-        case Syntax.ClassDeclaration:
-            result = ['class ' + stmt.id.name];
-            if (stmt.superClass) {
-                fragment = join('extends', generateExpression(stmt.superClass, {
-                    precedence: Precedence.Assignment,
-                    allowIn: true,
-                    allowCall: true
-                }));
-                result = join(result, fragment);
-            }
-            result.push(space);
-            result.push(generateStatement(stmt.body, {
-                semicolonOptional: true,
-                directiveContext: false
-            }));
-            break;
-
-        case Syntax.DirectiveStatement:
-            if (extra.raw && stmt.raw) {
-                result = stmt.raw + semicolon;
-            } else {
-                result = escapeDirective(stmt.directive) + semicolon;
-            }
-            break;
-
-        case Syntax.DoWhileStatement:
-            // Because `do 42 while (cond)` is Syntax Error. We need semicolon.
-            result = join('do', maybeBlock(stmt.body));
-            result = maybeBlockSuffix(stmt.body, result);
-            result = join(result, [
-                'while' + space + '(',
-                generateExpression(stmt.test, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }),
-                ')' + semicolon
-            ]);
-            break;
-
-        case Syntax.CatchClause:
-            withIndent(function () {
-                var guard;
-
-                result = [
-                    'catch' + space + '(',
-                    generateExpression(stmt.param, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }),
-                    ')'
-                ];
-
-                if (stmt.guard) {
-                    guard = generateExpression(stmt.guard, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    });
-
-                    result.splice(2, 0, ' if ', guard);
-                }
-            });
-            result.push(maybeBlock(stmt.body));
-            break;
-
-        case Syntax.DebuggerStatement:
-            result = 'debugger' + semicolon;
-            break;
-
-        case Syntax.EmptyStatement:
-            result = ';';
-            break;
-
-        case Syntax.ExportDeclaration:
-            result = [ 'export' ];
-
-            // export default HoistableDeclaration[Default]
-            // export default AssignmentExpression[In] ;
-            if (stmt['default']) {
-                result = join(result, 'default');
-                if (isStatement(stmt.declaration)) {
-                    result = join(result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' }));
-                } else {
-                    result = join(result, generateExpression(stmt.declaration, {
-                        precedence: Precedence.Assignment,
-                        allowIn: true,
-                        allowCall: true
-                    }) + semicolon);
-                }
-                break;
-            }
-
-            // export VariableStatement
-            // export Declaration[Default]
-            if (stmt.declaration) {
-                result = join(result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' }));
-                break;
-            }
-
-            // export * FromClause ;
-            // export ExportClause[NoReference] FromClause ;
-            // export ExportClause ;
-            if (stmt.specifiers) {
-                if (stmt.specifiers.length === 0) {
-                    result = join(result, '{' + space + '}');
-                } else if (stmt.specifiers[0].type === Syntax.ExportBatchSpecifier) {
-                    result = join(result, generateExpression(stmt.specifiers[0], {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }));
-                } else {
-                    result = join(result, '{');
-                    withIndent(function (indent) {
-                        var i, iz;
-                        result.push(newline);
-                        for (i = 0, iz = stmt.specifiers.length; i < iz; ++i) {
-                            result.push(indent);
-                            result.push(generateExpression(stmt.specifiers[i], {
-                                precedence: Precedence.Sequence,
-                                allowIn: true,
-                                allowCall: true
-                            }));
-                            if (i + 1 < iz) {
-                                result.push(',' + newline);
-                            }
-                        }
-                    });
-                    if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
-                        result.push(newline);
-                    }
-                    result.push(base + '}');
-                }
-
-                if (stmt.source) {
-                    result = join(result, [
-                        'from' + space,
-                        // ModuleSpecifier
-                        generateExpression(stmt.source, {
-                            precedence: Precedence.Sequence,
-                            allowIn: true,
-                            allowCall: true
-                        }),
-                        semicolon
-                    ]);
-                } else {
-                    result.push(semicolon);
-                }
-                break;
-            }
-            break;
-
-        case Syntax.ExpressionStatement:
-            result = [generateExpression(stmt.expression, {
-                precedence: Precedence.Sequence,
-                allowIn: true,
-                allowCall: true
-            })];
-            // 12.4 '{', 'function', 'class' is not allowed in this position.
-            // wrap expression with parentheses
-            fragment = toSourceNodeWhenNeeded(result).toString();
-            if (fragment.charAt(0) === '{' ||  // ObjectExpression
-                    (fragment.slice(0, 5) === 'class' && ' {'.indexOf(fragment.charAt(5)) >= 0) ||  // class
-                    (fragment.slice(0, 8) === 'function' && '* ('.indexOf(fragment.charAt(8)) >= 0) ||  // function or generator
-                    (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
-                result = ['(', result, ')' + semicolon];
-            } else {
-                result.push(semicolon);
-            }
-            break;
-
-        case Syntax.ImportDeclaration:
-            result = generateImportDeclaration(stmt, semicolon);
-            break;
-
-        case Syntax.VariableDeclarator:
-            if (stmt.init) {
-                result = [
-                    generateExpression(stmt.id, {
-                        precedence: Precedence.Assignment,
-                        allowIn: allowIn,
-                        allowCall: true
-                    }),
-                    space,
-                    '=',
-                    space,
-                    generateExpression(stmt.init, {
-                        precedence: Precedence.Assignment,
-                        allowIn: allowIn,
-                        allowCall: true
-                    })
-                ];
-            } else {
-                result = generatePattern(stmt.id, {
-                    precedence: Precedence.Assignment,
-                    allowIn: allowIn
-                });
-            }
-            break;
-
-        case Syntax.VariableDeclaration:
-            // VariableDeclarator is typed as Statement,
-            // but joined with comma (not LineTerminator).
-            // So if comment is attached to target node, we should specialize.
-            result = generateVariableDeclaration(stmt, semicolon, allowIn);
-            break;
-
-        case Syntax.ThrowStatement:
-            result = [join(
-                'throw',
-                generateExpression(stmt.argument, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                })
-            ), semicolon];
-            break;
-
-        case Syntax.TryStatement:
-            result = ['try', maybeBlock(stmt.block)];
-            result = maybeBlockSuffix(stmt.block, result);
-
-            if (stmt.handlers) {
-                // old interface
-                for (i = 0, len = stmt.handlers.length; i < len; ++i) {
-                    result = join(result, generateStatement(stmt.handlers[i]));
-                    if (stmt.finalizer || i + 1 !== len) {
-                        result = maybeBlockSuffix(stmt.handlers[i].body, result);
-                    }
-                }
-            } else {
-                guardedHandlers = stmt.guardedHandlers || [];
-
-                for (i = 0, len = guardedHandlers.length; i < len; ++i) {
-                    result = join(result, generateStatement(guardedHandlers[i]));
-                    if (stmt.finalizer || i + 1 !== len) {
-                        result = maybeBlockSuffix(guardedHandlers[i].body, result);
-                    }
-                }
-
-                // new interface
-                if (stmt.handler) {
-                    if (isArray(stmt.handler)) {
-                        for (i = 0, len = stmt.handler.length; i < len; ++i) {
-                            result = join(result, generateStatement(stmt.handler[i]));
-                            if (stmt.finalizer || i + 1 !== len) {
-                                result = maybeBlockSuffix(stmt.handler[i].body, result);
-                            }
-                        }
-                    } else {
-                        result = join(result, generateStatement(stmt.handler));
-                        if (stmt.finalizer) {
-                            result = maybeBlockSuffix(stmt.handler.body, result);
-                        }
-                    }
-                }
-            }
-            if (stmt.finalizer) {
-                result = join(result, ['finally', maybeBlock(stmt.finalizer)]);
-            }
-            break;
-
-        case Syntax.SwitchStatement:
-            withIndent(function () {
-                result = [
-                    'switch' + space + '(',
-                    generateExpression(stmt.discriminant, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }),
-                    ')' + space + '{' + newline
-                ];
-            });
-            if (stmt.cases) {
-                for (i = 0, len = stmt.cases.length; i < len; ++i) {
-                    fragment = addIndent(generateStatement(stmt.cases[i], {semicolonOptional: i === len - 1}));
-                    result.push(fragment);
-                    if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
-                        result.push(newline);
-                    }
-                }
-            }
-            result.push(addIndent('}'));
-            break;
-
-        case Syntax.SwitchCase:
-            withIndent(function () {
-                if (stmt.test) {
-                    result = [
-                        join('case', generateExpression(stmt.test, {
-                            precedence: Precedence.Sequence,
-                            allowIn: true,
-                            allowCall: true
-                        })),
-                        ':'
-                    ];
-                } else {
-                    result = ['default:'];
-                }
-
-                i = 0;
-                len = stmt.consequent.length;
-                if (len && stmt.consequent[0].type === Syntax.BlockStatement) {
-                    fragment = maybeBlock(stmt.consequent[0]);
-                    result.push(fragment);
-                    i = 1;
-                }
-
-                if (i !== len && !endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
-                    result.push(newline);
-                }
-
-                for (; i < len; ++i) {
-                    fragment = addIndent(generateStatement(stmt.consequent[i], {semicolonOptional: i === len - 1 && semicolon === ''}));
-                    result.push(fragment);
-                    if (i + 1 !== len && !endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
-                        result.push(newline);
-                    }
-                }
-            });
-            break;
-
-        case Syntax.IfStatement:
-            withIndent(function () {
-                result = [
-                    'if' + space + '(',
-                    generateExpression(stmt.test, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }),
-                    ')'
-                ];
-            });
-            if (stmt.alternate) {
-                result.push(maybeBlock(stmt.consequent));
-                result = maybeBlockSuffix(stmt.consequent, result);
-                if (stmt.alternate.type === Syntax.IfStatement) {
-                    result = join(result, ['else ', generateStatement(stmt.alternate, {semicolonOptional: semicolon === ''})]);
-                } else {
-                    result = join(result, join('else', maybeBlock(stmt.alternate, semicolon === '')));
-                }
-            } else {
-                result.push(maybeBlock(stmt.consequent, semicolon === ''));
-            }
-            break;
-
-        case Syntax.ForStatement:
-            withIndent(function () {
-                result = ['for' + space + '('];
-                if (stmt.init) {
-                    if (stmt.init.type === Syntax.VariableDeclaration) {
-                        result.push(generateStatement(stmt.init, {allowIn: false}));
-                    } else {
-                        result.push(generateExpression(stmt.init, {
-                            precedence: Precedence.Sequence,
-                            allowIn: false,
-                            allowCall: true
-                        }));
-                        result.push(';');
-                    }
-                } else {
-                    result.push(';');
-                }
-
-                if (stmt.test) {
-                    result.push(space);
-                    result.push(generateExpression(stmt.test, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }));
-                    result.push(';');
-                } else {
-                    result.push(';');
-                }
-
-                if (stmt.update) {
-                    result.push(space);
-                    result.push(generateExpression(stmt.update, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }));
-                    result.push(')');
-                } else {
-                    result.push(')');
-                }
-            });
-
-            result.push(maybeBlock(stmt.body, semicolon === ''));
-            break;
-
-        case Syntax.ForInStatement:
-            result = generateIterationForStatement('in', stmt, semicolon === '');
-            break;
-
-        case Syntax.ForOfStatement:
-            result = generateIterationForStatement('of', stmt, semicolon === '');
-            break;
-
-        case Syntax.LabeledStatement:
-            result = [stmt.label.name + ':', maybeBlock(stmt.body, semicolon === '')];
-            break;
-
-        case Syntax.Program:
-            len = stmt.body.length;
-            result = [safeConcatenation && len > 0 ? '\n' : ''];
-            for (i = 0; i < len; ++i) {
-                fragment = addIndent(
-                    generateStatement(stmt.body[i], {
-                        semicolonOptional: !safeConcatenation && i === len - 1,
-                        directiveContext: true
-                    })
-                );
-                result.push(fragment);
-                if (i + 1 < len && !endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
-                    result.push(newline);
-                }
-            }
-            break;
-
-        case Syntax.FunctionDeclaration:
-            isGenerator = stmt.generator && !extra.moz.starlessGenerator;
-            result = [
-                (isGenerator ? 'function*' : 'function'),
-                (isGenerator ? space : noEmptySpace()),
-                generateIdentifier(stmt.id),
-                generateFunctionBody(stmt)
-            ];
-            break;
-
-        case Syntax.ReturnStatement:
-            if (stmt.argument) {
-                result = [join(
-                    'return',
-                    generateExpression(stmt.argument, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    })
-                ), semicolon];
-            } else {
-                result = ['return' + semicolon];
-            }
-            break;
-
-        case Syntax.WhileStatement:
-            withIndent(function () {
-                result = [
-                    'while' + space + '(',
-                    generateExpression(stmt.test, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }),
-                    ')'
-                ];
-            });
-            result.push(maybeBlock(stmt.body, semicolon === ''));
-            break;
-
-        case Syntax.WithStatement:
-            withIndent(function () {
-                result = [
-                    'with' + space + '(',
-                    generateExpression(stmt.object, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }),
-                    ')'
-                ];
-            });
-            result.push(maybeBlock(stmt.body, semicolon === ''));
-            break;
-
-        default:
-            throw new Error('Unknown statement type: ' + stmt.type);
-        }
+        codegen = new CodeGenerator();
+        result = codegen[stmt.type](stmt, allowIn, semicolon, functionBody, directiveContext);
 
         // Attach comments
 
