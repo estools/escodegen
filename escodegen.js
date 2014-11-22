@@ -2550,8 +2550,7 @@
             type,
             allowIn,
             allowCall,
-            allowUnparenthesizedNew,
-            codegen;
+            allowUnparenthesizedNew;
 
         precedence = option.precedence;
         allowIn = option.allowIn;
@@ -2574,7 +2573,6 @@
 
     function generateStatement(stmt, option) {
         var result,
-            codegen,
             allowIn,
             functionBody,
             directiveContext,
