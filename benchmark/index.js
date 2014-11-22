@@ -1,6 +1,6 @@
 var Benchmark = require('benchmark'),
-    escodegen = require('escodegen'),
-    esotope = require('../esotope'),
+    escodegen = require('../'),
+    esotope = require('esotope'),
     asts = require('./asts');
 
 
@@ -13,7 +13,7 @@ new Benchmark.Suite()
     .add('esotope', function () {
         cycle(esotope);
     })
-    
+
     .add('escodegen', function () {
         cycle(escodegen);
     })
