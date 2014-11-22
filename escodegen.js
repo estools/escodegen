@@ -2568,8 +2568,7 @@
             return generateVerbatim(expr, option);
         }
 
-        codegen = new CodeGenerator();
-        result = codegen[type](expr, precedence, allowIn, allowCall, allowUnparenthesizedNew);
+        result = CodeGenerator.prototype[type](expr, precedence, allowIn, allowCall, allowUnparenthesizedNew);
 
 
         if (extra.comment) {
@@ -2600,8 +2599,7 @@
             directiveContext = option.directiveContext;
         }
 
-        codegen = new CodeGenerator();
-        result = codegen[stmt.type](stmt, allowIn, semicolon, functionBody, directiveContext);
+        result = CodeGenerator.prototype[stmt.type](stmt, allowIn, semicolon, functionBody, directiveContext);
 
         // Attach comments
 
