@@ -1,7 +1,7 @@
 {
   "name": "escodegen",
   "description": "ECMAScript code generator",
-  "homepage": "http://github.com/Constellation/escodegen",
+  "homepage": "http://github.com/estools/escodegen",
   "main": "escodegen.js",
   "bin": {
     "esgenerate": "./bin/esgenerate.js",
@@ -20,7 +20,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/Constellation/escodegen.git"
+    "url": "http://github.com/estools/escodegen.git"
   },
   "dependencies": {
     "estraverse": "^1.7.0",
@@ -47,7 +47,7 @@
   "licenses": [
     {
       "type": "BSD",
-      "url": "http://github.com/Constellation/escodegen/raw/master/LICENSE.BSD"
+      "url": "http://github.com/estools/escodegen/raw/master/LICENSE.BSD"
     }
   ],
   "scripts": {
