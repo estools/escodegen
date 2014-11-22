@@ -270,12 +270,12 @@
     // F_ALLOW_IN
     // F_ALLOW_CALL
     // F_ALLOW_UNPARATH_NEW
-    // var E_FTT = F_ALLOW_CALL | F_ALLOW_UNPARATH_NEW,
-    //     E_TTF = F_ALLOW_IN | F_ALLOW_CALL,
-    //     E_TTT = F_ALLOW_IN | F_ALLOW_CALL | F_ALLOW_UNPARATH_NEW,
-    //     E_TFF = F_ALLOW_IN,
-    //     E_FFT = F_ALLOW_UNPARATH_NEW,
-    //     E_TFT = F_ALLOW_IN | F_ALLOW_UNPARATH_NEW;
+    var E_FTT = F_ALLOW_CALL | F_ALLOW_UNPARATH_NEW,
+        E_TTF = F_ALLOW_IN | F_ALLOW_CALL,
+        E_TTT = F_ALLOW_IN | F_ALLOW_CALL | F_ALLOW_UNPARATH_NEW,
+        E_TFF = F_ALLOW_IN,
+        E_FFT = F_ALLOW_UNPARATH_NEW,
+        E_TFT = F_ALLOW_IN | F_ALLOW_UNPARATH_NEW;
 
     //Statement flag sets
     //NOTE: Flag order:
@@ -899,15 +899,11 @@
         return toSourceNodeWhenNeeded(node.name, node);
     }
 
-    function generatePattern(node, precedence, allowIn) {
+    function generatePattern(node, precedence, flags) {
         if (node.type === Syntax.Identifier) {
             return generateIdentifier(node);
         }
-        return generateExpression(node, {
-            precedence: precedence,
-            allowIn: allowIn,
-            allowCall: true
-        });
+        return generateExpression(node, precedence, flags);
     }
 
     function generateFunctionParams(node) {
@@ -928,9 +924,9 @@
             for (i = 0, iz = node.params.length; i < iz; ++i) {
                 if (hasDefault && node.defaults[i]) {
                     // Handle default values.
-                    result.push(generateAssignment(node.params[i], node.defaults[i], '=', Precedence.Assignment, true));
+                    result.push(generateAssignment(node.params[i], node.defaults[i], '=', Precedence.Assignment, E_TTT));
                 } else {
-                    result.push(generatePattern(node.params[i], Precedence.Assignment, true));
+                    result.push(generatePattern(node.params[i], Precedence.Assignment, E_TTT));
                 }
                 if (i + 1 < iz) {
                     result.push(',' + space);
@@ -942,11 +938,7 @@
                     result.push(',' + space);
                 }
                 result.push('...');
-                result.push(generateIdentifier(node.rest, {
-                    precedence: Precedence.Assignment,
-                    allowIn: true,
-                    allowCall: true
-                }));
+                result.push(generateIdentifier(node.rest));
             }
 
             result.push(')');
@@ -967,11 +959,7 @@
 
         if (node.expression) {
             result.push(space);
-            expr = generateExpression(node.body, {
-                precedence: Precedence.Assignment,
-                allowIn: true,
-                allowCall: true
-            });
+            expr = generateExpression(node.body, Precedence.Assignment, E_TTT);
             if (expr.toString().charAt(0) === '{') {
                 expr = ['(', expr, ')'];
             }
@@ -992,21 +980,13 @@
                     result.push(generateStatement(stmt.left.declarations[0], S_FFFF));
                 });
             } else {
-                result.push(generateExpression(stmt.left, {
-                    precedence: Precedence.Call,
-                    allowIn: true,
-                    allowCall: true
-                }));
+                result.push(generateExpression(stmt.left, Precedence.Call, E_TTT));
             }
 
             result = join(result, operator);
             result = [join(
                 result,
-                generateExpression(stmt.right, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                })
+                generateExpression(stmt.right, Precedence.Sequence, E_TTT)
             ), ')'];
         });
         result.push(maybeBlock(stmt.body, flags));
@@ -1020,12 +1000,7 @@
             result.push('[');
         }
 
-        result.push(generateExpression(expr, {
-            precedence: Precedence.Sequence,
-            allowIn: true,
-            allowCall: true
-        }));
-
+        result.push(generateExpression(expr, Precedence.Sequence, E_TTT));
         if (computed) {
             result.push(']');
         }
@@ -1033,22 +1008,16 @@
         return result;
     }
 
-    function generateAssignment(left, right, operator, precedence, allowIn) {
-        allowIn = allowIn || (Precedence.Assignment < precedence);
+    function generateAssignment(left, right, operator, precedence, flags) {
+        if (Precedence.Assignment < precedence) {
+            flags |= F_ALLOW_IN;
+        }
 
         return parenthesize(
             [
-                generateExpression(left, {
-                    precedence: Precedence.Call,
-                    allowIn: allowIn,
-                    allowCall: true
-                }),
+                generateExpression(left, Precedence.Call, flags),
                 space + operator + space,
-                generateExpression(right, {
-                    precedence: Precedence.Assignment,
-                    allowIn: allowIn,
-                    allowCall: true
-                })
+                generateExpression(right, Precedence.Assignment, flags)
             ],
             Precedence.Assignment,
             precedence
@@ -1114,12 +1083,7 @@
 
             for (i = 0, iz = stmt.body.length; i < iz; ++i) {
                 result.push(indent);
-                result.push(generateExpression(stmt.body[i], {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true,
-                    type: Syntax.Property
-                }));
+                result.push(generateExpression(stmt.body[i], Precedence.Sequence, E_TTT));
                 if (i + 1 < iz) {
                     result.push(newline);
                 }
@@ -1138,11 +1102,7 @@
         var result, fragment;
         result  = ['class ' + stmt.id.name];
         if (stmt.superClass) {
-            fragment = join('extends', generateExpression(stmt.superClass, {
-                precedence: Precedence.Assignment,
-                allowIn: true,
-                allowCall: true
-            }));
+            fragment = join('extends', generateExpression(stmt.superClass, Precedence.Assignment, E_TTT));
             result = join(result, fragment);
         }
         result.push(space);
@@ -1163,11 +1123,7 @@
         result = maybeBlockSuffix(stmt.body, result);
         return join(result, [
             'while' + space + '(',
-            generateExpression(stmt.test, {
-                precedence: Precedence.Sequence,
-                allowIn: true,
-                allowCall: true
-            }),
+            generateExpression(stmt.test, Precedence.Sequence, E_TTT),
             ')' + this.semicolon(flags)
         ]);
     };
@@ -1179,21 +1135,12 @@
 
             result = [
                 'catch' + space + '(',
-                generateExpression(stmt.param, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }),
+                generateExpression(stmt.param, Precedence.Sequence, E_TTT),
                 ')'
             ];
 
             if (stmt.guard) {
-                guard = generateExpression(stmt.guard, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                });
-
+                guard = generateExpression(stmt.guard, Precedence.Sequence, E_TTT);
                 result.splice(2, 0, ' if ', guard);
             }
         });
@@ -1221,11 +1168,7 @@
             if (isStatement(stmt.declaration)) {
                 result = join(result, generateStatement(stmt.declaration, bodyFlags));
             } else {
-                result = join(result, generateExpression(stmt.declaration, {
-                    precedence: Precedence.Assignment,
-                    allowIn: true,
-                    allowCall: true
-                }) + this.semicolon(flags));
+                result = join(result, generateExpression(stmt.declaration, Precedence.Assignment, E_TTT) + this.semicolon(flags));
             }
             return result;
         }
@@ -1243,11 +1186,7 @@
             if (stmt.specifiers.length === 0) {
                 result = join(result, '{' + space + '}');
             } else if (stmt.specifiers[0].type === Syntax.ExportBatchSpecifier) {
-                result = join(result, generateExpression(stmt.specifiers[0], {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }));
+                result = join(result, generateExpression(stmt.specifiers[0], Precedence.Sequence, E_TTT));
             } else {
                 result = join(result, '{');
                 withIndent(function (indent) {
@@ -1255,11 +1194,7 @@
                     result.push(newline);
                     for (i = 0, iz = stmt.specifiers.length; i < iz; ++i) {
                         result.push(indent);
-                        result.push(generateExpression(stmt.specifiers[i], {
-                            precedence: Precedence.Sequence,
-                            allowIn: true,
-                            allowCall: true
-                        }));
+                        result.push(generateExpression(stmt.specifiers[i], Precedence.Sequence, E_TTT));
                         if (i + 1 < iz) {
                             result.push(',' + newline);
                         }
@@ -1275,11 +1210,7 @@
                 result = join(result, [
                     'from' + space,
                     // ModuleSpecifier
-                    generateExpression(stmt.source, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }),
+                    generateExpression(stmt.source, Precedence.Sequence, E_TTT),
                     this.semicolon(flags)
                 ]);
             } else {
@@ -1292,11 +1223,7 @@
     CodeGenerator.prototype.ExpressionStatement = function (stmt, flags) {
         var result, fragment;
 
-        result = [generateExpression(stmt.expression, {
-            precedence: Precedence.Sequence,
-            allowIn: true,
-            allowCall: true
-        })];
+        result = [generateExpression(stmt.expression, Precedence.Sequence, E_TTT)];
         // 12.4 '{', 'function', 'class' is not allowed in this position.
         // wrap expression with parentheses
         fragment = toSourceNodeWhenNeeded(result).toString();
@@ -1326,11 +1253,7 @@
                 'import',
                 space,
                 // ModuleSpecifier
-                generateExpression(stmt.source, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }),
+                generateExpression(stmt.source, Precedence.Sequence, E_TTT),
                 this.semicolon(flags)
             ];
         }
@@ -1344,11 +1267,7 @@
         // ImportedBinding
         if (stmt.specifiers[cursor].type === Syntax.ImportDefaultSpecifier) {
             result = join(result, [
-                    generateExpression(stmt.specifiers[cursor], {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    })
+                    generateExpression(stmt.specifiers[cursor], Precedence.Sequence, E_TTT)
             ]);
             ++cursor;
         }
@@ -1362,11 +1281,7 @@
                 // NameSpaceImport
                 result = join(result, [
                         space,
-                        generateExpression(stmt.specifiers[cursor], {
-                            precedence: Precedence.Sequence,
-                            allowIn: true,
-                            allowCall: true
-                        })
+                        generateExpression(stmt.specifiers[cursor], Precedence.Sequence, E_TTT)
                 ]);
             } else {
                 // NamedImports
@@ -1375,11 +1290,7 @@
                 if ((stmt.specifiers.length - cursor) === 1) {
                     // import { ... } from "...";
                     result.push(space);
-                    result.push(generateExpression(stmt.specifiers[cursor], {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }));
+                    result.push(generateExpression(stmt.specifiers[cursor], Precedence.Sequence, E_TTT));
                     result.push(space + '}' + space);
                 } else {
                     // import {
@@ -1391,11 +1302,7 @@
                         result.push(newline);
                         for (i = cursor, iz = stmt.specifiers.length; i < iz; ++i) {
                             result.push(indent);
-                            result.push(generateExpression(stmt.specifiers[i], {
-                                precedence: Precedence.Sequence,
-                                allowIn: true,
-                                allowCall: true
-                            }));
+                            result.push(generateExpression(stmt.specifiers[i], Precedence.Sequence, E_TTT));
                             if (i + 1 < iz) {
                                 result.push(',' + newline);
                             }
@@ -1412,36 +1319,24 @@
         result = join(result, [
             'from' + space,
             // ModuleSpecifier
-            generateExpression(stmt.source, {
-                precedence: Precedence.Sequence,
-                allowIn: true,
-                allowCall: true
-            }),
+            generateExpression(stmt.source, Precedence.Sequence, E_TTT),
             this.semicolon(flags)
         ]);
         return result;
     };
 
     CodeGenerator.prototype.VariableDeclarator = function (stmt, flags) {
-        var allowIn = flags & F_ALLOW_IN;
+        var itemFlags = (flags & F_ALLOW_IN) ? E_TTT : E_FTT;
         if (stmt.init) {
             return [
-                generateExpression(stmt.id, {
-                    precedence: Precedence.Assignment,
-                    allowIn: allowIn,
-                    allowCall: true
-                }),
+                generateExpression(stmt.id, Precedence.Assignment, itemFlags),
                 space,
                 '=',
                 space,
-                generateExpression(stmt.init, {
-                    precedence: Precedence.Assignment,
-                    allowIn: allowIn,
-                    allowCall: true
-                })
+                generateExpression(stmt.init, Precedence.Assignment, itemFlags)
             ];
         }
-        return generatePattern(stmt.id, Precedence.Assignment, allowIn);
+        return generatePattern(stmt.id, Precedence.Assignment, itemFlags);
     };
 
     CodeGenerator.prototype.VariableDeclaration = function (stmt, flags) {
@@ -1490,11 +1385,7 @@
     CodeGenerator.prototype.ThrowStatement = function (stmt, flags) {
         return [join(
             'throw',
-            generateExpression(stmt.argument, {
-                precedence: Precedence.Sequence,
-                allowIn: true,
-                allowCall: true
-            })
+            generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
         ), this.semicolon(flags)];
     };
 
@@ -1550,11 +1441,7 @@
         withIndent(function () {
             result = [
                 'switch' + space + '(',
-                generateExpression(stmt.discriminant, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }),
+                generateExpression(stmt.discriminant, Precedence.Sequence, E_TTT),
                 ')' + space + '{' + newline
             ];
         });
@@ -1580,11 +1467,7 @@
         withIndent(function () {
             if (stmt.test) {
                 result = [
-                    join('case', generateExpression(stmt.test, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    })),
+                    join('case', generateExpression(stmt.test, Precedence.Sequence, E_TTT)),
                     ':'
                 ];
             } else {
@@ -1623,11 +1506,7 @@
         withIndent(function () {
             result = [
                 'if' + space + '(',
-                generateExpression(stmt.test, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }),
+                generateExpression(stmt.test, Precedence.Sequence, E_TTT),
                 ')'
             ];
         });
@@ -1658,11 +1537,8 @@
                 if (stmt.init.type === Syntax.VariableDeclaration) {
                     result.push(generateStatement(stmt.init, S_FFFF));
                 } else {
-                    result.push(generateExpression(stmt.init, {
-                        precedence: Precedence.Sequence,
-                        allowIn: false,
-                        allowCall: true
-                    }));
+                    // F_ALLOW_IN becomes false.
+                    result.push(generateExpression(stmt.init, Precedence.Sequence, E_FTT));
                     result.push(';');
                 }
             } else {
@@ -1671,11 +1547,7 @@
 
             if (stmt.test) {
                 result.push(space);
-                result.push(generateExpression(stmt.test, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }));
+                result.push(generateExpression(stmt.test, Precedence.Sequence, E_TTT));
                 result.push(';');
             } else {
                 result.push(';');
@@ -1683,11 +1555,7 @@
 
             if (stmt.update) {
                 result.push(space);
-                result.push(generateExpression(stmt.update, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }));
+                result.push(generateExpression(stmt.update, Precedence.Sequence, E_TTT));
                 result.push(')');
             } else {
                 result.push(')');
@@ -1742,11 +1610,7 @@
         if (stmt.argument) {
             return [join(
                 'return',
-                generateExpression(stmt.argument, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                })
+                generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
             ), this.semicolon(flags)];
         }
         return ['return' + this.semicolon(flags)];
@@ -1757,11 +1621,7 @@
         withIndent(function () {
             result = [
                 'while' + space + '(',
-                generateExpression(stmt.test, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }),
+                generateExpression(stmt.test, Precedence.Sequence, E_TTT),
                 ')'
             ];
         });
@@ -1774,11 +1634,7 @@
         withIndent(function () {
             result = [
                 'with' + space + '(',
-                generateExpression(stmt.object, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }),
+                generateExpression(stmt.object, Precedence.Sequence, E_TTT),
                 ')'
             ];
         });
@@ -1789,16 +1645,14 @@
 
     // Expressions.
 
-    CodeGenerator.prototype.SequenceExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.SequenceExpression = function (expr, precedence, flags) {
         var result, i, iz;
+        if (Precedence.Sequence < precedence) {
+            flags |= F_ALLOW_IN;
+        }
         result = [];
-        allowIn |= (Precedence.Sequence < precedence);
         for (i = 0, iz = expr.expressions.length; i < iz; ++i) {
-            result.push(generateExpression(expr.expressions[i], {
-                precedence: Precedence.Assignment,
-                allowIn: allowIn,
-                allowCall: true
-            }));
+            result.push(generateExpression(expr.expressions[i], Precedence.Assignment, flags));
             if (i + 1 < iz) {
                 result.push(',' + space);
             }
@@ -1806,56 +1660,44 @@
         return parenthesize(result, Precedence.Sequence, precedence);
     };
 
-    CodeGenerator.prototype.AssignmentExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
-        return generateAssignment(expr.left, expr.right, expr.operator, precedence, allowIn);
+    CodeGenerator.prototype.AssignmentExpression = function (expr, precedence, flags) {
+        return generateAssignment(expr.left, expr.right, expr.operator, precedence, flags);
     };
 
-    CodeGenerator.prototype.ArrowFunctionExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.ArrowFunctionExpression = function (expr, precedence, flags) {
         return parenthesize(generateFunctionBody(expr), Precedence.ArrowFunction, precedence);
     };
 
-    CodeGenerator.prototype.ConditionalExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
-        allowIn |= (Precedence.Conditional < precedence);
+    CodeGenerator.prototype.ConditionalExpression = function (expr, precedence, flags) {
+        if (Precedence.Conditional < precedence) {
+            flags |= F_ALLOW_IN;
+        }
         return parenthesize(
             [
-                generateExpression(expr.test, {
-                    precedence: Precedence.LogicalOR,
-                    allowIn: allowIn,
-                    allowCall: true
-                }),
+                generateExpression(expr.test, Precedence.LogicalOR, flags),
                 space + '?' + space,
-                generateExpression(expr.consequent, {
-                    precedence: Precedence.Assignment,
-                    allowIn: allowIn,
-                    allowCall: true
-                }),
+                generateExpression(expr.consequent, Precedence.Assignment, flags),
                 space + ':' + space,
-                generateExpression(expr.alternate, {
-                    precedence: Precedence.Assignment,
-                    allowIn: allowIn,
-                    allowCall: true
-                })
+                generateExpression(expr.alternate, Precedence.Assignment, flags)
             ],
             Precedence.Conditional,
             precedence
         );
     };
 
-    CodeGenerator.prototype.LogicalExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
-        return this.BinaryExpression(expr, precedence, allowIn, allowCall, allowUnparenthesizedNew);
+    CodeGenerator.prototype.LogicalExpression = function (expr, precedence, flags) {
+        return this.BinaryExpression(expr, precedence, flags);
     };
 
-    CodeGenerator.prototype.BinaryExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.BinaryExpression = function (expr, precedence, flags) {
         var result, currentPrecedence, fragment, leftSource;
         currentPrecedence = BinaryPrecedence[expr.operator];
 
-        allowIn |= (currentPrecedence < precedence);
+        if (currentPrecedence < precedence) {
+            flags |= F_ALLOW_IN;
+        }
 
-        fragment = generateExpression(expr.left, {
-            precedence: currentPrecedence,
-            allowIn: allowIn,
-            allowCall: true
-        });
+        fragment = generateExpression(expr.left, currentPrecedence, flags);
 
         leftSource = fragment.toString();
 
@@ -1865,11 +1707,7 @@
             result = join(fragment, expr.operator);
         }
 
-        fragment = generateExpression(expr.right, {
-            precedence: currentPrecedence + 1,
-            allowIn: allowIn,
-            allowCall: true
-        });
+        fragment = generateExpression(expr.right, currentPrecedence + 1, flags);
 
         if (expr.operator === '/' && fragment.toString().charAt(0) === '/' ||
         expr.operator.slice(-1) === '<' && fragment.toString().slice(0, 3) === '!--') {
@@ -1880,62 +1718,48 @@
             result = join(result, fragment);
         }
 
-        if (expr.operator === 'in' && !allowIn) {
+        if (expr.operator === 'in' && !(flags & F_ALLOW_IN)) {
             return ['(', result, ')'];
         }
         return parenthesize(result, currentPrecedence, precedence);
     };
 
-    CodeGenerator.prototype.CallExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.CallExpression = function (expr, precedence, flags) {
         var result, i, iz;
-        result = [generateExpression(expr.callee, {
-            precedence: Precedence.Call,
-            allowIn: true,
-            allowCall: true,
-            allowUnparenthesizedNew: false
-        })];
-
+        // F_ALLOW_UNPARATH_NEW becomes false.
+        result = [generateExpression(expr.callee, Precedence.Call, E_TTF)];
         result.push('(');
         for (i = 0, iz = expr['arguments'].length; i < iz; ++i) {
-            result.push(generateExpression(expr['arguments'][i], {
-                precedence: Precedence.Assignment,
-                allowIn: true,
-                allowCall: true
-            }));
+            result.push(generateExpression(expr['arguments'][i], Precedence.Assignment, E_TTT));
             if (i + 1 < iz) {
                 result.push(',' + space);
             }
         }
         result.push(')');
 
-        if (!allowCall) {
+        if (!(flags & F_ALLOW_CALL)) {
             return ['(', result, ')'];
         }
         return parenthesize(result, Precedence.Call, precedence);
     };
 
-    CodeGenerator.prototype.NewExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
-        var result, length, i, iz;
+    CodeGenerator.prototype.NewExpression = function (expr, precedence, flags) {
+        var result, length, i, iz, itemFlags;
         length = expr['arguments'].length;
+
+        // F_ALLOW_CALL becomes false.
+        // F_ALLOW_UNPARATH_NEW may become false.
+        itemFlags = (flags & F_ALLOW_UNPARATH_NEW && !parentheses && length === 0) ? E_TFT : E_TFF;
 
         result = join(
             'new',
-            generateExpression(expr.callee, {
-                precedence: Precedence.New,
-                allowIn: true,
-                allowCall: false,
-                allowUnparenthesizedNew: allowUnparenthesizedNew && !parentheses && length === 0
-            })
+            generateExpression(expr.callee, Precedence.New, itemFlags)
         );
 
-        if (!allowUnparenthesizedNew || parentheses || length > 0) {
+        if (!(flags & F_ALLOW_UNPARATH_NEW) || parentheses || length > 0) {
             result.push('(');
             for (i = 0, iz = length; i < iz; ++i) {
-                result.push(generateExpression(expr['arguments'][i], {
-                    precedence: Precedence.Assignment,
-                    allowIn: true,
-                    allowCall: true
-                }));
+                result.push(generateExpression(expr['arguments'][i], Precedence.Assignment, E_TTT));
                 if (i + 1 < iz) {
                     result.push(',' + space);
                 }
@@ -1946,22 +1770,15 @@
         return parenthesize(result, Precedence.New, precedence);
     };
 
-    CodeGenerator.prototype.MemberExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.MemberExpression = function (expr, precedence, flags) {
         var result, fragment;
-        result = [generateExpression(expr.object, {
-            precedence: Precedence.Call,
-            allowIn: true,
-            allowCall: allowCall,
-            allowUnparenthesizedNew: false
-        })];
+
+        // F_ALLOW_UNPARATH_NEW becomes false.
+        result = [generateExpression(expr.object, Precedence.Call, (flags & F_ALLOW_CALL) ? E_TTF : E_TFF)];
 
         if (expr.computed) {
             result.push('[');
-            result.push(generateExpression(expr.property, {
-                precedence: Precedence.Sequence,
-                allowIn: true,
-                allowCall: allowCall
-            }));
+            result.push(generateExpression(expr.property, Precedence.Sequence, flags & F_ALLOW_CALL ? E_TTT : E_TFT));
             result.push(']');
         } else {
             if (expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
@@ -1988,13 +1805,9 @@
         return parenthesize(result, Precedence.Member, precedence);
     };
 
-    CodeGenerator.prototype.UnaryExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.UnaryExpression = function (expr, precedence, flags) {
         var result, fragment, rightCharCode, leftSource, leftCharCode;
-        fragment = generateExpression(expr.argument, {
-            precedence: Precedence.Unary,
-            allowIn: true,
-            allowCall: true
-        });
+        fragment = generateExpression(expr.argument, Precedence.Unary, E_TTT);
 
         if (space === '') {
             result = join(expr.operator, fragment);
@@ -2023,7 +1836,7 @@
         return parenthesize(result, Precedence.Unary, precedence);
     };
 
-    CodeGenerator.prototype.YieldExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.YieldExpression = function (expr, precedence, flags) {
         var result;
         if (expr.delegate) {
             result = 'yield*';
@@ -2033,26 +1846,18 @@
         if (expr.argument) {
             result = join(
                 result,
-                generateExpression(expr.argument, {
-                    precedence: Precedence.Yield,
-                    allowIn: true,
-                    allowCall: true
-                })
+                generateExpression(expr.argument, Precedence.Yield, E_TTT)
             );
         }
         return parenthesize(result, Precedence.Yield, precedence);
     };
 
-    CodeGenerator.prototype.UpdateExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.UpdateExpression = function (expr, precedence, flags) {
         if (expr.prefix) {
             return parenthesize(
                 [
                     expr.operator,
-                    generateExpression(expr.argument, {
-                        precedence: Precedence.Unary,
-                        allowIn: true,
-                        allowCall: true
-                    })
+                    generateExpression(expr.argument, Precedence.Unary, E_TTT)
                 ],
                 Precedence.Unary,
                 precedence
@@ -2060,11 +1865,7 @@
         }
         return parenthesize(
             [
-                generateExpression(expr.argument, {
-                    precedence: Precedence.Postfix,
-                    allowIn: true,
-                    allowCall: true
-                }),
+                generateExpression(expr.argument, Precedence.Postfix, E_TTT),
                 expr.operator
             ],
             Precedence.Postfix,
@@ -2072,7 +1873,7 @@
         );
     };
 
-    CodeGenerator.prototype.FunctionExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.FunctionExpression = function (expr, precedence, flags) {
         var result, isGenerator;
         isGenerator = expr.generator && !extra.moz.starlessGenerator;
         result = isGenerator ? 'function*' : 'function';
@@ -2083,15 +1884,15 @@
         return [result + space, generateFunctionBody(expr)];
     };
 
-    CodeGenerator.prototype.ExportBatchSpecifier = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.ExportBatchSpecifier = function (expr, precedence, flags) {
         return '*';
     };
 
-    CodeGenerator.prototype.ArrayPattern = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
-        return this.ArrayExpression(expr, precedence, allowIn, allowCall, allowUnparenthesizedNew);
+    CodeGenerator.prototype.ArrayPattern = function (expr, precedence, flags) {
+        return this.ArrayExpression(expr, precedence, flags);
     };
 
-    CodeGenerator.prototype.ArrayExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.ArrayExpression = function (expr, precedence, flags) {
         var result, multiline;
         if (!expr.elements.length) {
             return '[]';
@@ -2110,11 +1911,7 @@
                     }
                 } else {
                     result.push(multiline ? indent : '');
-                    result.push(generateExpression(expr.elements[i], {
-                        precedence: Precedence.Assignment,
-                        allowIn: true,
-                        allowCall: true
-                    }));
+                    result.push(generateExpression(expr.elements[i], Precedence.Assignment, E_TTT));
                 }
                 if (i + 1 < iz) {
                     result.push(',' + (multiline ? newline : space));
@@ -2129,21 +1926,14 @@
         return result;
     };
 
-    CodeGenerator.prototype.ClassExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.ClassExpression = function (expr, precedence, flags) {
         var result, fragment;
         result = ['class'];
         if (expr.id) {
-            result = join(result, generateExpression(expr.id, {
-                allowIn: true,
-                allowCall: true
-            }));
+            result = join(result, generateExpression(expr.id, Precedence.Sequence, E_TTT));
         }
         if (expr.superClass) {
-            fragment = join('extends', generateExpression(expr.superClass, {
-                precedence: Precedence.Assignment,
-                allowIn: true,
-                allowCall: true
-            }));
+            fragment = join('extends', generateExpression(expr.superClass, Precedence.Assignment, E_TTT));
             result = join(result, fragment);
         }
         result.push(space);
@@ -2151,7 +1941,7 @@
         return result;
     };
 
-    CodeGenerator.prototype.MethodDefinition = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.MethodDefinition = function (expr, precedence, flags) {
         var result, fragment;
         if (expr['static']) {
             result = ['static' + space];
@@ -2179,7 +1969,7 @@
         return result;
     };
 
-    CodeGenerator.prototype.Property = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.Property = function (expr, precedence, flags) {
         var result;
         if (expr.kind === 'get' || expr.kind === 'set') {
             return [
@@ -2206,15 +1996,11 @@
         return [
             generatePropertyKey(expr.key, expr.computed),
             ':' + space,
-            generateExpression(expr.value, {
-                precedence: Precedence.Assignment,
-                allowIn: true,
-                allowCall: true
-            })
+            generateExpression(expr.value, Precedence.Assignment, E_TTT)
         ];
     };
 
-    CodeGenerator.prototype.ObjectExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.ObjectExpression = function (expr, precedence, flags) {
         var multiline, result, fragment;
 
         if (!expr.properties.length) {
@@ -2223,12 +2009,7 @@
         multiline = expr.properties.length > 1;
 
         withIndent(function () {
-            fragment = generateExpression(expr.properties[0], {
-                precedence: Precedence.Sequence,
-                allowIn: true,
-                allowCall: true,
-                type: Syntax.Property
-            });
+            fragment = generateExpression(expr.properties[0], Precedence.Sequence, E_TTT);
         });
 
         if (!multiline) {
@@ -2253,12 +2034,7 @@
                 result.push(',' + newline);
                 for (i = 1, iz = expr.properties.length; i < iz; ++i) {
                     result.push(indent);
-                    result.push(generateExpression(expr.properties[i], {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true,
-                        type: Syntax.Property
-                    }));
+                    result.push(generateExpression(expr.properties[i], Precedence.Sequence, E_TTT));
                     if (i + 1 < iz) {
                         result.push(',' + newline);
                     }
@@ -2274,7 +2050,7 @@
         return result;
     };
 
-    CodeGenerator.prototype.ObjectPattern = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.ObjectPattern = function (expr, precedence, flags) {
         var result, i, iz, multiline, property;
         if (!expr.properties.length) {
             return '{}';
@@ -2301,11 +2077,7 @@
             var i, iz;
             for (i = 0, iz = expr.properties.length; i < iz; ++i) {
                 result.push(multiline ? indent : '');
-                result.push(generateExpression(expr.properties[i], {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }));
+                result.push(generateExpression(expr.properties[i], Precedence.Sequence, E_TTT));
                 if (i + 1 < iz) {
                     result.push(',' + (multiline ? newline : space));
                 }
@@ -2320,19 +2092,19 @@
         return result;
     };
 
-    CodeGenerator.prototype.ThisExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.ThisExpression = function (expr, precedence, flags) {
         return 'this';
     };
 
-    CodeGenerator.prototype.Identifier = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.Identifier = function (expr, precedence, flags) {
         return generateIdentifier(expr);
     };
 
-    CodeGenerator.prototype.ImportDefaultSpecifier = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.ImportDefaultSpecifier = function (expr, precedence, flags) {
         return generateIdentifier(expr.id);
     };
 
-    CodeGenerator.prototype.ImportNamespaceSpecifier = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.ImportNamespaceSpecifier = function (expr, precedence, flags) {
         var result = ['*'];
         if (expr.id) {
             result.push(space + 'as' + noEmptySpace() + generateIdentifier(expr.id));
@@ -2340,11 +2112,11 @@
         return result;
     };
 
-    CodeGenerator.prototype.ImportSpecifier = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
-        return this.ExportSpecifier(expr, precedence, allowIn, allowCall, allowUnparenthesizedNew);
+    CodeGenerator.prototype.ImportSpecifier = function (expr, precedence, flags) {
+        return this.ExportSpecifier(expr, precedence, flags);
     };
 
-    CodeGenerator.prototype.ExportSpecifier = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.ExportSpecifier = function (expr, precedence, flags) {
         var result = [ expr.id.name ];
         if (expr.name) {
             result.push(noEmptySpace() + 'as' + noEmptySpace() + generateIdentifier(expr.name));
@@ -2352,7 +2124,7 @@
         return result;
     };
 
-    CodeGenerator.prototype.Literal = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.Literal = function (expr, precedence, flags) {
         var raw;
         if (expr.hasOwnProperty('raw') && parse && extra.raw) {
             try {
@@ -2386,11 +2158,11 @@
         return generateRegExp(expr.value);
     };
 
-    CodeGenerator.prototype.GeneratorExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
-        return this.ComprehensionExpression(expr, precedence, allowIn, allowCall, allowUnparenthesizedNew);
+    CodeGenerator.prototype.GeneratorExpression = function (expr, precedence, flags) {
+        return this.ComprehensionExpression(expr, precedence, flags);
     };
 
-    CodeGenerator.prototype.ComprehensionExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.ComprehensionExpression = function (expr, precedence, flags) {
         // GeneratorExpression should be parenthesized with (...), ComprehensionExpression with [...]
         // Due to https://bugzilla.mozilla.org/show_bug.cgi?id=883468 position of expr.body can differ in Spidermonkey and ES6
 
@@ -2398,24 +2170,14 @@
         result = (expr.type === Syntax.GeneratorExpression) ? ['('] : ['['];
 
         if (extra.moz.comprehensionExpressionStartsWithAssignment) {
-            fragment = generateExpression(expr.body, {
-                precedence: Precedence.Assignment,
-                allowIn: true,
-                allowCall: true
-            });
-
+            fragment = generateExpression(expr.body, Precedence.Assignment, E_TTT);
             result.push(fragment);
         }
 
         if (expr.blocks) {
             withIndent(function () {
                 for (i = 0, iz = expr.blocks.length; i < iz; ++i) {
-                    fragment = generateExpression(expr.blocks[i], {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    });
-
+                    fragment = generateExpression(expr.blocks[i], Precedence.Sequence, E_TTT);
                     if (i > 0 || extra.moz.comprehensionExpressionStartsWithAssignment) {
                         result = join(result, fragment);
                     } else {
@@ -2427,20 +2189,12 @@
 
         if (expr.filter) {
             result = join(result, 'if' + space);
-            fragment = generateExpression(expr.filter, {
-                precedence: Precedence.Sequence,
-                allowIn: true,
-                allowCall: true
-            });
+            fragment = generateExpression(expr.filter, Precedence.Sequence, E_TTT);
             result = join(result, [ '(', fragment, ')' ]);
         }
 
         if (!extra.moz.comprehensionExpressionStartsWithAssignment) {
-            fragment = generateExpression(expr.body, {
-                precedence: Precedence.Assignment,
-                allowIn: true,
-                allowCall: true
-            });
+            fragment = generateExpression(expr.body, Precedence.Assignment, E_TTT);
 
             result = join(result, fragment);
         }
@@ -2449,7 +2203,7 @@
         return result;
     };
 
-    CodeGenerator.prototype.ComprehensionBlock = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.ComprehensionBlock = function (expr, precedence, flags) {
         var fragment;
         if (expr.left.type === Syntax.VariableDeclaration) {
             fragment = [
@@ -2457,71 +2211,48 @@
                 generateStatement(expr.left.declarations[0], S_FFFF)
             ];
         } else {
-            fragment = generateExpression(expr.left, {
-                precedence: Precedence.Call,
-                allowIn: true,
-                allowCall: true
-            });
+            fragment = generateExpression(expr.left, Precedence.Call, E_TTT);
         }
 
         fragment = join(fragment, expr.of ? 'of' : 'in');
-        fragment = join(fragment, generateExpression(expr.right, {
-            precedence: Precedence.Sequence,
-            allowIn: true,
-            allowCall: true
-        }));
+        fragment = join(fragment, generateExpression(expr.right, Precedence.Sequence, E_TTT));
 
         return [ 'for' + space + '(', fragment, ')' ];
     };
 
-    CodeGenerator.prototype.SpreadElement = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.SpreadElement = function (expr, precedence, flags) {
         return [
             '...',
-            generateExpression(expr.argument, {
-                precedence: Precedence.Assignment,
-                allowIn: true,
-                allowCall: true
-            })
+            generateExpression(expr.argument, Precedence.Assignment, E_TTT)
         ];
     };
 
-    CodeGenerator.prototype.TaggedTemplateExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.TaggedTemplateExpression = function (expr, precedence, flags) {
+        var itemFlags = E_TTF;
+        if (!(flags & F_ALLOW_CALL)) {
+            itemFlags = E_TFF;
+        }
         var result = [
-            generateExpression(expr.tag, {
-                precedence: Precedence.Call,
-                allowIn: true,
-                allowCall: allowCall,
-                allowUnparenthesizedNew: false
-            }),
-            generateExpression(expr.quasi, {
-                precedence: Precedence.Primary
-            })
+            generateExpression(expr.tag, Precedence.Call, itemFlags),
+            generateExpression(expr.quasi, Precedence.Primary, E_FFT)
         ];
         return parenthesize(result, Precedence.TaggedTemplate, precedence);
     };
 
-    CodeGenerator.prototype.TemplateElement = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.TemplateElement = function (expr, precedence, flags) {
         // Don't use "cooked". Since tagged template can use raw template
         // representation. So if we do so, it breaks the script semantics.
         return expr.value.raw;
     };
 
-    CodeGenerator.prototype.TemplateLiteral = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
+    CodeGenerator.prototype.TemplateLiteral = function (expr, precedence, flags) {
         var result, i, iz;
         result = [ '`' ];
         for (i = 0, iz = expr.quasis.length; i < iz; ++i) {
-            result.push(generateExpression(expr.quasis[i], {
-                precedence: Precedence.Primary,
-                allowIn: true,
-                allowCall: true
-            }));
+            result.push(generateExpression(expr.quasis[i], Precedence.Primary, E_TTT));
             if (i + 1 < iz) {
                 result.push('${' + space);
-                result.push(generateExpression(expr.expressions[i], {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }));
+                result.push(generateExpression(expr.expressions[i], Precedence.Sequence, E_TTT));
                 result.push(space + '}');
             }
         }
@@ -2529,29 +2260,20 @@
         return result;
     };
 
-    CodeGenerator.prototype.ModuleSpecifier = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
-        return this.Literal(expr, precedence, allowIn, allowCall, allowUnparenthesizedNew);
+    CodeGenerator.prototype.ModuleSpecifier = function (expr, precedence, flags) {
+        return this.Literal(expr, precedence, flags);
     };
 
-    function generateExpression(expr, option) {
-        var result,
-            precedence,
-            type,
-            allowIn,
-            allowCall,
-            allowUnparenthesizedNew;
+    function generateExpression(expr, precedence, flags) {
+        var result, type;
 
-        precedence = option.precedence;
-        allowIn = option.allowIn;
-        allowCall = option.allowCall;
-        type = expr.type || option.type;
-        allowUnparenthesizedNew = option.allowUnparenthesizedNew === undefined || option.allowUnparenthesizedNew;
+        type = expr.type || Syntax.Property;
 
         if (extra.verbatim && expr.hasOwnProperty(extra.verbatim)) {
             return generateVerbatim(expr, precedence);
         }
 
-        result = CodeGenerator.prototype[type](expr, precedence, allowIn, allowCall, allowUnparenthesizedNew);
+        result = CodeGenerator.prototype[type](expr, precedence, flags);
 
 
         if (extra.comment) {
@@ -2586,11 +2308,7 @@
         }
 
         if (isExpression(node)) {
-            return generateExpression(node, {
-                precedence: Precedence.Sequence,
-                allowIn: true,
-                allowCall: true
-            });
+            return generateExpression(node, Precedence.Sequence, E_TTT);
         }
 
         throw new Error('Unknown node type: ' + node.type);
