@@ -1,0 +1,8 @@
+[deoptimizing (DEOPT soft): begin 0x3d11a125 escapeString (opt #25) @21, FP to SP delta: 80]
+[deoptimizing (DEOPT soft): begin 0x3d11a289 generateLogicalOrBinaryExpression (opt #26) @80, FP to SP delta: 176]
+[deoptimizing (DEOPT soft): begin 0x3d11a149 join (opt #14) @18, FP to SP delta: 64]
+[deoptimizing (DEOPT lazy): begin 0x3d11a289 generateLogicalOrBinaryExpression (opt #26) @15, FP to SP delta: 176]
+[deoptimizing (DEOPT lazy): begin 0x3d11a289 generateLogicalOrBinaryExpression (opt #26) @74, FP to SP delta: 176]
+[deoptimizing (DEOPT soft): begin 0x3d11e9bd generateExpressionStatement (opt #17) @22, FP to SP delta: 52]
+[deoptimizing (DEOPT lazy): begin 0x3d11e9bd generateExpressionStatement (opt #17) @10, FP to SP delta: 52]
+[deoptimizing (DEOPT soft): begin 0x3d11a125 escapeString (opt #31) @19, FP to SP delta: 84]

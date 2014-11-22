@@ -1,0 +1,18 @@
+{
+    "name": "benchmark",
+    "version": "0.1.0",
+    "description": "Regression benchmarking. Compare speed with upstream npm version",
+    "main": "index.js",
+    "scripts": {
+        "test": "node index"
+    },
+    "author": "Ivan Nikulin <ifaaan@gmail.com>",
+    "license": "MIT",
+    "dependencies": {
+        "benchmark": "~1.0.0",
+        "escodegen": "*"
+    },
+    "optionalDependencies": {
+        "microtime": "~0.4.0"
+    }
+}

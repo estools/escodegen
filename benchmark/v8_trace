@@ -1,0 +1,18 @@
+#!/bin/sh
+
+OUT_DIR="v8_trace_reports"
+
+rm -rf "$OUT_DIR"
+mkdir -p "$OUT_DIR"
+
+echo "Here we go..."
+
+LOG=$(node --trace-opt --trace-inlining --trace-deopt trace_cycle)
+
+echo "$LOG" | grep "disabled optimization for" > "$OUT_DIR/never_optimized.log"
+echo "$LOG" | grep "Did not inline" > "$OUT_DIR/not_inlined.log"
+echo "$LOG" | grep "DEOPT" > "$OUT_DIR/deoptimizations.log"
+
+echo "Done"
+
+

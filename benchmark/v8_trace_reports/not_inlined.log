@@ -1,0 +1,24 @@
+Did not inline generateFunctionParams called from generateFunctionBody (target text too big).
+Did not inline escapeString called from generateLiteral (target text too big).
+Did not inline generateNumber called from generateLiteral (target text too big).
+Did not inline generateRegExp called from generateLiteral (target text too big).
+Did not inline escapeAllowedCharacter called from escapeString (target text too big).
+Did not inline isIdentifierCh called from join (cumulative AST node limit reached).
+Did not inline isWhitespace called from join (cumulative AST node limit reached).
+Did not inline isWhitespace called from join (cumulative AST node limit reached).
+Did not inline join called from generateIfStatement (cumulative AST node limit reached).
+Did not inline escapeAllowedCharacter called from escapeString (target text too big).
+Did not inline escapeAllowedCharacter called from escapeString (target text too big).
+Did not inline isIdentifierCh called from join (cumulative AST node limit reached).
+Did not inline isWhitespace called from join (cumulative AST node limit reached).
+Did not inline isWhitespace called from join (cumulative AST node limit reached).
+Did not inline generateForStatementIterator called from generateForInStatement (target text too big).
+Did not inline generateFunctionParams called from generateFunctionBody (target text too big).
+Did not inline exprToJs called from generateForStatementIterator (cumulative AST node limit reached).
+Did not inline join called from generateForStatementIterator (cumulative AST node limit reached).
+Did not inline adoptionPrefix called from generateForStatementIterator (cumulative AST node limit reached).
+Did not inline adoptionSuffix called from generateTryStatementHandlers (cumulative AST node limit reached).
+Did not inline adoptionPrefix called from generateTryStatement (cumulative AST node limit reached).
+Did not inline join called from generateTryStatement (cumulative AST node limit reached).
+Did not inline stmtToJs called from generateTryStatement (cumulative AST node limit reached).
+Did not inline getDefaultOptions called from generate (target text too big).
