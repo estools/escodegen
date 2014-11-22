@@ -257,6 +257,38 @@
         '/': Precedence.Multiplicative
     };
 
+    //Flags
+    var F_ALLOW_IN = 1,
+        F_ALLOW_CALL = 1 << 1,
+        F_ALLOW_UNPARATH_NEW = 1 << 2,
+        F_FUNC_BODY = 1 << 3,
+        F_DIRECTIVE_CTX = 1 << 4,
+        F_SEMICOLON_OPT = 1 << 5;
+
+    //Expression flag sets
+    //NOTE: Flag order:
+    // F_ALLOW_IN
+    // F_ALLOW_CALL
+    // F_ALLOW_UNPARATH_NEW
+    // var E_FTT = F_ALLOW_CALL | F_ALLOW_UNPARATH_NEW,
+    //     E_TTF = F_ALLOW_IN | F_ALLOW_CALL,
+    //     E_TTT = F_ALLOW_IN | F_ALLOW_CALL | F_ALLOW_UNPARATH_NEW,
+    //     E_TFF = F_ALLOW_IN,
+    //     E_FFT = F_ALLOW_UNPARATH_NEW,
+    //     E_TFT = F_ALLOW_IN | F_ALLOW_UNPARATH_NEW;
+
+    //Statement flag sets
+    //NOTE: Flag order:
+    // F_ALLOW_IN
+    // F_FUNC_BODY
+    // F_DIRECTIVE_CTX
+    // F_SEMICOLON_OPT
+    var S_TFFF = F_ALLOW_IN,
+        S_TFFT = F_ALLOW_IN | F_SEMICOLON_OPT,
+        S_FFFF = 0x00,
+        S_TFTF = F_ALLOW_IN | F_DIRECTIVE_CTX,
+        S_TTFF = F_ALLOW_IN | F_FUNC_BODY;
+
     function getDefaultOptions() {
         // default options
         return {
@@ -804,13 +836,13 @@
         return text;
     }
 
-    function maybeBlock(stmt, semicolonOptional, functionBody) {
+    function maybeBlock(stmt, flags) {
         var result, noLeadingComment;
 
         noLeadingComment = !extra.comment || !stmt.leadingComments;
 
         if (stmt.type === Syntax.BlockStatement && noLeadingComment) {
-            return [space, generateStatement(stmt, { functionBody: functionBody })];
+            return [space, generateStatement(stmt, flags)];
         }
 
         if (stmt.type === Syntax.EmptyStatement && noLeadingComment) {
@@ -818,7 +850,10 @@
         }
 
         withIndent(function () {
-            result = [newline, addIndent(generateStatement(stmt, { semicolonOptional: semicolonOptional, functionBody: functionBody }))];
+            result = [
+                newline,
+                addIndent(generateStatement(stmt, flags))
+            ];
         });
 
         return result;
@@ -942,21 +977,19 @@
             }
             result.push(expr);
         } else {
-            result.push(maybeBlock(node.body, false, true));
+            result.push(maybeBlock(node.body, S_TTFF));
         }
 
         return result;
     }
 
-    function generateIterationForStatement(operator, stmt, semicolonIsNotNeeded) {
+    function generateIterationForStatement(operator, stmt, flags) {
         var result = ['for' + space + '('];
         withIndent(function () {
             if (stmt.left.type === Syntax.VariableDeclaration) {
                 withIndent(function () {
                     result.push(stmt.left.kind + noEmptySpace());
-                    result.push(generateStatement(stmt.left.declarations[0], {
-                        allowIn: false
-                    }));
+                    result.push(generateStatement(stmt.left.declarations[0], S_FFFF));
                 });
             } else {
                 result.push(generateExpression(stmt.left, {
@@ -976,7 +1009,7 @@
                 })
             ), ')'];
         });
-        result.push(maybeBlock(stmt.body, semicolonIsNotNeeded));
+        result.push(maybeBlock(stmt.body, flags));
         return result;
     }
 
@@ -1025,18 +1058,29 @@
     function CodeGenerator() {
     }
 
+    CodeGenerator.prototype.semicolon = function (flags) {
+        if (!semicolons && flags & F_SEMICOLON_OPT) {
+            return '';
+        }
+        return ';';
+    };
+
     // Statements.
 
-    CodeGenerator.prototype.BlockStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.BlockStatement = function (stmt, flags) {
         var result = ['{', newline];
 
         withIndent(function () {
-            var i, iz, fragment;
+            var i, iz, fragment, bodyFlags;
+            bodyFlags = S_TFFF;
+            if (flags & F_FUNC_BODY) {
+                bodyFlags |= F_DIRECTIVE_CTX;
+            }
             for (i = 0, iz = stmt.body.length; i < iz; ++i) {
-                fragment = addIndent(generateStatement(stmt.body[i], {
-                    semicolonOptional: i === iz - 1,
-                    directiveContext: functionBody
-                }));
+                if (i === iz - 1) {
+                    bodyFlags |= F_SEMICOLON_OPT;
+                }
+                fragment = addIndent(generateStatement(stmt.body[i], bodyFlags));
                 result.push(fragment);
                 if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
                     result.push(newline);
@@ -1048,21 +1092,21 @@
         return result;
     };
 
-    CodeGenerator.prototype.BreakStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.BreakStatement = function (stmt, flags) {
         if (stmt.label) {
-            return 'break ' + stmt.label.name + semicolon;
+            return 'break ' + stmt.label.name + this.semicolon(flags);
         }
-        return 'break' + semicolon;
+        return 'break' + this.semicolon(flags);
     };
 
-    CodeGenerator.prototype.ContinueStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.ContinueStatement = function (stmt, flags) {
         if (stmt.label) {
-            return 'continue ' + stmt.label.name + semicolon;
+            return 'continue ' + stmt.label.name + this.semicolon(flags);
         }
-        return 'continue' + semicolon;
+        return 'continue' + this.semicolon(flags);
     };
 
-    CodeGenerator.prototype.ClassBody = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.ClassBody = function (stmt, flags) {
         var result = [ '{', newline];
 
         withIndent(function (indent) {
@@ -1090,7 +1134,7 @@
         return result;
     };
 
-    CodeGenerator.prototype.ClassDeclaration = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.ClassDeclaration = function (stmt, flags) {
         var result, fragment;
         result  = ['class ' + stmt.id.name];
         if (stmt.superClass) {
@@ -1102,23 +1146,20 @@
             result = join(result, fragment);
         }
         result.push(space);
-        result.push(generateStatement(stmt.body, {
-            semicolonOptional: true,
-            directiveContext: false
-        }));
+        result.push(generateStatement(stmt.body, S_TFFT));
         return result;
     };
 
-    CodeGenerator.prototype.DirectiveStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.DirectiveStatement = function (stmt, flags) {
         if (extra.raw && stmt.raw) {
-            return stmt.raw + semicolon;
+            return stmt.raw + this.semicolon(flags);
         }
-        return escapeDirective(stmt.directive) + semicolon;
+        return escapeDirective(stmt.directive) + this.semicolon(flags);
     };
 
-    CodeGenerator.prototype.DoWhileStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.DoWhileStatement = function (stmt, flags) {
         // Because `do 42 while (cond)` is Syntax Error. We need semicolon.
-        var result = join('do', maybeBlock(stmt.body));
+        var result = join('do', maybeBlock(stmt.body, S_TFFF));
         result = maybeBlockSuffix(stmt.body, result);
         return join(result, [
             'while' + space + '(',
@@ -1127,11 +1168,11 @@
                 allowIn: true,
                 allowCall: true
             }),
-            ')' + semicolon
+            ')' + this.semicolon(flags)
         ]);
     };
 
-    CodeGenerator.prototype.CatchClause = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.CatchClause = function (stmt, flags) {
         var result;
         withIndent(function () {
             var guard;
@@ -1156,33 +1197,35 @@
                 result.splice(2, 0, ' if ', guard);
             }
         });
-        result.push(maybeBlock(stmt.body));
+        result.push(maybeBlock(stmt.body, S_TFFF));
         return result;
     };
 
-    CodeGenerator.prototype.DebuggerStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
-        return 'debugger' + semicolon;
+    CodeGenerator.prototype.DebuggerStatement = function (stmt, flags) {
+        return 'debugger' + this.semicolon(flags);
     };
 
-    CodeGenerator.prototype.EmptyStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.EmptyStatement = function (stmt, flags) {
         return ';';
     };
 
-    CodeGenerator.prototype.ExportDeclaration = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
-        var result = [ 'export' ];
+    CodeGenerator.prototype.ExportDeclaration = function (stmt, flags) {
+        var result = [ 'export' ], bodyFlags;
+
+        bodyFlags = (flags & F_SEMICOLON_OPT) ? S_TFFT : S_TFFF;
 
         // export default HoistableDeclaration[Default]
         // export default AssignmentExpression[In] ;
         if (stmt['default']) {
             result = join(result, 'default');
             if (isStatement(stmt.declaration)) {
-                result = join(result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' }));
+                result = join(result, generateStatement(stmt.declaration, bodyFlags));
             } else {
                 result = join(result, generateExpression(stmt.declaration, {
                     precedence: Precedence.Assignment,
                     allowIn: true,
                     allowCall: true
-                }) + semicolon);
+                }) + this.semicolon(flags));
             }
             return result;
         }
@@ -1190,7 +1233,7 @@
         // export VariableStatement
         // export Declaration[Default]
         if (stmt.declaration) {
-            return join(result, generateStatement(stmt.declaration, { semicolonOptional: semicolon === '' }));
+            return join(result, generateStatement(stmt.declaration, bodyFlags));
         }
 
         // export * FromClause ;
@@ -1237,16 +1280,16 @@
                         allowIn: true,
                         allowCall: true
                     }),
-                    semicolon
+                    this.semicolon(flags)
                 ]);
             } else {
-                result.push(semicolon);
+                result.push(this.semicolon(flags));
             }
         }
         return result;
     };
 
-    CodeGenerator.prototype.ExpressionStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.ExpressionStatement = function (stmt, flags) {
         var result, fragment;
 
         result = [generateExpression(stmt.expression, {
@@ -1260,15 +1303,15 @@
         if (fragment.charAt(0) === '{' ||  // ObjectExpression
                 (fragment.slice(0, 5) === 'class' && ' {'.indexOf(fragment.charAt(5)) >= 0) ||  // class
                 (fragment.slice(0, 8) === 'function' && '* ('.indexOf(fragment.charAt(8)) >= 0) ||  // function or generator
-                (directive && directiveContext && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
-            result = ['(', result, ')' + semicolon];
+                (directive && (flags & F_DIRECTIVE_CTX) && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
+            result = ['(', result, ')' + this.semicolon(flags)];
         } else {
-            result.push(semicolon);
+            result.push(this.semicolon(flags));
         }
         return result;
     };
 
-    CodeGenerator.prototype.ImportDeclaration = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.ImportDeclaration = function (stmt, flags) {
         // ES6: 15.2.1 valid import declarations:
         //     - import ImportClause FromClause ;
         //     - import ModuleSpecifier ;
@@ -1288,7 +1331,7 @@
                     allowIn: true,
                     allowCall: true
                 }),
-                semicolon
+                this.semicolon(flags)
             ];
         }
 
@@ -1374,12 +1417,13 @@
                 allowIn: true,
                 allowCall: true
             }),
-            semicolon
+            this.semicolon(flags)
         ]);
         return result;
     };
 
-    CodeGenerator.prototype.VariableDeclarator = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.VariableDeclarator = function (stmt, flags) {
+        var allowIn = flags & F_ALLOW_IN;
         if (stmt.init) {
             return [
                 generateExpression(stmt.id, {
@@ -1400,40 +1444,34 @@
         return generatePattern(stmt.id, Precedence.Assignment, allowIn);
     };
 
-    CodeGenerator.prototype.VariableDeclaration = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.VariableDeclaration = function (stmt, flags) {
         // VariableDeclarator is typed as Statement,
         // but joined with comma (not LineTerminator).
         // So if comment is attached to target node, we should specialize.
-        var result, i, iz, node;
+        var result, i, iz, node, bodyFlags;
 
         result = [ stmt.kind ];
+
+        bodyFlags = (flags & F_ALLOW_IN) ? S_TFFF : S_FFFF;
 
         function block() {
             node = stmt.declarations[0];
             if (extra.comment && node.leadingComments) {
                 result.push('\n');
-                result.push(addIndent(generateStatement(node, {
-                    allowIn: allowIn
-                })));
+                result.push(addIndent(generateStatement(node, bodyFlags)));
             } else {
                 result.push(noEmptySpace());
-                result.push(generateStatement(node, {
-                    allowIn: allowIn
-                }));
+                result.push(generateStatement(node, bodyFlags));
             }
 
             for (i = 1, iz = stmt.declarations.length; i < iz; ++i) {
                 node = stmt.declarations[i];
                 if (extra.comment && node.leadingComments) {
                     result.push(',' + newline);
-                    result.push(addIndent(generateStatement(node, {
-                        allowIn: allowIn
-                    })));
+                    result.push(addIndent(generateStatement(node, bodyFlags)));
                 } else {
                     result.push(',' + space);
-                    result.push(generateStatement(node, {
-                        allowIn: allowIn
-                    }));
+                    result.push(generateStatement(node, bodyFlags));
                 }
             }
         }
@@ -1444,12 +1482,12 @@
             block();
         }
 
-        result.push(semicolon);
+        result.push(this.semicolon(flags));
 
         return result;
     };
 
-    CodeGenerator.prototype.ThrowStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.ThrowStatement = function (stmt, flags) {
         return [join(
             'throw',
             generateExpression(stmt.argument, {
@@ -1457,19 +1495,19 @@
                 allowIn: true,
                 allowCall: true
             })
-        ), semicolon];
+        ), this.semicolon(flags)];
     };
 
-    CodeGenerator.prototype.TryStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.TryStatement = function (stmt, flags) {
         var result, i, iz, guardedHandlers;
 
-        result = ['try', maybeBlock(stmt.block)];
+        result = ['try', maybeBlock(stmt.block, S_TFFF)];
         result = maybeBlockSuffix(stmt.block, result);
 
         if (stmt.handlers) {
             // old interface
             for (i = 0, iz = stmt.handlers.length; i < iz; ++i) {
-                result = join(result, generateStatement(stmt.handlers[i]));
+                result = join(result, generateStatement(stmt.handlers[i], S_TFFF));
                 if (stmt.finalizer || i + 1 !== iz) {
                     result = maybeBlockSuffix(stmt.handlers[i].body, result);
                 }
@@ -1478,7 +1516,7 @@
             guardedHandlers = stmt.guardedHandlers || [];
 
             for (i = 0, iz = guardedHandlers.length; i < iz; ++i) {
-                result = join(result, generateStatement(guardedHandlers[i]));
+                result = join(result, generateStatement(guardedHandlers[i], S_TFFF));
                 if (stmt.finalizer || i + 1 !== iz) {
                     result = maybeBlockSuffix(guardedHandlers[i].body, result);
                 }
@@ -1488,13 +1526,13 @@
             if (stmt.handler) {
                 if (isArray(stmt.handler)) {
                     for (i = 0, iz = stmt.handler.length; i < iz; ++i) {
-                        result = join(result, generateStatement(stmt.handler[i]));
+                        result = join(result, generateStatement(stmt.handler[i], S_TFFF));
                         if (stmt.finalizer || i + 1 !== iz) {
                             result = maybeBlockSuffix(stmt.handler[i].body, result);
                         }
                     }
                 } else {
-                    result = join(result, generateStatement(stmt.handler));
+                    result = join(result, generateStatement(stmt.handler, S_TFFF));
                     if (stmt.finalizer) {
                         result = maybeBlockSuffix(stmt.handler.body, result);
                     }
@@ -1502,13 +1540,13 @@
             }
         }
         if (stmt.finalizer) {
-            result = join(result, ['finally', maybeBlock(stmt.finalizer)]);
+            result = join(result, ['finally', maybeBlock(stmt.finalizer, S_TFFF)]);
         }
         return result;
     };
 
-    CodeGenerator.prototype.SwitchStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
-        var result, fragment, i, iz;
+    CodeGenerator.prototype.SwitchStatement = function (stmt, flags) {
+        var result, fragment, i, iz, bodyFlags;
         withIndent(function () {
             result = [
                 'switch' + space + '(',
@@ -1521,8 +1559,12 @@
             ];
         });
         if (stmt.cases) {
+            bodyFlags = S_TFFF;
             for (i = 0, iz = stmt.cases.length; i < iz; ++i) {
-                fragment = addIndent(generateStatement(stmt.cases[i], {semicolonOptional: i === iz - 1}));
+                if (i === iz - 1) {
+                    bodyFlags |= F_SEMICOLON_OPT;
+                }
+                fragment = addIndent(generateStatement(stmt.cases[i], bodyFlags));
                 result.push(fragment);
                 if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
                     result.push(newline);
@@ -1533,8 +1575,8 @@
         return result;
     };
 
-    CodeGenerator.prototype.SwitchCase = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
-        var result, fragment, i, iz;
+    CodeGenerator.prototype.SwitchCase = function (stmt, flags) {
+        var result, fragment, i, iz, bodyFlags;
         withIndent(function () {
             if (stmt.test) {
                 result = [
@@ -1552,7 +1594,7 @@
             i = 0;
             iz = stmt.consequent.length;
             if (iz && stmt.consequent[0].type === Syntax.BlockStatement) {
-                fragment = maybeBlock(stmt.consequent[0]);
+                fragment = maybeBlock(stmt.consequent[0], S_TFFF);
                 result.push(fragment);
                 i = 1;
             }
@@ -1561,10 +1603,12 @@
                 result.push(newline);
             }
 
+            bodyFlags = S_TFFF;
             for (; i < iz; ++i) {
-                fragment = addIndent(generateStatement(stmt.consequent[i], {
-                    semicolonOptional: i === iz - 1 && semicolon === ''
-                }));
+                if (i === iz - 1 && flags & F_SEMICOLON_OPT) {
+                    bodyFlags |= F_SEMICOLON_OPT;
+                }
+                fragment = addIndent(generateStatement(stmt.consequent[i], bodyFlags));
                 result.push(fragment);
                 if (i + 1 !== iz && !endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
                     result.push(newline);
@@ -1574,8 +1618,8 @@
         return result;
     };
 
-    CodeGenerator.prototype.IfStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
-        var result;
+    CodeGenerator.prototype.IfStatement = function (stmt, flags) {
+        var result, bodyFlags, semicolonOptional;
         withIndent(function () {
             result = [
                 'if' + space + '(',
@@ -1587,27 +1631,32 @@
                 ')'
             ];
         });
+        semicolonOptional = flags & F_SEMICOLON_OPT;
+        bodyFlags = S_TFFF;
+        if (semicolonOptional) {
+            bodyFlags |= F_SEMICOLON_OPT;
+        }
         if (stmt.alternate) {
-            result.push(maybeBlock(stmt.consequent));
+            result.push(maybeBlock(stmt.consequent, S_TFFF));
             result = maybeBlockSuffix(stmt.consequent, result);
             if (stmt.alternate.type === Syntax.IfStatement) {
-                result = join(result, ['else ', generateStatement(stmt.alternate, {semicolonOptional: semicolon === ''})]);
+                result = join(result, ['else ', generateStatement(stmt.alternate, bodyFlags)]);
             } else {
-                result = join(result, join('else', maybeBlock(stmt.alternate, semicolon === '')));
+                result = join(result, join('else', maybeBlock(stmt.alternate, bodyFlags)));
             }
         } else {
-            result.push(maybeBlock(stmt.consequent, semicolon === ''));
+            result.push(maybeBlock(stmt.consequent, bodyFlags));
         }
         return result;
     };
 
-    CodeGenerator.prototype.ForStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.ForStatement = function (stmt, flags) {
         var result;
         withIndent(function () {
             result = ['for' + space + '('];
             if (stmt.init) {
                 if (stmt.init.type === Syntax.VariableDeclaration) {
-                    result.push(generateStatement(stmt.init, {allowIn: false}));
+                    result.push(generateStatement(stmt.init, S_FFFF));
                 } else {
                     result.push(generateExpression(stmt.init, {
                         precedence: Precedence.Sequence,
@@ -1645,33 +1694,32 @@
             }
         });
 
-        result.push(maybeBlock(stmt.body, semicolon === ''));
+        result.push(maybeBlock(stmt.body, flags & F_SEMICOLON_OPT ? S_TFFT : S_TFFF));
         return result;
     };
 
-    CodeGenerator.prototype.ForInStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
-        return generateIterationForStatement('in', stmt, semicolon === '');
+    CodeGenerator.prototype.ForInStatement = function (stmt, flags) {
+        return generateIterationForStatement('in', stmt, flags & F_SEMICOLON_OPT ? S_TFFT : S_TFFF);
     };
 
-    CodeGenerator.prototype.ForOfStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
-        return generateIterationForStatement('of', stmt, semicolon === '');
+    CodeGenerator.prototype.ForOfStatement = function (stmt, flags) {
+        return generateIterationForStatement('of', stmt, flags & F_SEMICOLON_OPT ? S_TFFT : S_TFFF);
     };
 
-    CodeGenerator.prototype.LabeledStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
-        return [stmt.label.name + ':', maybeBlock(stmt.body, semicolon === '')];
+    CodeGenerator.prototype.LabeledStatement = function (stmt, flags) {
+        return [stmt.label.name + ':', maybeBlock(stmt.body, flags & F_SEMICOLON_OPT ? S_TFFT : S_TFFF)];
     };
 
-    CodeGenerator.prototype.Program = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
-        var result, fragment, i, iz;
+    CodeGenerator.prototype.Program = function (stmt, flags) {
+        var result, fragment, i, iz, bodyFlags;
         iz = stmt.body.length;
         result = [safeConcatenation && iz > 0 ? '\n' : ''];
+        bodyFlags = S_TFTF;
         for (i = 0; i < iz; ++i) {
-            fragment = addIndent(
-                generateStatement(stmt.body[i], {
-                    semicolonOptional: !safeConcatenation && i === iz - 1,
-                    directiveContext: true
-                })
-            );
+            if (!safeConcatenation && i === iz - 1) {
+                bodyFlags |= F_SEMICOLON_OPT;
+            }
+            fragment = addIndent(generateStatement(stmt.body[i], bodyFlags));
             result.push(fragment);
             if (i + 1 < iz && !endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
                 result.push(newline);
@@ -1680,7 +1728,7 @@
         return result;
     };
 
-    CodeGenerator.prototype.FunctionDeclaration = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.FunctionDeclaration = function (stmt, flags) {
         var isGenerator = stmt.generator && !extra.moz.starlessGenerator;
         return [
             (isGenerator ? 'function*' : 'function'),
@@ -1690,7 +1738,7 @@
         ];
     };
 
-    CodeGenerator.prototype.ReturnStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.ReturnStatement = function (stmt, flags) {
         if (stmt.argument) {
             return [join(
                 'return',
@@ -1699,12 +1747,12 @@
                     allowIn: true,
                     allowCall: true
                 })
-            ), semicolon];
+            ), this.semicolon(flags)];
         }
-        return ['return' + semicolon];
+        return ['return' + this.semicolon(flags)];
     };
 
-    CodeGenerator.prototype.WhileStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.WhileStatement = function (stmt, flags) {
         var result;
         withIndent(function () {
             result = [
@@ -1717,11 +1765,11 @@
                 ')'
             ];
         });
-        result.push(maybeBlock(stmt.body, semicolon === ''));
+        result.push(maybeBlock(stmt.body, flags & F_SEMICOLON_OPT ? S_TFFT : S_TFFF));
         return result;
     };
 
-    CodeGenerator.prototype.WithStatement = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
+    CodeGenerator.prototype.WithStatement = function (stmt, flags) {
         var result;
         withIndent(function () {
             result = [
@@ -1734,7 +1782,7 @@
                 ')'
             ];
         });
-        result.push(maybeBlock(stmt.body, semicolon === ''));
+        result.push(maybeBlock(stmt.body, flags & F_SEMICOLON_OPT ? S_TFFT : S_TFFF));
         return result;
     };
 
@@ -2099,10 +2147,7 @@
             result = join(result, fragment);
         }
         result.push(space);
-        result.push(generateStatement(expr.body, {
-            semicolonOptional: true,
-            directiveContext: false
-        }));
+        result.push(generateStatement(expr.body, S_TFFT));
         return result;
     };
 
@@ -2409,9 +2454,7 @@
         if (expr.left.type === Syntax.VariableDeclaration) {
             fragment = [
                 expr.left.kind, noEmptySpace(),
-                generateStatement(expr.left.declarations[0], {
-                    allowIn: false
-                })
+                generateStatement(expr.left.declarations[0], S_FFFF)
             ];
         } else {
             fragment = generateExpression(expr.left, {
@@ -2517,28 +2560,11 @@
         return toSourceNodeWhenNeeded(result, expr);
     }
 
-    function generateStatement(stmt, option) {
+    function generateStatement(stmt, flags) {
         var result,
-            allowIn,
-            functionBody,
-            directiveContext,
-            fragment,
-            semicolon;
+            fragment;
 
-        allowIn = true;
-        semicolon = ';';
-        functionBody = false;
-        directiveContext = false;
-        if (option) {
-            allowIn = option.allowIn === undefined || option.allowIn;
-            if (!semicolons && option.semicolonOptional === true) {
-                semicolon = '';
-            }
-            functionBody = option.functionBody;
-            directiveContext = option.directiveContext;
-        }
-
-        result = CodeGenerator.prototype[stmt.type](stmt, allowIn, semicolon, functionBody, directiveContext);
+        result = CodeGenerator.prototype[stmt.type](stmt, flags);
 
         // Attach comments
 
@@ -2556,7 +2582,7 @@
 
     function generateInternal(node) {
         if (isStatement(node)) {
-            return generateStatement(node);
+            return generateStatement(node, S_TFFF);
         }
 
         if (isExpression(node)) {
