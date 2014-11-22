@@ -844,17 +844,17 @@
         return result;
     }
 
-    function generateVerbatim(expr, option) {
+    function generateVerbatim(expr, precedence) {
         var verbatim, result, prec;
         verbatim = expr[extra.verbatim];
 
         if (typeof verbatim === 'string') {
-            result = parenthesize(generateVerbatimString(verbatim), Precedence.Sequence, option.precedence);
+            result = parenthesize(generateVerbatimString(verbatim), Precedence.Sequence, precedence);
         } else {
             // verbatim is object
             result = generateVerbatimString(verbatim.content);
             prec = (verbatim.precedence != null) ? verbatim.precedence : Precedence.Sequence;
-            result = parenthesize(result, prec, option.precedence);
+            result = parenthesize(result, prec, precedence);
         }
 
         return toSourceNodeWhenNeeded(result, expr);
@@ -864,20 +864,15 @@
         return toSourceNodeWhenNeeded(node.name, node);
     }
 
-    function generatePattern(node, options) {
-        var result;
-
+    function generatePattern(node, precedence, allowIn) {
         if (node.type === Syntax.Identifier) {
-            result = generateIdentifier(node);
-        } else {
-            result = generateExpression(node, {
-                precedence: options.precedence,
-                allowIn: options.allowIn,
-                allowCall: true
-            });
+            return generateIdentifier(node);
         }
-
-        return result;
+        return generateExpression(node, {
+            precedence: precedence,
+            allowIn: allowIn,
+            allowCall: true
+        });
     }
 
     function generateFunctionParams(node) {
@@ -900,11 +895,7 @@
                     // Handle default values.
                     result.push(generateAssignment(node.params[i], node.defaults[i], '=', Precedence.Assignment, true));
                 } else {
-                    result.push(generatePattern(node.params[i], {
-                        precedence: Precedence.Assignment,
-                        allowIn: true,
-                        allowCall: true
-                    }));
+                    result.push(generatePattern(node.params[i], Precedence.Assignment, true));
                 }
                 if (i + 1 < iz) {
                     result.push(',' + space);
@@ -1101,13 +1092,19 @@
         return generateLiteral(specifier);
     }
 
-    function generatePropertyKey(expr, computed, option) {
+    function generatePropertyKey(expr, computed) {
         var result = [];
 
         if (computed) {
             result.push('[');
         }
-        result.push(generateExpression(expr, option));
+
+        result.push(generateExpression(expr, {
+            precedence: Precedence.Sequence,
+            allowIn: true,
+            allowCall: true
+        }));
+
         if (computed) {
             result.push(']');
         }
@@ -1494,10 +1491,7 @@
                     })
                 ];
             }
-            return generatePattern(stmt.id, {
-                precedence: Precedence.Assignment,
-                allowIn: allowIn
-            });
+            return generatePattern(stmt.id, Precedence.Assignment, allowIn);
         };
 
         prototype.VariableDeclaration = function (stmt, allowIn, semicolon, functionBody, directiveContext) {
@@ -1821,7 +1815,6 @@
         };
 
         prototype.ArrowFunctionExpression = function (expr, precedence, allowIn, allowCall, allowUnparenthesizedNew) {
-            allowIn |= (Precedence.ArrowFunction < precedence);
             return parenthesize(generateFunctionBody(expr), Precedence.ArrowFunction, precedence);
         };
 
@@ -2175,20 +2168,12 @@
 
             if (expr.kind === 'get' || expr.kind === 'set') {
                 result = join(result, [
-                    join(expr.kind, generatePropertyKey(expr.key, expr.computed, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    })),
+                    join(expr.kind, generatePropertyKey(expr.key, expr.computed)),
                     generateFunctionBody(expr.value)
                 ]);
             } else {
                 fragment = [
-                    generatePropertyKey(expr.key, expr.computed, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }),
+                    generatePropertyKey(expr.key, expr.computed),
                     generateFunctionBody(expr.value)
                 ];
                 if (expr.value.generator) {
@@ -2206,21 +2191,13 @@
             if (expr.kind === 'get' || expr.kind === 'set') {
                 return [
                     expr.kind, noEmptySpace(),
-                    generatePropertyKey(expr.key, expr.computed, {
-                        precedence: Precedence.Sequence,
-                        allowIn: true,
-                        allowCall: true
-                    }),
+                    generatePropertyKey(expr.key, expr.computed),
                     generateFunctionBody(expr.value)
                 ];
             }
 
             if (expr.shorthand) {
-                return generatePropertyKey(expr.key, expr.computed, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                });
+                return generatePropertyKey(expr.key, expr.computed);
             }
 
             if (expr.method) {
@@ -2228,21 +2205,13 @@
                 if (expr.value.generator) {
                     result.push('*');
                 }
-                result.push(generatePropertyKey(expr.key, expr.computed, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }));
+                result.push(generatePropertyKey(expr.key, expr.computed));
                 result.push(generateFunctionBody(expr.value));
                 return result;
             }
 
             return [
-                generatePropertyKey(expr.key, expr.computed, {
-                    precedence: Precedence.Sequence,
-                    allowIn: true,
-                    allowCall: true
-                }),
+                generatePropertyKey(expr.key, expr.computed),
                 ':' + space,
                 generateExpression(expr.value, {
                     precedence: Precedence.Assignment,
@@ -2560,7 +2529,7 @@
         allowUnparenthesizedNew = option.allowUnparenthesizedNew === undefined || option.allowUnparenthesizedNew;
 
         if (extra.verbatim && expr.hasOwnProperty(extra.verbatim)) {
-            return generateVerbatim(expr, option);
+            return generateVerbatim(expr, precedence);
         }
 
         result = CodeGenerator.prototype[type](expr, precedence, allowIn, allowCall, allowUnparenthesizedNew);
