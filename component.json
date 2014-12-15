@@ -23,14 +23,12 @@
         "url": "http://github.com/estools/escodegen.git"
     },
     "dependencies": {
-        "estraverse": "^1.9.0",
-        "esutils": "^1.1.6",
+        "optionator": "^0.4.0",
         "esprima": "^1.2.2",
-        "optionator": "^0.4.0"
+        "esutils": "^1.1.6",
+        "estraverse": "^1.9.0"
     },
-    "optionalDependencies": {
-        "source-map": "~0.1.40"
-    },
+    "optionalDependencies": {},
     "devDependencies": {
         "esprima-moz": "*",
         "semver": "^4.1.0",

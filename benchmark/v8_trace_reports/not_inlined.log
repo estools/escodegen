@@ -1,24 +1,164 @@
+Did not inline setTime called from CreateDate (target not inlineable).
+Did not inline ThrowDateTypeError called from setTime (target not inlineable).
+Did not inline ToNumber called from setTime (target not inlineable).
+Did not inline toSourceNodeWhenNeeded called from generateIdentifier (target text too big).
+Did not inline toSourceNodeWhenNeeded called from generateExpression (target text too big).
+Did not inline isArray called from flattenToString (target not inlineable).
+Did not inline flattenToString called from flattenToString (target is recursive).
+Did not inline toSourceNodeWhenNeeded called from generateIdentifier (target text too big).
+Did not inline generateLiteral called from prototype.Literal (target text too big).
+Did not inline toSourceNodeWhenNeeded called from generateStatement (target text too big).
+Did not inline toSourceNodeWhenNeeded called from generateStatement (target text too big).
+Did not inline withIndent called from prototype.BlockStatement (target requires context change).
+Did not inline addIndent called from prototype.BlockStatement (target contains unsupported syntax [early]).
+Did not inline toSourceNodeWhenNeeded called from join (target text too big).
+Did not inline toSourceNodeWhenNeeded called from join (target text too big).
+Did not inline MakeTypeError called from slice (target not inlineable).
+Did not inline NonStringToString called from slice (target not inlineable).
+Did not inline ToNumber called from slice (target not inlineable).
+Did not inline ToNumber called from slice (target not inlineable).
+Did not inline SubString called from slice (target not inlineable).
+Did not inline toSourceNodeWhenNeeded called from generateIdentifier (target text too big).
+Did not inline generateAssignment called from prototype.AssignmentExpression (target text too big).
+Did not inline generateExpression called from prototype.MemberExpression (target text too big).
+Did not inline generateExpression called from prototype.MemberExpression (target text too big).
+Did not inline toSourceNodeWhenNeeded called from generateIdentifier (target text too big).
+Did not inline parenthesize called from prototype.MemberExpression (target contains unsupported syntax [early]).
+Did not inline generateExpression called from generatePropertyKey (target text too big).
+Did not inline generateExpression called from generateAssignment (target text too big).
+Did not inline generateExpression called from generateAssignment (target text too big).
+Did not inline parenthesize called from generateAssignment (target contains unsupported syntax [early]).
+Did not inline isArray called from toSourceNodeWhenNeeded (target not inlineable).
+Did not inline isArray called from flattenToString (target not inlineable).
+Did not inline flattenToString called from flattenToString (target is recursive).
+Did not inline prototype.BinaryExpression called from prototype.LogicalExpression (target text too big).
+Did not inline generateExpression called from prototype.ReturnStatement (target text too big).
+Did not inline join called from prototype.ReturnStatement (target text too big).
+Did not inline generateStatement called from maybeBlock (target text too big).
+Did not inline generateExpression called from prototype.BinaryExpression (target text too big).
+Did not inline join called from prototype.BinaryExpression (target text too big).
+Did not inline generateExpression called from prototype.BinaryExpression (target text too big).
+Did not inline join called from prototype.BinaryExpression (target text too big).
+Did not inline parenthesize called from prototype.BinaryExpression (target contains unsupported syntax [early]).
+Did not inline generateExpression called from prototype.ExpressionStatement (target text too big).
+Did not inline toSourceNodeWhenNeeded called from prototype.ExpressionStatement (target text too big).
+Did not inline generateExpression called from prototype.VariableDeclarator (target text too big).
+Did not inline generateExpression called from prototype.VariableDeclarator (target text too big).
+Did not inline toSourceNodeWhenNeeded called from generateIdentifier (target text too big).
+Did not inline withIndent called from prototype.IfStatement (target requires context change).
+Did not inline maybeBlock called from prototype.IfStatement (target text too big).
+Did not inline maybeBlockSuffix called from prototype.IfStatement (target contains unsupported syntax [early]).
+Did not inline generateStatement called from prototype.IfStatement (target text too big).
+Did not inline join called from prototype.IfStatement (target text too big).
+Did not inline maybeBlock called from prototype.IfStatement (target text too big).
+Did not inline join called from prototype.IfStatement (target text too big).
+Did not inline join called from prototype.IfStatement (target text too big).
+Did not inline maybeBlock called from prototype.IfStatement (target text too big).
+Did not inline generateVariableDeclaration called from prototype.VariableDeclaration (target text too big).
+Did not inline withIndent called from generateVariableDeclaration (target requires context change).
+Did not inline toSourceNodeWhenNeeded called from join (target text too big).
+Did not inline toSourceNodeWhenNeeded called from join (target text too big).
+Did not inline escapeAllowedCharacter called from escapeString (target text too big).
+Did not inline generatePropertyKey called from prototype.Property (target contains unsupported syntax [early]).
+Did not inline generateExpression called from prototype.Property (target text too big).
 Did not inline generateFunctionParams called from generateFunctionBody (target text too big).
-Did not inline escapeString called from generateLiteral (target text too big).
-Did not inline generateNumber called from generateLiteral (target text too big).
-Did not inline generateRegExp called from generateLiteral (target text too big).
+Did not inline maybeBlock called from generateFunctionBody (target text too big).
+Did not inline generateExpression called from prototype.BinaryExpression (target text too big).
+Did not inline join called from prototype.BinaryExpression (target text too big).
+Did not inline generateExpression called from prototype.BinaryExpression (target text too big).
+Did not inline join called from prototype.BinaryExpression (target text too big).
+Did not inline parenthesize called from prototype.BinaryExpression (target contains unsupported syntax [early]).
+Did not inline toSourceNodeWhenNeeded called from generateIdentifier (target text too big).
+Did not inline generateFunctionBody called from prototype.FunctionExpression (target text too big).
+Did not inline generateFunctionBody called from prototype.FunctionExpression (target text too big).
+Did not inline generateExpression called from prototype.UnaryExpression (target text too big).
+Did not inline join called from prototype.UnaryExpression (target text too big).
+Did not inline toSourceNodeWhenNeeded called from prototype.UnaryExpression (target text too big).
+Did not inline parenthesize called from prototype.UnaryExpression (target contains unsupported syntax [early]).
+Did not inline generateExpression called from prototype.ExpressionStatement (target text too big).
+Did not inline toSourceNodeWhenNeeded called from prototype.ExpressionStatement (target text too big).
 Did not inline escapeAllowedCharacter called from escapeString (target text too big).
-Did not inline isIdentifierCh called from join (cumulative AST node limit reached).
-Did not inline isWhitespace called from join (cumulative AST node limit reached).
-Did not inline isWhitespace called from join (cumulative AST node limit reached).
-Did not inline join called from generateIfStatement (cumulative AST node limit reached).
-Did not inline escapeAllowedCharacter called from escapeString (target text too big).
-Did not inline escapeAllowedCharacter called from escapeString (target text too big).
-Did not inline isIdentifierCh called from join (cumulative AST node limit reached).
-Did not inline isWhitespace called from join (cumulative AST node limit reached).
-Did not inline isWhitespace called from join (cumulative AST node limit reached).
-Did not inline generateForStatementIterator called from generateForInStatement (target text too big).
-Did not inline generateFunctionParams called from generateFunctionBody (target text too big).
-Did not inline exprToJs called from generateForStatementIterator (cumulative AST node limit reached).
-Did not inline join called from generateForStatementIterator (cumulative AST node limit reached).
-Did not inline adoptionPrefix called from generateForStatementIterator (cumulative AST node limit reached).
-Did not inline adoptionSuffix called from generateTryStatementHandlers (cumulative AST node limit reached).
-Did not inline adoptionPrefix called from generateTryStatement (cumulative AST node limit reached).
-Did not inline join called from generateTryStatement (cumulative AST node limit reached).
-Did not inline stmtToJs called from generateTryStatement (cumulative AST node limit reached).
+Did not inline generateExpression called from prototype.CallExpression (target text too big).
+Did not inline generateExpression called from prototype.CallExpression (target text too big).
+Did not inline parenthesize called from prototype.CallExpression (target contains unsupported syntax [early]).
+Did not inline withIndent called from prototype.ForStatement (target requires context change).
+Did not inline maybeBlock called from prototype.ForStatement (target text too big).
+Did not inline generateExpression called from prototype.ConditionalExpression (target text too big).
+Did not inline generateExpression called from prototype.ConditionalExpression (target text too big).
+Did not inline generateExpression called from prototype.ConditionalExpression (target text too big).
+Did not inline parenthesize called from prototype.ConditionalExpression (target contains unsupported syntax [early]).
+Did not inline toSourceNodeWhenNeeded called from maybeBlockSuffix (target text too big).
+Did not inline withIndent called from prototype.ObjectExpression (target requires context change).
+Did not inline toSourceNodeWhenNeeded called from prototype.ObjectExpression (target text too big).
+Did not inline hasLineTerminator called from prototype.ObjectExpression (target requires context change).
+Did not inline withIndent called from prototype.ObjectExpression (target requires context change).
+Did not inline toSourceNodeWhenNeeded called from prototype.ObjectExpression (target text too big).
+Did not inline endsWithLineTerminator called from prototype.ObjectExpression (target requires context change).
+Did not inline toSourceNodeWhenNeeded called from generateStatement (target text too big).
+Did not inline toSourceNodeWhenNeeded called from generateStatement (target text too big).
+Did not inline toSourceNodeWhenNeeded called from generateIdentifier (target text too big).
+Did not inline withIndent called from prototype.ArrayExpression (target requires context change).
+Did not inline toSourceNodeWhenNeeded called from prototype.ArrayExpression (target text too big).
+Did not inline endsWithLineTerminator called from prototype.ArrayExpression (target requires context change).
+Did not inline generateExpression called from prototype.UpdateExpression (target text too big).
+Did not inline parenthesize called from prototype.UpdateExpression (target contains unsupported syntax [early]).
+Did not inline generateExpression called from prototype.UpdateExpression (target text too big).
+Did not inline parenthesize called from prototype.UpdateExpression (target contains unsupported syntax [early]).
+Did not inline generateIterationForStatement called from prototype.ForInStatement (target text too big).
+Did not inline withIndent called from generateIterationForStatement (target requires context change).
+Did not inline maybeBlock called from generateIterationForStatement (target text too big).
+Did not inline toSourceNodeWhenNeeded called from generateIdentifier (target text too big).
+Did not inline generateFunctionBody called from prototype.FunctionDeclaration (target text too big).
+Did not inline withIndent called from prototype.WhileStatement (target requires context change).
+Did not inline maybeBlock called from prototype.WhileStatement (target text too big).
+Did not inline test called from hasLineTerminator (target text too big).
+Did not inline withIndent called from prototype.CatchClause (target requires context change).
+Did not inline maybeBlock called from prototype.CatchClause (target text too big).
+Did not inline MakeTypeError called from test (target not inlineable).
+Did not inline NonStringToString called from test (target not inlineable).
+Did not inline ToNumber called from test (target not inlineable).
+Did not inline TrimRegExp called from test (target not inlineable).
+Did not inline withIndent called from prototype.SwitchCase (target requires context change).
+Did not inline maybeBlock called from prototype.TryStatement (target text too big).
+Did not inline maybeBlockSuffix called from prototype.TryStatement (target contains unsupported syntax [early]).
+Did not inline generateStatement called from prototype.TryStatement (target text too big).
+Did not inline join called from prototype.TryStatement (target text too big).
+Did not inline maybeBlockSuffix called from prototype.TryStatement (target contains unsupported syntax [early]).
+Did not inline maybeBlock called from prototype.TryStatement (target text too big).
+Did not inline join called from prototype.TryStatement (target text too big).
+Did not inline generateExpression called from prototype.ThrowStatement (target text too big).
+Did not inline join called from prototype.ThrowStatement (target text too big).
+Did not inline generateStatement called from  (target text too big).
+Did not inline addIndent called from  (target contains unsupported syntax [early]).
+Did not inline toSourceNodeWhenNeeded called from  (target text too big).
+Did not inline endsWithLineTerminator called from  (target requires context change).
+Did not inline generateExpression called from prototype.NewExpression (target text too big).
+Did not inline join called from prototype.NewExpression (target text too big).
+Did not inline generateExpression called from prototype.NewExpression (target text too big).
+Did not inline parenthesize called from prototype.NewExpression (target contains unsupported syntax [early]).
+Did not inline isStatement called from generateInternal (target text too big).
+Did not inline generateStatement called from generateInternal (target text too big).
+Did not inline MakeTypeError called from toUpperCase (target not inlineable).
+Did not inline NonStringToString called from toUpperCase (target not inlineable).
+Did not inline maybeBlock called from prototype.DoWhileStatement (target text too big).
+Did not inline join called from prototype.DoWhileStatement (target text too big).
+Did not inline maybeBlockSuffix called from prototype.DoWhileStatement (target contains unsupported syntax [early]).
+Did not inline generateExpression called from prototype.DoWhileStatement (target text too big).
+Did not inline join called from prototype.DoWhileStatement (target text too big).
+Did not inline generateExpression called from prototype.SequenceExpression (target text too big).
+Did not inline parenthesize called from prototype.SequenceExpression (target contains unsupported syntax [early]).
+Did not inline generateStatement called from  (target text too big).
+Did not inline addIndent called from  (target contains unsupported syntax [early]).
+Did not inline toSourceNodeWhenNeeded called from  (target text too big).
+Did not inline endsWithLineTerminator called from  (target requires context change).
+Did not inline generateStatement called from  (target text too big).
+Did not inline addIndent called from  (target contains unsupported syntax [early]).
+Did not inline toSourceNodeWhenNeeded called from  (target text too big).
+Did not inline endsWithLineTerminator called from  (target requires context change).
 Did not inline getDefaultOptions called from generate (target text too big).
+Did not inline isStatement called from generateInternal (target text too big).
+Did not inline generateStatement called from generateInternal (target text too big).
+Did not inline generateStatement called from  (target text too big).
+Did not inline addIndent called from  (target contains unsupported syntax [early]).
+Did not inline toSourceNodeWhenNeeded called from  (target text too big).
+Did not inline endsWithLineTerminator called from  (target requires context change).
