@@ -13,7 +13,6 @@
     "README.md",
     "bin",
     "escodegen.js",
-    "gulpfile.js",
     "package.json"
   ],
   "version": "1.4.4-dev",
