@@ -7,6 +7,15 @@
     "esgenerate": "./bin/esgenerate.js",
     "escodegen": "./bin/escodegen.js"
   },
+  "files": [
+    "LICENSE.BSD",
+    "LICENSE.source-map",
+    "README.md",
+    "bin",
+    "escodegen.js",
+    "gulpfile.js",
+    "package.json"
+  ],
   "version": "1.4.3-dev",
   "engines": {
     "node": ">=0.10.0"
