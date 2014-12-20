@@ -59,6 +59,8 @@
         extra,
         parse,
         sourceMap,
+        sourceCode,
+        preserveBlankLines,
         FORMAT_MINIFY,
         FORMAT_DEFAULTS;
 
@@ -251,7 +253,8 @@
                 compact: false,
                 parentheses: true,
                 semicolons: true,
-                safeConcatenation: false
+                safeConcatenation: false,
+                preserveBlankLines: false
             },
             moz: {
                 comprehensionExpressionStartsWithAssignment: false,
@@ -262,7 +265,8 @@
             sourceMapWithCode: false,
             directive: false,
             raw: true,
-            verbatim: null
+            verbatim: null,
+            sourceCode: null
         };
     }
 
@@ -711,7 +715,11 @@
                 return '//' + comment.value;
             } else {
                 // Always use LineTerminator
-                return '//' + comment.value + '\n';
+                var comment = '//' + comment.value + '\n';
+                if (!preserveBlankLines) {
+                    comment += '\n';
+                }
+                return comment;
             }
         }
         if (extra.format.indent.adjustMultilineComment && /[\n\r]/.test(comment.value)) {
@@ -722,55 +730,110 @@
 
     function addComments(stmt, result) {
         var i, len, comment, save, tailingToStatement, specialBase, fragment;
+        var extRange, range, prevRange, prefix, infix, suffix, count;
 
         if (stmt.leadingComments && stmt.leadingComments.length > 0) {
             save = result;
 
-            comment = stmt.leadingComments[0];
-            result = [];
-            if (safeConcatenation && stmt.type === Syntax.Program && stmt.body.length === 0) {
-                result.push('\n');
-            }
-            result.push(generateComment(comment));
-            if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
-                result.push('\n');
-            }
+            if (preserveBlankLines) {
+                comment = stmt.leadingComments[0];
+                result = [];
 
-            for (i = 1, len = stmt.leadingComments.length; i < len; ++i) {
-                comment = stmt.leadingComments[i];
-                fragment = [generateComment(comment)];
-                if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
-                    fragment.push('\n');
+                extRange = comment.extendedRange;
+                range = comment.range;
+
+                prefix = sourceCode.substring(extRange[0], range[0]);
+                count = (prefix.match(/\n/g) || []).length;
+                if (count > 0) {
+                    result.push(stringRepeat('\n', count));
+                    result.push(addIndent(generateComment(comment)));
+                } else {
+                    result.push(prefix);
+                    result.push(generateComment(comment));
                 }
-                result.push(addIndent(fragment));
+
+                prevRange = range;
+
+                for (i = 1, len = stmt.leadingComments.length; i < len; i++) {
+                    comment = stmt.leadingComments[i];
+                    range = comment.range;
+
+                    infix = sourceCode.substring(prevRange[1], range[0]);
+                    count = (infix.match(/\n/g) || []).length;
+                    result.push(stringRepeat('\n', count));
+                    result.push(addIndent(generateComment(comment)));
+
+                    prevRange = range;
+                }
+
+                suffix = sourceCode.substring(range[1], extRange[1]);
+                count = (suffix.match(/\n/g) || []).length;
+                result.push(stringRepeat('\n', count));
+            } else {
+                comment = stmt.leadingComments[0];
+                result = [];
+                if (safeConcatenation && stmt.type === Syntax.Program && stmt.body.length === 0) {
+                    result.push('\n');
+                }
+                result.push(generateComment(comment));
+                if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
+                    result.push('\n');
+                }
+
+                for (i = 1, len = stmt.leadingComments.length; i < len; ++i) {
+                    comment = stmt.leadingComments[i];
+                    fragment = [generateComment(comment)];
+                    if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
+                        fragment.push('\n');
+                    }
+                    result.push(addIndent(fragment));
+                }
             }
 
             result.push(addIndent(save));
         }
 
         if (stmt.trailingComments) {
-            tailingToStatement = !endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString());
-            specialBase = stringRepeat(' ', calculateSpaces(toSourceNodeWhenNeeded([base, result, indent]).toString()));
-            for (i = 0, len = stmt.trailingComments.length; i < len; ++i) {
-                comment = stmt.trailingComments[i];
-                if (tailingToStatement) {
-                    // We assume target like following script
-                    //
-                    // var t = 20;  /**
-                    //               * This is comment of t
-                    //               */
-                    if (i === 0) {
-                        // first case
-                        result = [result, indent];
-                    } else {
-                        result = [result, specialBase];
-                    }
-                    result.push(generateComment(comment, specialBase));
+
+            if (preserveBlankLines) {
+                comment = stmt.trailingComments[0];
+                extRange = comment.extendedRange;
+                range = comment.range;
+
+                prefix = sourceCode.substring(extRange[0], range[0]);
+                count = (prefix.match(/\n/g) || []).length;
+
+                if (count > 0) {
+                    result.push(stringRepeat('\n', count));
+                    result.push(addIndent(generateComment(comment)));
                 } else {
-                    result = [result, addIndent(generateComment(comment))];
+                    result.push(prefix);
+                    result.push(generateComment(comment));
                 }
-                if (i !== len - 1 && !endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
-                    result = [result, '\n'];
+            } else {
+                tailingToStatement = !endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString());
+                specialBase = stringRepeat(' ', calculateSpaces(toSourceNodeWhenNeeded([base, result, indent]).toString()));
+                for (i = 0, len = stmt.trailingComments.length; i < len; ++i) {
+                    comment = stmt.trailingComments[i];
+                    if (tailingToStatement) {
+                        // We assume target like following script
+                        //
+                        // var t = 20;  /**
+                        //               * This is comment of t
+                        //               */
+                        if (i === 0) {
+                            // first case
+                            result = [result, indent];
+                        } else {
+                            result = [result, specialBase];
+                        }
+                        result.push(generateComment(comment, specialBase));
+                    } else {
+                        result = [result, addIndent(generateComment(comment))];
+                    }
+                    if (i !== len - 1 && !endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
+                        result = [result, '\n'];
+                    }
                 }
             }
         }
@@ -1189,6 +1252,21 @@
                 result.push(this.semicolon(flags));
             }
             return result;
+        },
+
+        BlankLines: function (start, end, result) {
+            var j;
+
+            var newlineCount = 0;
+            for (j = start; j < end; j++) {
+                if (sourceCode[j] === '\n') {
+                    newlineCount++;
+                }
+            }
+
+            for (j = 1; j < newlineCount; j++) {
+                result.push(newline);
+            }
         },
 
         ImportDeclaration: function (stmt, flags) {
