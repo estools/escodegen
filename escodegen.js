@@ -842,9 +842,8 @@
     }
 
     function generateBlankLines(start, end, result) {
-        var j, newlineCount;
+        var j, newlineCount = 0;
 
-        newlineCount = 0;
         for (j = start; j < end; j++) {
             if (sourceCode[j] === '\n') {
                 newlineCount++;
@@ -1068,8 +1067,7 @@
     CodeGenerator.Statement = {
 
         BlockStatement: function (stmt, flags) {
-            var range, content;
-            var result = ['{', newline], that = this;
+            var range, content, result = ['{', newline], that = this;
 
             withIndent(function () {
                 // handle functions without any code
