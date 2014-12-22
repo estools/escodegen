@@ -715,11 +715,11 @@
                 return '//' + comment.value;
             } else {
                 // Always use LineTerminator
-                var comment = '//' + comment.value + '\n';
+                var result = '//' + comment.value;
                 if (!preserveBlankLines) {
-                    comment += '\n';
+                    result += '\n';
                 }
-                return comment;
+                return result;
             }
         }
         if (extra.format.indent.adjustMultilineComment && /[\n\r]/.test(comment.value)) {
@@ -839,6 +839,21 @@
         }
 
         return result;
+    }
+
+    function generateBlankLines(start, end, result) {
+        var j;
+
+        var newlineCount = 0;
+        for (j = start; j < end; j++) {
+            if (sourceCode[j] === '\n') {
+                newlineCount++;
+            }
+        }
+
+        for (j = 1; j < newlineCount; j++) {
+            result.push(newline);
+        }
     }
 
     function parenthesize(text, current, should) {
@@ -1053,22 +1068,82 @@
     CodeGenerator.Statement = {
 
         BlockStatement: function (stmt, flags) {
+            var range, content;
             var result = ['{', newline], that = this;
 
             withIndent(function () {
+                // handle functions without any code
+                if (stmt.body.length === 0 && preserveBlankLines) {
+                    range = stmt.range;
+                    if (range[1] - range[0] > 2) {
+                        content = sourceCode.substring(range[0] + 1, range[1] - 1);
+                        if (content[0] === '\n') {
+                            result = ['{'];
+                        }
+                        result.push(content);
+                    }
+                }
+                
                 var i, iz, fragment, bodyFlags;
                 bodyFlags = S_TFFF;
                 if (flags & F_FUNC_BODY) {
                     bodyFlags |= F_DIRECTIVE_CTX;
                 }
+                
                 for (i = 0, iz = stmt.body.length; i < iz; ++i) {
+                    if (preserveBlankLines) {
+                        // handle spaces before the first line
+                        if (i === 0) {
+                            if (stmt.body[0].leadingComments) {
+                                range = stmt.body[0].leadingComments[0].extendedRange;
+                                content = sourceCode.substring(range[0], range[1]);
+                                if (content[0] === '\n') {
+                                    result = ['{'];
+                                }
+                            }
+                            if (!stmt.body[0].leadingComments) {
+                                generateBlankLines(stmt.range[0], stmt.body[0].range[0], result);
+                            }
+                        }
+
+                        // handle spaces between lines
+                        if (i > 0) {
+                            if (!stmt.body[i - 1].trailingComments  && !stmt.body[i].leadingComments) {
+                                generateBlankLines(stmt.body[i - 1].range[1], stmt.body[i].range[0], result);
+                            }
+                        }
+                    }
+                    
                     if (i === iz - 1) {
                         bodyFlags |= F_SEMICOLON_OPT;
                     }
-                    fragment = addIndent(that.generateStatement(stmt.body[i], bodyFlags));
+                    
+                    if (stmt.body[i].leadingComments && preserveBlankLines) {
+                        fragment = that.generateStatement(stmt.body[i], bodyFlags);
+                    } else {
+                        fragment = addIndent(that.generateStatement(stmt.body[i], bodyFlags));
+                    }
+                    
                     result.push(fragment);
                     if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
-                        result.push(newline);
+                        if (preserveBlankLines && i < iz - 1) {
+                            // don't add a new line if there are leading coments
+                            // in the next statement
+                            if (!stmt.body[i + 1].leadingComments) {
+                                result.push(newline);
+                            }
+                        } else {
+                            result.push(newline);
+                        }
+                    }
+
+                    if (preserveBlankLines) {
+                        // handle spaces after the last line
+                        if (i === iz - 1) {
+                            if (!stmt.body[i].trailingComments) {
+                                generateBlankLines(stmt.body[i].range[1], stmt.range[1], result);
+                            }
+                        }
                     }
                 }
             });
@@ -1252,21 +1327,6 @@
                 result.push(this.semicolon(flags));
             }
             return result;
-        },
-
-        BlankLines: function (start, end, result) {
-            var j;
-
-            var newlineCount = 0;
-            for (j = start; j < end; j++) {
-                if (sourceCode[j] === '\n') {
-                    newlineCount++;
-                }
-            }
-
-            for (j = 1; j < newlineCount; j++) {
-                result.push(newline);
-            }
         },
 
         ImportDeclaration: function (stmt, flags) {
@@ -1618,10 +1678,42 @@
                 if (!safeConcatenation && i === iz - 1) {
                     bodyFlags |= F_SEMICOLON_OPT;
                 }
+
+                if (preserveBlankLines) {
+                    // handle spaces before the first line
+                    if (i === 0) {
+                        if (!stmt.body[0].leadingComments) {
+                            generateBlankLines(stmt.range[0], stmt.body[i].range[0], result);
+                        }
+                    }
+
+                    // handle spaces between lines
+                    if (i > 0) {
+                        if (!stmt.body[i - 1].trailingComments && !stmt.body[i].leadingComments) {
+                            generateBlankLines(stmt.body[i - 1].range[1], stmt.body[i].range[0], result);
+                        }
+                    }
+                }
+                
                 fragment = addIndent(this.generateStatement(stmt.body[i], bodyFlags));
                 result.push(fragment);
                 if (i + 1 < iz && !endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
-                    result.push(newline);
+                    if (preserveBlankLines) {
+                        if (!stmt.body[i + 1].leadingComments) {
+                            result.push(newline);
+                        }
+                    } else {
+                        result.push(newline);
+                    }
+                }
+
+                if (preserveBlankLines) {
+                    // handle spaces after the last line
+                    if (i === iz - 1) {
+                        if (!stmt.body[i].trailingComments) {
+                            generateBlankLines(stmt.body[i].range[1], stmt.range[1], result);
+                        }
+                    }
                 }
             }
             return result;
@@ -2401,6 +2493,8 @@
         directive = options.directive;
         parse = json ? null : options.parse;
         sourceMap = options.sourceMap;
+        sourceCode = options.sourceCode;
+        preserveBlankLines = options.format.preserveBlankLines && sourceCode !== null;
         extra = options;
 
         if (sourceMap) {
