@@ -1083,13 +1083,13 @@
                         result.push(content);
                     }
                 }
-                
+
                 var i, iz, fragment, bodyFlags;
                 bodyFlags = S_TFFF;
                 if (flags & F_FUNC_BODY) {
                     bodyFlags |= F_DIRECTIVE_CTX;
                 }
-                
+
                 for (i = 0, iz = stmt.body.length; i < iz; ++i) {
                     if (preserveBlankLines) {
                         // handle spaces before the first line
@@ -1113,17 +1113,17 @@
                             }
                         }
                     }
-                    
+
                     if (i === iz - 1) {
                         bodyFlags |= F_SEMICOLON_OPT;
                     }
-                    
+
                     if (stmt.body[i].leadingComments && preserveBlankLines) {
                         fragment = that.generateStatement(stmt.body[i], bodyFlags);
                     } else {
                         fragment = addIndent(that.generateStatement(stmt.body[i], bodyFlags));
                     }
-                    
+
                     result.push(fragment);
                     if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
                         if (preserveBlankLines && i < iz - 1) {
@@ -1694,7 +1694,7 @@
                         }
                     }
                 }
-                
+
                 fragment = addIndent(this.generateStatement(stmt.body[i], bodyFlags));
                 result.push(fragment);
                 if (i + 1 < iz && !endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
