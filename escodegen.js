@@ -729,8 +729,8 @@
     }
 
     function addComments(stmt, result) {
-        var i, len, comment, save, tailingToStatement, specialBase, fragment;
-        var extRange, range, prevRange, prefix, infix, suffix, count;
+        var i, len, comment, save, tailingToStatement, specialBase, fragment,
+            extRange, range, prevRange, prefix, infix, suffix, count;
 
         if (stmt.leadingComments && stmt.leadingComments.length > 0) {
             save = result;
@@ -842,9 +842,9 @@
     }
 
     function generateBlankLines(start, end, result) {
-        var j;
+        var j, newlineCount;
 
-        var newlineCount = 0;
+        newlineCount = 0;
         for (j = start; j < end; j++) {
             if (sourceCode[j] === '\n') {
                 newlineCount++;
