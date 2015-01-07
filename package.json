@@ -15,7 +15,7 @@
     "escodegen.js",
     "package.json"
   ],
-  "version": "1.4.4-dev",
+  "version": "1.5.0-dev",
   "engines": {
     "node": ">=0.10.0"
   },
