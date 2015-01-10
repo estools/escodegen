@@ -1,5 +1,6 @@
 /*
   Copyright (C) 2012-2014 Yusuke Suzuki <utatane.tea@gmail.com>
+  Copyright (C) 2015 Ingvar Stepanyan <me@rreverser.com>
   Copyright (C) 2014 Ivan Nikulin <ifaaan@gmail.com>
   Copyright (C) 2012-2013 Michael Ficarra <escodegen.copyright@michael.ficarra.me>
   Copyright (C) 2012-2013 Mathias Bynens <mathias@qiwi.be>
@@ -82,6 +83,7 @@
     Precedence = {
         Sequence: 0,
         Yield: 1,
+        Await: 1,
         Assignment: 1,
         Conditional: 2,
         ArrowFunction: 2,
@@ -864,6 +866,25 @@
         return toSourceNodeWhenNeeded(node.name, node);
     }
 
+    function generateAsyncPrefix(node, spaceRequired) {
+        return node.async ? 'async' + (spaceRequired ? noEmptySpace() : space) : '';
+    }
+
+    function generateStarSuffix(node) {
+        var isGenerator = node.generator && !extra.moz.starlessGenerator;
+        return isGenerator ? '*' + space : '';
+    }
+
+    function generateMethodPrefix(prop) {
+        var func = prop.value;
+        if (func.async) {
+            return generateAsyncPrefix(func, !prop.computed);
+        } else {
+            // avoid space before method name
+            return generateStarSuffix(func) ? '*' : '';
+        }
+    }
+
     CodeGenerator.prototype.generatePattern = function (node, precedence, flags) {
         if (node.type === Syntax.Identifier) {
             return generateIdentifier(node);
@@ -880,9 +901,10 @@
                 !node.rest && (!node.defaults || node.defaults.length === 0) &&
                 node.params.length === 1 && node.params[0].type === Syntax.Identifier) {
             // arg => { } case
-            result = [generateIdentifier(node.params[0])];
+            result = [generateAsyncPrefix(node, true), generateIdentifier(node.params[0])];
         } else {
-            result = ['('];
+            result = node.type === Syntax.ArrowFunctionExpression ? [generateAsyncPrefix(node, false)] : [];
+            result.push('(');
             if (node.defaults) {
                 hasDefault = true;
             }
@@ -1652,10 +1674,10 @@
         },
 
         FunctionDeclaration: function (stmt, flags) {
-            var isGenerator = stmt.generator && !extra.moz.starlessGenerator;
             return [
-                (isGenerator ? 'function*' : 'function'),
-                (isGenerator ? space : noEmptySpace()),
+                generateAsyncPrefix(stmt, true),
+                'function',
+                generateStarSuffix(stmt) || noEmptySpace(),
                 generateIdentifier(stmt.id),
                 this.generateFunctionBody(stmt)
             ];
@@ -1912,6 +1934,14 @@
             return parenthesize(result, Precedence.Yield, precedence);
         },
 
+        AwaitExpression: function (expr, precedence, flags) {
+            var result = join(
+                expr.delegate ? 'await*' : 'await',
+                this.generateExpression(expr.argument, Precedence.Await, E_TTT)
+            );
+            return parenthesize(result, Precedence.Await, precedence);
+        },
+
         UpdateExpression: function (expr, precedence, flags) {
             if (expr.prefix) {
                 return parenthesize(
@@ -1934,14 +1964,18 @@
         },
 
         FunctionExpression: function (expr, precedence, flags) {
-            var result, isGenerator;
-            isGenerator = expr.generator && !extra.moz.starlessGenerator;
-            result = isGenerator ? 'function*' : 'function';
-
+            var result = [
+                generateAsyncPrefix(expr, true),
+                'function'
+            ];
             if (expr.id) {
-                return [result, (isGenerator) ? space : noEmptySpace(), generateIdentifier(expr.id), this.generateFunctionBody(expr)];
+                result.push(generateStarSuffix(expr) || noEmptySpace());
+                result.push(generateIdentifier(expr.id));
+            } else {
+                result.push(generateStarSuffix(expr) || space);
             }
-            return [result + space, this.generateFunctionBody(expr)];
+            result.push(this.generateFunctionBody(expr));
+            return result;
         },
 
         ExportBatchSpecifier: function (expr, precedence, flags) {
@@ -2008,29 +2042,22 @@
             } else {
                 result = [];
             }
-
             if (expr.kind === 'get' || expr.kind === 'set') {
-                result = join(result, [
+                fragment = [
                     join(expr.kind, this.generatePropertyKey(expr.key, expr.computed)),
                     this.generateFunctionBody(expr.value)
-                ]);
+                ];
             } else {
                 fragment = [
+                    generateMethodPrefix(expr),
                     this.generatePropertyKey(expr.key, expr.computed),
                     this.generateFunctionBody(expr.value)
                 ];
-                if (expr.value.generator) {
-                    result.push('*');
-                    result.push(fragment);
-                } else {
-                    result = join(result, fragment);
-                }
             }
-            return result;
+            return join(result, fragment);
         },
 
         Property: function (expr, precedence, flags) {
-            var result;
             if (expr.kind === 'get' || expr.kind === 'set') {
                 return [
                     expr.kind, noEmptySpace(),
@@ -2044,13 +2071,11 @@
             }
 
             if (expr.method) {
-                result = [];
-                if (expr.value.generator) {
-                    result.push('*');
-                }
-                result.push(this.generatePropertyKey(expr.key, expr.computed));
-                result.push(this.generateFunctionBody(expr.value));
-                return result;
+                return [
+                    generateMethodPrefix(expr),
+                    this.generatePropertyKey(expr.key, expr.computed),
+                    this.generateFunctionBody(expr.value)
+                ];
             }
 
             return [
