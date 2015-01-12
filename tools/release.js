@@ -49,9 +49,9 @@ function exec(cmd) {
 
     config = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf-8'));
     devVersion = config.version;
-    matched = devVersion.match(/^(\d+\.\d+\.\d+(-\d+)?)-dev$/);
+    matched = devVersion.match(/^(\d+\.\d+\.\d+(-\d+)?)$/);
     if (!matched) {
-        console.error('version style "' + devVersion + '" is not matched to X.X.X[-X]-dev.');
+        console.error('version style "' + devVersion + '" is not matched to X.X.X[-X].');
         process.exit(1);
     }
 
