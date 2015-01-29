@@ -5908,6 +5908,117 @@ data = {
                 }
             }
         },
+
+        '(async function (promise) {\n    await promise;\n});': {
+            generateFrom: {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "FunctionExpression",
+                    "id": null,
+                    "params": [
+                        {
+                            "type": "Identifier",
+                            "name": "promise"
+                        }
+                    ],
+                    "defaults": [],
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "AwaitExpression",
+                                    "argument": {
+                                        "type": "Identifier",
+                                        "name": "promise"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "rest": null,
+                    "generator": false,
+                    "expression": false,
+                    "async": true
+                }
+            }
+        },
+
+        '(async function hello(promise) {\n    await promise;\n});': {
+            generateFrom: {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "FunctionExpression",
+                    "id": {
+                        "type": "Identifier",
+                        "name": "hello"
+                    },
+                    "params": [
+                        {
+                            "type": "Identifier",
+                            "name": "promise"
+                        }
+                    ],
+                    "defaults": [],
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "AwaitExpression",
+                                    "argument": {
+                                        "type": "Identifier",
+                                        "name": "promise"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "rest": null,
+                    "generator": false,
+                    "expression": false,
+                    "async": true
+                }
+            }
+        },
+
+        'async function hello(promise) {\n    await promise;\n}': {
+            generateFrom: {
+                "type": "FunctionDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "hello"
+                },
+                "params": [
+                    {
+                        "type": "Identifier",
+                        "name": "promise"
+                    }
+                ],
+                "defaults": [],
+                "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                        {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                                "type": "AwaitExpression",
+                                "argument": {
+                                    "type": "Identifier",
+                                    "name": "promise"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "rest": null,
+                "generator": false,
+                "expression": false,
+                "async": true
+            }
+        },
     }
 };
 
