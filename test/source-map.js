@@ -68,7 +68,7 @@ describe('source map test', function () {
         });
 
         // contains mapping for identifier
-        expect(result.map._mappings.some(function (mapping) {
+        expect(result.map._mappings.toArray().some(function (mapping) {
             return mapping.generatedLine == 1 &&
                 mapping.generatedColumn == 9 &&
                 mapping.originalLine == 2 &&
@@ -142,9 +142,9 @@ describe('source map test', function () {
         }
 
         // found x param mapping
-        expect(result.map._mappings.filter(isXParam).length).to.be.equal(1);
+        expect(result.map._mappings.toArray().filter(isXParam).length).to.be.equal(1);
         // found y param mapping
-        expect(result.map._mappings.filter(isYParam).length).to.be.equal(1);
+        expect(result.map._mappings.toArray().filter(isYParam).length).to.be.equal(1);
     });
 
     it('MemberExpression test', function () {
@@ -212,10 +212,10 @@ describe('source map test', function () {
         }
 
         // found object mapping
-        expect(result.map._mappings.filter(isObject).length).to.be.equal(1);
+        expect(result.map._mappings.toArray().filter(isObject).length).to.be.equal(1);
 
         // found one property mapping
-        expect(result.map._mappings.filter(isProperty).length).to.be.equal(1);
+        expect(result.map._mappings.toArray().filter(isProperty).length).to.be.equal(1);
     });
 
     it('Declaration in Function test', function () {
@@ -297,7 +297,7 @@ describe('source map test', function () {
         });
 
         // "found a declaration node"
-        expect(result.map._mappings.filter(function (x) {
+        expect(result.map._mappings.toArray().filter(function (x) {
             return x.originalLine == 1 && x.originalColumn == 6;
         }).length).to.be.equal(1);
     });
