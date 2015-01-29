@@ -2408,7 +2408,7 @@
 
 
         if (extra.comment) {
-            result = addComments(expr,result);
+            result = addComments(expr, result);
         }
         return toSourceNodeWhenNeeded(result, expr);
     };
