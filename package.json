@@ -1,7 +1,7 @@
 {
-    "name": "escodegen",
-    "description": "ECMAScript code generator",
-    "homepage": "http://github.com/estools/escodegen",
+    "name": "escodegen-wallaby",
+    "description": "ECMAScript code generator with JSX support",
+    "homepage": "http://github.com/wallabyjs/escodegen",
     "main": "escodegen.js",
     "bin": {
         "esgenerate": "./bin/esgenerate.js",
@@ -15,20 +15,20 @@
         "escodegen.js",
         "package.json"
     ],
-    "version": "1.8.0",
+    "version": "1.6.1",
     "engines": {
-        "node": ">=0.12.0"
+        "node": ">=0.10.0"
     },
     "maintainers": [
         {
-            "name": "Yusuke Suzuki",
-            "email": "utatane.tea@gmail.com",
-            "web": "http://github.com/Constellation"
+            "name": "Artem Govorov",
+            "email": "artem.govorov@gmail.com",
+            "web": "http://dm.gl"
         }
     ],
     "repository": {
         "type": "git",
-        "url": "http://github.com/estools/escodegen.git"
+        "url": "http://github.com/wallabyjs/escodegen.git"
     },
     "dependencies": {
         "estraverse": "^1.9.1",
@@ -50,7 +50,12 @@
         "gulp-mocha": "^2.0.0",
         "semver": "^5.1.0"
     },
-    "license": "BSD-2-Clause",
+    "licenses": [
+        {
+            "type": "BSD",
+            "url": "http://github.com/estools/escodegen/raw/master/LICENSE.BSD"
+        }
+    ],
     "scripts": {
         "test": "gulp travis",
         "unit-test": "gulp test",
