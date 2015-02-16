@@ -1,0 +1,44 @@
+<div>
+    <span></span>
+    <br/>
+    <a.b.c></a.b.c>
+    <a.b.c/>
+    <Custom></Custom>
+    <Custom/>
+    <span>&lt;span&gt;</span>
+    <ul>
+        <li>
+            <a>link</a>
+            <a>
+                link
+                <span>text</span>
+            </a>
+            <a>
+                <span/>
+                link
+            </a>
+            <a><span/></a>
+            <a><span/></a>
+            <a><span>link</span></a>
+            <a><span>link</span></a>
+            <a>This is a very long paragraph. This is a very long paragraph. This is a very long paragraph. This is a very long paragraph. This is a very long paragraph. This is a very long paragraph. This is a very long paragraph.</a>
+            <p>
+                <p>
+                    <p>
+                        <p>
+                            <p>
+                                <p>
+                                    <p>
+                                        <p>
+                                            <p><a>This is a very long paragraph nested too deep. This is a very long paragraph nested too deep. This is a very long paragraph nested too deep. This is a very long paragraph nested too deep. This is a very long paragraph nested too deep. This is a very long paragraph nested too deep.</a></p>
+                                        </p>
+                                    </p>
+                                </p>
+                            </p>
+                        </p>
+                    </p>
+                </p>
+            </p>
+        </li>
+    </ul>
+</div>;
