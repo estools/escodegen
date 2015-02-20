@@ -1981,7 +1981,7 @@
 
         AwaitExpression: function (expr, precedence, flags) {
             var result = join(
-                expr.delegate ? 'await*' : 'await',
+                expr.all ? 'await*' : 'await',
                 this.generateExpression(expr.argument, Precedence.Await, E_TTT)
             );
             return parenthesize(result, Precedence.Await, precedence);
