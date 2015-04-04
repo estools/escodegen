@@ -2549,7 +2549,7 @@
             fragment = that.generateExpression(expr.attributes[i], Precedence.Sequence, E_TTF);
             xjsFragments.push({
               expr: expr.attributes[i],
-              name: expr.attributes[i].name.name,
+              name: expr.attributes[i].name && expr.attributes[i].name.name,
               fragment: fragment,
               multiline: hasLineTerminator(toSourceNodeWhenNeeded(fragment).toString())
             });
@@ -2588,6 +2588,14 @@
 
           result.push(expr.selfClosing ? '/>' : '>');
           return result;
+        },
+
+      JSXSpreadAttribute: function (expr, precedence, flags) {
+          return [
+            '{...',
+            this.generateExpression(expr.argument, Precedence.Assignment, E_TTT),
+            '}'
+          ];
         }
     };
 
@@ -2601,8 +2609,8 @@
         if (extra.verbatim && expr.hasOwnProperty(extra.verbatim)) {
             return generateVerbatim(expr, precedence);
         }
-      if(!this[type])console.log(type);
-      result = this[type](expr, precedence, flags);
+
+        result = this[type](expr, precedence, flags);
 
 
         if (extra.comment) {
