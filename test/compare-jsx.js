@@ -1,7 +1,7 @@
 'use strict';
 
 var fs = require('fs'),
-  acorn = require('acorn-6to5'),
+  acorn = require('acorn-babel'),
   escodegen = require('./loader'),
   chai = require('chai'),
   expect = chai.expect;
@@ -16,7 +16,8 @@ function test(code, expected) {
     range: true,
     loc: false,
     tokens: true,
-    raw: false
+    raw: false,
+    ecmaVersion: 6
   };
 
   tree = acorn.parse(code, options);

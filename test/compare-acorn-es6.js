@@ -25,7 +25,7 @@
 'use strict';
 
 var fs = require('fs'),
-    acorn = require('acorn-6to5'),
+    acorn = require('acorn-babel'),
     escodegen = require('./loader'),
     chai = require('chai'),
     expect = chai.expect;

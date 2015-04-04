@@ -1,5 +1,6 @@
 <div>
     <div a='a'></div>
+    <div {...this.props} foo={'override'}/>
     <div a='a' b c={c() * 2}>text</div>
     <div a='a' b d
         c={c() * 2}>
