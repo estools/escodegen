@@ -53,7 +53,7 @@
     "licenses": [
         {
             "type": "BSD",
-            "url": "http://github.com/estools/escodegen/raw/master/LICENSE.BSD"
+            "url": "http://github.com/wallabyjs/escodegen/raw/master/LICENSE.BSD"
         }
     ],
     "scripts": {
