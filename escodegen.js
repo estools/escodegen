@@ -472,7 +472,7 @@
             } else if (esutils.code.isLineTerminator(code) || code === 0x5C  /* \ */) {
                 result += escapeDisallowedCharacter(code);
                 continue;
-            } else if ((json && code < 0x20  /* SP */) || !(json || escapeless || (code >= 0x20  /* SP */ && code <= 0x7E  /* ~ */))) {
+            } else if (!esutils.code.isIdentifierPart(code) && (json && code < 0x20  /* SP */ || !json && !escapeless && (code < 0x20  /* SP */ || code > 0x7E  /* ~ */))) {
                 result += escapeAllowedCharacter(code, str.charCodeAt(i + 1));
                 continue;
             }

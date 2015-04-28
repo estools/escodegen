@@ -325,7 +325,7 @@ data = [{
             '+\' !"#$%&\\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\';',
         '+\'\\x7F\'': '+\'\\x7F\';',
         '+\'\\x80\'': '+\'\\x80\';',
-        '+\'\\u0100\'': '+\'\\u0100\';',
+        '+\'\\u0100\'': '+\'\u0100\';',
         '+\'hello, world\\n\'': '+\'hello, world\\n\';',
         '+"hello, world\\n"': '+\'hello, world\\n\';'
     }
@@ -362,7 +362,7 @@ data = [{
             '+" !\\"#$%&\'()*+,-.\\/0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";',
         '+\'\\x7F\'': '+"\x7F";',
         '+\'\\x80\'': '+"\x80";',
-        '+\'\\u0100\'': '+"\u0100";',
+        '+\'\\u0101\'': '+"\u0101";',
         '+\'hello, world\\n\'': '+"hello, world\\n";',
         '+"hello, world\\n"': '+"hello, world\\n";'
     }
@@ -399,7 +399,7 @@ data = [{
             '+" !\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";',
         '+\'\\x7F\'': '+"\\x7F";',
         '+\'\\x80\'': '+"\\x80";',
-        '+\'\\u0100\'': '+"\\u0100";',
+        '+\'\\u0102\'': '+"\u0102";',
         '+\'hello, world\\n\'': '+"hello, world\\n";',
         '+"hello, world\\n"': '+"hello, world\\n";'
     }
@@ -436,7 +436,7 @@ data = [{
             '+\' !"#$%&\\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\';',
         '+\'\\x7F\'': '+\'\\x7F\';',
         '+\'\\x80\'': '+\'\\x80\';',
-        '+\'\\u0100\'': '+\'\\u0100\';',
+        '+\'\\u0103\'': '+\'\u0103\';',
         '+\'hello, world\\n\'': '+\'hello, world\\n\';',
         '+"hello, world\\n"': '+\'hello, world\\n\';'
     }
@@ -473,7 +473,7 @@ data = [{
             '+\' !"#$%&\\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\';',
         '+\'\\x7F\'': '+\'\x7F\';',
         '+\'\\x80\'': '+\'\x80\';',
-        '+\'\\u0100\'': '+\'\u0100\';',
+        '+\'\\u0104\'': '+\'\u0104\';',
         '+\'hello, world\\n\'': '+\'hello, world\\n\';',
         '+"hello, world\\n"': '+\'hello, world\\n\';'
     }
@@ -510,7 +510,7 @@ data = [{
             '+\' !"#$%&\\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\';',
         '+\'\\x7F\'': '+\'\\x7F\';',
         '+\'\\x80\'': '+\'\\x80\';',
-        '+\'\\u0100\'': '+\'\\u0100\';',
+        '+\'\\u0105\'': '+\'\\u0105\';',
         '+\'hello, world\\n\'': '+\'hello, world\\n\';',
         '+"hello, world\\n"': '+"hello, world\\n";'
     }
