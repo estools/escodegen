@@ -1,29 +1,31 @@
 <div>
     <div a='a'></div>
     <div {...this.props} foo={'override'}/>
-    <div a='a' b c={c() * 2}>text</div>
-    <div a='a' b d
-        c={c() * 2}>
-        text
-    </div>
-    <div a='a' b c="'c'"
-        d='d' e='e' f
-        g>
-        text
-    </div>
+    <div a='a'
+        c={c() * 2} {...c}
+        b>text</div>
+    <div a='a'
+        c={c() * 2} {...c}
+        b {...(c()) * 2} d>text</div>
+    <div a='a' c={c() * 2} b>text</div>
+    <div a='a'
+        c={c() * 2} b
+        d>text</div>
+    <div a='a' b e='e'
+        f d='d' g
+        c="'c'">text</div>
     <div a='a' b
         c={c() * 2}
         d={d(function () {
             return d;
-        })}>
-        text
-    </div>
-    <div a='a' b
+        })}>text</div>
+    <div
         c={c() * 2}
+        e={{ e: 'e' }} {...(c()) * 2}
+        a='a'
         d={d(function () {
             return d;
-        })}
-        e={{ e: 'e' }}
+        })} b
         f={{
             e: 'e',
             f: 'f'
@@ -33,7 +35,5 @@
             h: function () {
                 return h;
             }
-        }}>
-        text
-    </div>
+        }}>text</div>
 </div>;

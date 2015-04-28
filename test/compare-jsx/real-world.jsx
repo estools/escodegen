@@ -5,6 +5,7 @@ function a() {
             var x = 'x';
             return <this.props.component/>;
         })}>
+            <div ref="d">Hello {this.props.name}</div>
             <this.widget/>
             <Sample>
                 <ul>

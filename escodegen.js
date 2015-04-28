@@ -2449,14 +2449,12 @@
           result.push(fragment);
 
           var xjsFragments = [];
-          var multiline = !expr.openingElement.selfClosing &&
-            hasLineTerminator(toSourceNodeWhenNeeded(fragment).toString());
 
           var i, len;
           withIndent(function(indent) {
             for (i = 0, len = expr.children.length; i < len; ++i) {
               if (expr.children[i].type === Syntax.Literal) {
-                fragment = expr.children[i].raw.trim();
+                fragment = expr.children[i].raw;
                 if (fragment) {
                   xjsFragments.push(fragment);
                 }
@@ -2466,24 +2464,12 @@
               fragment = that.generateExpression(expr.children[i], Precedence.JSXElement, E_TTF | F_XJS_NOINDENT);
 
               xjsFragments.push(fragment);
-              multiline = multiline || xjsHasNode(expr.children[i]);
             }
 
-            multiline = multiline || xjsFragments.length > 1 ||
-            (xjsFragments.length &&
-            hasLineTerminator(toSourceNodeWhenNeeded(xjsFragments[0]).toString()));
-
             for (i = 0, len = xjsFragments.length; i < len; ++i) {
-              if (multiline) {
-                result.push(newline + indent);
-              }
               result.push(xjsFragments[i]);
             }
           });
-
-          if (multiline) {
-            result.push(newline + base);
-          }
 
           if (expr.closingElement) {
             fragment = that.generateExpression(expr.closingElement, Precedence.JSXElement, 0);
@@ -2559,19 +2545,6 @@
             }
           }
 
-          xjsFragments.sort(function(a, b) {
-            if (!a.multiline && !b.multiline) {
-              return a.name > b.name ? 1 : -1;
-            }
-            if (!a.multiline) {
-              return -1;
-            }
-            if (!b.multiline) {
-              return 1;
-            }
-            return a.name > b.name ? 1 : -1;
-          });
-
           withIndent(function(indent) {
             for (var i = 0, len = xjsFragments.length; i < len; ++i) {
               if ((i > 0 && i % 3 === 0) ||
@@ -2593,7 +2566,10 @@
       JSXSpreadAttribute: function (expr, precedence, flags) {
           return [
             '{...',
-            this.generateExpression(expr.argument, Precedence.Assignment, E_TTT),
+            this.generateExpression(expr.argument, Precedence.Sequence, {
+              allowIn: true,
+              allowCall: true
+            }),
             '}'
           ];
         }
