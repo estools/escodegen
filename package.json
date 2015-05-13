@@ -32,7 +32,7 @@
     },
     "dependencies": {
         "estraverse": "^1.9.1",
-        "esutils": "^1.1.6",
+        "esutils": "^2.0.2",
         "esprima": "^1.2.2",
         "optionator": "^0.5.0"
     },
