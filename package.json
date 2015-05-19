@@ -51,12 +51,7 @@
         "gulp-mocha": "^2.0.0",
         "semver": "^4.1.0"
     },
-    "licenses": [
-        {
-            "type": "BSD",
-            "url": "http://github.com/estools/escodegen/raw/master/LICENSE.BSD"
-        }
-    ],
+    "license": "BSD-2-Clause",
     "scripts": {
         "test": "gulp travis",
         "unit-test": "gulp test",
