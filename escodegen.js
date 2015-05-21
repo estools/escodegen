@@ -2111,6 +2111,10 @@
                 ];
             }
 
+            if (expr.kind === 'init' && !expr.method && expr.shorthand) {
+                return this.generatePattern(expr.value, Precedence.Assignment, E_TTT);
+            }
+
             if (expr.shorthand) {
                 return this.generatePropertyKey(expr.key, expr.computed);
             }
@@ -2718,19 +2722,6 @@
         return raw;
       }
       return quotes === 'double' ? '"' + s + '"' : '\'' + s + '\'';
-    }
-
-    function xjsHasNode(expr) {
-      if (expr.type !== 'JSXElement') {
-        return false;
-      }
-
-      for (var i = 0, len = expr.children.length; i < len; ++i) {
-        if (expr.children[i].type === 'JSXElement') {
-          return true;
-        }
-      }
-      return false;
     }
 
     FORMAT_MINIFY = {
