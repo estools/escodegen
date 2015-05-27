@@ -2025,15 +2025,15 @@
         },
 
         ArrayPattern: function (expr, precedence, flags) {
-            return this.ArrayExpression(expr, precedence, flags);
+            return this.ArrayExpression(expr, precedence, flags, true);
         },
 
-        ArrayExpression: function (expr, precedence, flags) {
+        ArrayExpression: function (expr, precedence, flags, isPattern) {
             var result, multiline, that = this;
             if (!expr.elements.length) {
                 return '[]';
             }
-            multiline = expr.elements.length > 1;
+            multiline = isPattern ? false : expr.elements.length > 1;
             result = ['[', multiline ? newline : ''];
             withIndent(function (indent) {
                 var i, iz;
