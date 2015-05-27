@@ -2065,6 +2065,10 @@
             return result;
         },
 
+        RestElement: function(expr, precedence, flags) {
+            return '...' + generateIdentifier(expr.argument);
+        },
+
         ClassExpression: function (expr, precedence, flags) {
             var result, fragment;
             result = ['class'];

@@ -1459,6 +1459,41 @@ data = {
                     expression: false
                 }]
             }
+        },
+
+        '[\n    x,\n    ...y\n] = list;': {
+            generateFrom: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "AssignmentExpression",
+                            "operator": "=",
+                            "left": {
+                                "type": "ArrayPattern",
+                                "elements": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "x"
+                                    },
+                                    {
+                                        "type": "RestElement",
+                                        "argument": {
+                                            "type": "Identifier",
+                                            "name": "y"
+                                        }
+                                    }
+                                ]
+                            },
+                            "right": {
+                                "type": "Identifier",
+                                "name": "list"
+                            }
+                        }
+                    }
+                ]
+            }
         }
     },
 
