@@ -1380,7 +1380,7 @@ data = {
             }
         },
 
-        'for (let [\n            a,\n            b\n        ] in obj) {\n}': {
+        'for (let [a, b] in obj) {\n}': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1421,7 +1421,7 @@ data = {
             }
         },
 
-        'function getIdField([\n    a,\n    b,\n    c\n]) {\n}': {
+        'function getIdField([a, b, c]) {\n}': {
             generateFrom: {
                 type: 'Program',
                 body: [{
@@ -1461,7 +1461,7 @@ data = {
             }
         },
 
-        '[\n    x,\n    ...y\n] = list;': {
+        '[x, ...y] = list;': {
             generateFrom: {
                 "type": "Program",
                 "body": [
