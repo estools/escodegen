@@ -2066,7 +2066,7 @@
         },
 
         RestElement: function(expr, precedence, flags) {
-            return '...' + generateIdentifier(expr.argument);
+            return '...' + this.generatePattern(expr.argument);
         },
 
         ClassExpression: function (expr, precedence, flags) {
