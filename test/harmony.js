@@ -1494,6 +1494,47 @@ data = {
                     }
                 ]
             }
+        },
+        '[x, ...[y,z]] = list;': {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "AssignmentExpression",
+                        "operator": "=",
+                        "left": {
+                            "type": "ArrayPattern",
+                            "elements": [
+                                {
+                                    "type": "Identifier",
+                                    "name": "x"
+                                },
+                                {
+                                    "type": "RestElement",
+                                    "argument": {
+                                        "type": "ArrayPattern",
+                                        "elements": [
+                                            {
+                                                "type": "Identifier",
+                                                "name": "y"
+                                            },
+                                            {
+                                                "type": "Identifier",
+                                                "name": "z"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        "right": {
+                            "type": "Identifier",
+                            "name": "list"
+                        }
+                    }
+                }
+            ]
         }
     },
 
