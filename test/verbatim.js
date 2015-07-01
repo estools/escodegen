@@ -24,7 +24,7 @@
 
 'use strict';
 
-var esprima = require('./3rdparty/esprima'),
+var esprima = require('./3rdparty/esprima-1.0.0-dev'),
     escodegen = require('./loader'),
     chai = require('chai'),
     expect = chai.expect,
