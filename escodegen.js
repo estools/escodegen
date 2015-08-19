@@ -33,16 +33,23 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*global exports:true, require:true, global:true*/
-(function () {
+/*global exports:true, require:true, define:true*/
+(function (global, factory) {
+  'use strict';
+  if (typeof exports === 'object' && typeof module !== 'undefined') {
+    factory(exports, require('estraverse'), require('esutils'), require('source-map'));
+  } else if (typeof define === 'function' && define.amd) {
+    define(['exports', 'estraverse', 'esutils', 'source-map'], factory);
+  } else {
+    factory(global.escodegen = {}, global.estraverse, global.esutils, global.sourceMap);
+  }
+})(this, function (exports, estraverse, esutils, sourceMap) {
     'use strict';
 
     var Syntax,
         Precedence,
         BinaryPrecedence,
         SourceNode,
-        estraverse,
-        esutils,
         isArray,
         base,
         indent,
@@ -59,15 +66,12 @@
         directive,
         extra,
         parse,
-        sourceMap,
         sourceCode,
         preserveBlankLines,
         FORMAT_MINIFY,
         FORMAT_DEFAULTS;
 
-    estraverse = require('estraverse');
-    esutils = require('esutils');
-
+    SourceNode = sourceMap.SourceNode;
     Syntax = estraverse.Syntax;
 
     // Generation is done by generateExpression.
@@ -2500,16 +2504,6 @@
         preserveBlankLines = options.format.preserveBlankLines && sourceCode !== null;
         extra = options;
 
-        if (sourceMap) {
-            if (!exports.browser) {
-                // We assume environment is node.js
-                // And prevent from including source-map by browserify
-                SourceNode = require('source-map').SourceNode;
-            } else {
-                SourceNode = global.sourceMap.SourceNode;
-            }
-        }
-
         result = generateInternal(node);
 
         if (!sourceMap) {
@@ -2558,5 +2552,5 @@
     exports.browser = false;
     exports.FORMAT_MINIFY = FORMAT_MINIFY;
     exports.FORMAT_DEFAULTS = FORMAT_DEFAULTS;
-}());
+});
 /* vim: set sw=4 ts=4 et tw=80 : */
