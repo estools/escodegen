@@ -53,6 +53,7 @@
     },
     "license": "BSD-2-Clause",
     "scripts": {
+        "prepublish": "node tools/update-version.js",
         "test": "gulp travis",
         "unit-test": "gulp test",
         "lint": "gulp lint",

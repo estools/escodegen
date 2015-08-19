@@ -71,7 +71,6 @@
         FORMAT_MINIFY,
         FORMAT_DEFAULTS;
 
-    SourceNode = sourceMap.SourceNode;
     Syntax = estraverse.Syntax;
 
     // Generation is done by generateExpression.
@@ -2499,14 +2498,17 @@
         safeConcatenation = options.format.safeConcatenation;
         directive = options.directive;
         parse = json ? null : options.parse;
-        sourceMap = options.sourceMap;
         sourceCode = options.sourceCode;
         preserveBlankLines = options.format.preserveBlankLines && sourceCode !== null;
         extra = options;
 
+        if (sourceMap) {
+          SourceNode = sourceMap.SourceNode;
+        }
+
         result = generateInternal(node);
 
-        if (!sourceMap) {
+        if (!options.sourceMap) {
             pair = {code: result.toString(), map: null};
             return options.sourceMapWithCode ? pair : pair.code;
         }
@@ -2545,7 +2547,7 @@
 
     FORMAT_DEFAULTS = getDefaultOptions().format;
 
-    exports.version = require('./package.json').version;
+    exports.version = '1.6.1';
     exports.generate = generate;
     exports.attachComments = estraverse.attachComments;
     exports.Precedence = updateDeeply({}, Precedence);
