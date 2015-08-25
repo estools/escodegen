@@ -2227,6 +2227,10 @@
             return 'this';
         },
 
+        Super: function (expr, precedence, flags) {
+            return 'super';
+        },
+
         Identifier: function (expr, precedence, flags) {
             return generateIdentifier(expr);
         },
