@@ -4381,6 +4381,42 @@ data = {
         }
     },
 
+    'Harmony super': {
+        'super.abc();': {
+            generateFrom: {
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'CallExpression',
+                    callee: {
+                        type: 'MemberExpression',
+                        computed: false,
+                        object: {
+                            type: 'Super'
+                        },
+                        property: {
+                            type: 'Identifier',
+                            name: 'abc'
+                        }
+                    },
+                    arguments: []
+                }
+            }
+        },
+
+        'super();': {
+            generateFrom:  {
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'CallExpression',
+                    callee: {
+                        type: 'Super'
+                    },
+                    arguments: []
+                }
+            }
+        }
+    },
+
     'Harmony async/await': {
         'async function foo(promise) {\n    await promise;\n}': {
             generateFrom: {
