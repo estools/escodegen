@@ -2273,9 +2273,11 @@
         },
 
         ExportSpecifier: function (expr, precedence, flags) {
-            var result = [ (expr.id || expr.local).name ];
-            if (expr.name) {
-                result.push(noEmptySpace() + 'as' + noEmptySpace() + generateIdentifier(expr.name));
+            var exported = (expr.id || expr.imported).name;
+            var result = [ exported ];
+            var id = expr.name || expr.local;
+            if (id && id.name !== exported) {
+                result.push(noEmptySpace() + 'as' + noEmptySpace() + generateIdentifier(id));
             }
             return result;
         },
