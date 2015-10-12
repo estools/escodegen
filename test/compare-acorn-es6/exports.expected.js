@@ -1,4 +1,6 @@
-export * from 'OK';
+export {
+    *
+} from 'OK';
 export {
     name
 } from 'OK';

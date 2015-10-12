@@ -31,7 +31,7 @@
         "url": "http://github.com/estools/escodegen.git"
     },
     "dependencies": {
-        "estraverse": "^1.9.1",
+        "estraverse": "^4.1.0",
         "esutils": "^2.0.2",
         "esprima": "^1.2.2",
         "optionator": "^0.5.0"
