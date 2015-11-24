@@ -1,7 +1,7 @@
 {
-    "name": "escodegen-wallaby",
-    "description": "ECMAScript code generator with JSX support",
-    "homepage": "http://github.com/wallabyjs/escodegen",
+    "name": "escodegen",
+    "description": "ECMAScript code generator",
+    "homepage": "http://github.com/estools/escodegen",
     "main": "escodegen.js",
     "bin": {
         "esgenerate": "./bin/esgenerate.js",
@@ -15,20 +15,20 @@
         "escodegen.js",
         "package.json"
     ],
-    "version": "1.6.6",
+    "version": "1.7.1",
     "engines": {
         "node": ">=0.12.0"
     },
     "maintainers": [
         {
-            "name": "Artem Govorov",
-            "email": "artem.govorov@gmail.com",
-            "web": "http://dm.gl"
+            "name": "Yusuke Suzuki",
+            "email": "utatane.tea@gmail.com",
+            "web": "http://github.com/Constellation"
         }
     ],
     "repository": {
         "type": "git",
-        "url": "http://github.com/wallabyjs/escodegen.git"
+        "url": "http://github.com/estools/escodegen.git"
     },
     "dependencies": {
         "estraverse": "^1.9.1",
@@ -40,7 +40,7 @@
         "source-map": "~0.2.0"
     },
     "devDependencies": {
-        "acorn-babel": "^0.11.1-38",
+        "acorn-6to5": "^0.11.1-25",
         "bluebird": "^2.3.11",
         "bower-registry-client": "^0.2.1",
         "chai": "^1.10.0",
@@ -50,12 +50,7 @@
         "gulp-mocha": "^2.0.0",
         "semver": "^5.1.0"
     },
-    "licenses": [
-        {
-            "type": "BSD",
-            "url": "http://github.com/wallabyjs/escodegen/raw/master/LICENSE.BSD"
-        }
-    ],
+    "license": "BSD-2-Clause",
     "scripts": {
         "test": "gulp travis",
         "unit-test": "gulp test",
