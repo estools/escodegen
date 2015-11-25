@@ -2262,10 +2262,10 @@
         },
 
         ExportSpecifier: function (expr, precedence, flags) {
-            var exported = (expr.id || expr.imported).name;
-            var result = [ exported ];
+            var name = (expr.id || expr.imported || expr.exported).name;
+            var result = [ name ];
             var id = expr.name || expr.local;
-            if (id && id.name !== exported) {
+            if (id && id.name !== name) {
                 result.push(noEmptySpace() + 'as' + noEmptySpace() + generateIdentifier(id));
             }
             return result;
