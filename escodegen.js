@@ -1941,6 +1941,15 @@
             return parenthesize(result, Precedence.Member, precedence);
         },
 
+        MetaProperty: function (expr, precedence, flags) {
+            var result;
+            result = [];
+            result.push(generateIdentifier(expr.meta));
+            result.push('.');
+            result.push(generateIdentifier(expr.property));
+            return parenthesize(result, Precedence.Member, precedence);
+        },
+
         UnaryExpression: function (expr, precedence, flags) {
             var result, fragment, rightCharCode, leftSource, leftCharCode;
             fragment = this.generateExpression(expr.argument, Precedence.Unary, E_TTT);
