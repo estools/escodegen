@@ -1204,22 +1204,26 @@
             return ';';
         },
 
-        ExportDeclaration: function (stmt, flags) {
-            var result = [ 'export' ], bodyFlags, that = this;
+        ExportDefaultDeclaration: function (stmt, flags) {
+            var result = [ 'export' ], bodyFlags;
 
             bodyFlags = (flags & F_SEMICOLON_OPT) ? S_TFFT : S_TFFF;
 
             // export default HoistableDeclaration[Default]
             // export default AssignmentExpression[In] ;
-            if (stmt['default']) {
-                result = join(result, 'default');
-                if (isStatement(stmt.declaration)) {
-                    result = join(result, this.generateStatement(stmt.declaration, bodyFlags));
-                } else {
-                    result = join(result, this.generateExpression(stmt.declaration, Precedence.Assignment, E_TTT) + this.semicolon(flags));
-                }
-                return result;
+            result = join(result, 'default');
+            if (isStatement(stmt.declaration)) {
+                result = join(result, this.generateStatement(stmt.declaration, bodyFlags));
+            } else {
+                result = join(result, this.generateExpression(stmt.declaration, Precedence.Assignment, E_TTT) + this.semicolon(flags));
             }
+            return result;
+        },
+
+        ExportNamedDeclaration: function (stmt, flags) {
+            var result = [ 'export' ], bodyFlags, that = this;
+
+            bodyFlags = (flags & F_SEMICOLON_OPT) ? S_TFFT : S_TFFF;
 
             // export VariableStatement
             // export Declaration[Default]
@@ -1227,7 +1231,6 @@
                 return join(result, this.generateStatement(stmt.declaration, bodyFlags));
             }
 
-            // export * FromClause ;
             // export ExportClause[NoReference] FromClause ;
             // export ExportClause ;
             if (stmt.specifiers) {
@@ -1268,13 +1271,16 @@
             return result;
         },
 
-        ExportDefaultDeclaration: function (stmt, flags) {
-             stmt.default = true;
-             return this.ExportDeclaration(stmt, flags);
-        },
-
-        ExportNamedDeclaration: function (stmt, flags) {
-            return this.ExportDeclaration(stmt, flags);
+        ExportAllDeclaration: function (stmt, flags) {
+            // export * FromClause ;
+            return [
+                'export' + space,
+                '*' + space,
+                'from' + space,
+                // ModuleSpecifier
+                this.generateExpression(stmt.source, Precedence.Sequence, E_TTT),
+                this.semicolon(flags)
+            ];
         },
 
         ExpressionStatement: function (stmt, flags) {
@@ -1732,7 +1738,7 @@
                 generateAsyncPrefix(stmt, true),
                 'function',
                 generateStarSuffix(stmt) || noEmptySpace(),
-                generateIdentifier(stmt.id),
+                stmt.id ? generateIdentifier(stmt.id) : '',
                 this.generateFunctionBody(stmt)
             ];
         },
@@ -2041,10 +2047,6 @@
             return result;
         },
 
-        ExportBatchSpecifier: function (expr, precedence, flags) {
-            return '*';
-        },
-
         ArrayPattern: function (expr, precedence, flags) {
             return this.ArrayExpression(expr, precedence, flags, true);
         },
@@ -2278,15 +2280,21 @@
         },
 
         ImportSpecifier: function (expr, precedence, flags) {
-            return this.ExportSpecifier(expr, precedence, flags);
+            var imported = expr.imported;
+            var result = [ imported.name ];
+            var local = expr.local;
+            if (local && local.name !== imported.name) {
+                result.push(noEmptySpace() + 'as' + noEmptySpace() + generateIdentifier(local));
+            }
+            return result;
         },
 
         ExportSpecifier: function (expr, precedence, flags) {
-            var name = (expr.id || expr.imported || expr.exported).name;
-            var result = [ name ];
-            var id = expr.name || expr.local;
-            if (id && id.name !== name) {
-                result.push(noEmptySpace() + 'as' + noEmptySpace() + generateIdentifier(id));
+            var local = expr.local;
+            var result = [ local.name ];
+            var exported = expr.exported;
+            if (exported && exported.name !== local.name) {
+                result.push(noEmptySpace() + 'as' + noEmptySpace() + generateIdentifier(exported));
             }
             return result;
         },
