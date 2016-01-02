@@ -11,7 +11,6 @@ export {
     c as d
 };
 export { };
-export default i = 20;
 export function test() {
 }
 export var i = 20;
