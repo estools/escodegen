@@ -2201,6 +2201,10 @@
             return result;
         },
 
+        AssignmentPattern: function(expr, precedence, flags) {
+            return this.generateAssignment(expr.left, expr.right, expr.operator, precedence, flags);
+        },
+
         ObjectPattern: function (expr, precedence, flags) {
             var result, i, iz, multiline, property, that = this;
             if (!expr.properties.length) {
