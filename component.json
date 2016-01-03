@@ -32,13 +32,11 @@
     },
     "dependencies": {
         "estraverse": "^1.9.1",
-        "esutils": "^2.0.2",
         "esprima": "^2.7.1",
+        "esutils": "^2.0.2",
         "optionator": "^0.8.1"
     },
-    "optionalDependencies": {
-        "source-map": "~0.2.0"
-    },
+    "optionalDependencies": {},
     "devDependencies": {
         "acorn-6to5": "^0.11.1-25",
         "bluebird": "^2.3.11",
