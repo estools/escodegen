@@ -1145,7 +1145,10 @@
 
         ClassDeclaration: function (stmt, flags) {
             var result, fragment;
-            result  = ['class ' + stmt.id.name];
+            result  = ['class'];
+            if (stmt.id) {
+                result = join(result, this.generateExpression(stmt.id, Precedence.Sequence, E_TTT));
+            }
             if (stmt.superClass) {
                 fragment = join('extends', this.generateExpression(stmt.superClass, Precedence.Assignment, E_TTT));
                 result = join(result, fragment);
