@@ -2212,7 +2212,7 @@
         },
 
         AssignmentPattern: function(expr, precedence, flags) {
-            return this.generateAssignment(expr.left, expr.right, expr.operator, precedence, flags);
+            return this.generateAssignment(expr.left, expr.right, '=', precedence, flags);
         },
 
         ObjectPattern: function (expr, precedence, flags) {
