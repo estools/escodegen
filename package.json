@@ -40,7 +40,7 @@
         "source-map": "~0.2.0"
     },
     "devDependencies": {
-        "acorn-6to5": "^0.11.1-25",
+        "acorn": "^2.7.0",
         "bluebird": "^2.3.11",
         "bower-registry-client": "^0.2.1",
         "chai": "^1.10.0",
