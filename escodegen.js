@@ -664,7 +664,7 @@
         return '/*' + comment.value + '*/';
     }
 
-    var rangesInTrailingComments = new Set();
+    var rangesInTrailingComments = {};
 
     function addComments(stmt, result) {
         var i, len, comment, save, tailingToStatement, specialBase, fragment,
@@ -681,7 +681,7 @@
                 } else {
                     commentRange = comment.range;
                 }
-                return !rangesInTrailingComments.has(commentRange.join(','));
+                return rangesInTrailingComments[commentRange.join(',')] === undefined;
             });
 
             if (leadingComments.length > 0) {
@@ -755,7 +755,7 @@
                 } else {
                     commentRange = trailingComment.range;
                 }
-                rangesInTrailingComments.add(commentRange.join(','));
+                rangesInTrailingComments[commentRange.join(',')] = true;
             });
 
             if (preserveBlankLines) {
