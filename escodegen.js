@@ -664,72 +664,99 @@
         return '/*' + comment.value + '*/';
     }
 
+    var rangesInTrailingComments = new Set();
+
     function addComments(stmt, result) {
         var i, len, comment, save, tailingToStatement, specialBase, fragment,
-            extRange, range, prevRange, prefix, infix, suffix, count;
+            extRange, range, prevRange, prefix, infix, suffix, count, leadingComments;
 
-        if (stmt.leadingComments && stmt.leadingComments.length > 0) {
-            save = result;
+        if (stmt.leadingComments) {
 
-            if (preserveBlankLines) {
-                comment = stmt.leadingComments[0];
-                result = [];
-
-                extRange = comment.extendedRange;
-                range = comment.range;
-
-                prefix = sourceCode.substring(extRange[0], range[0]);
-                count = (prefix.match(/\n/g) || []).length;
-                if (count > 0) {
-                    result.push(stringRepeat('\n', count));
-                    result.push(addIndent(generateComment(comment)));
+            leadingComments = stmt.leadingComments.filter(function (comment) {
+                var commentRange;
+                if (typeof comment.range === 'object') {
+                    commentRange = Object.keys(comment.range).map(function (key) {
+                        return comment.range[key];
+                    });
                 } else {
-                    result.push(prefix);
-                    result.push(generateComment(comment));
+                    commentRange = comment.range;
                 }
+                return !rangesInTrailingComments.has(commentRange.join(','));
+            });
 
-                prevRange = range;
+            if (leadingComments.length > 0) {
+                save = result;
 
-                for (i = 1, len = stmt.leadingComments.length; i < len; i++) {
-                    comment = stmt.leadingComments[i];
+                if (preserveBlankLines) {
+                    comment = leadingComments[0];
+                    result = [];
+
+                    extRange = comment.extendedRange;
                     range = comment.range;
 
-                    infix = sourceCode.substring(prevRange[1], range[0]);
-                    count = (infix.match(/\n/g) || []).length;
-                    result.push(stringRepeat('\n', count));
-                    result.push(addIndent(generateComment(comment)));
+                    prefix = sourceCode.substring(extRange[0], range[0]);
+                    count = (prefix.match(/\n/g) || []).length;
+                    if (count > 0) {
+                        result.push(stringRepeat('\n', count));
+                        result.push(addIndent(generateComment(comment)));
+                    } else {
+                        result.push(prefix);
+                        result.push(generateComment(comment));
+                    }
 
                     prevRange = range;
-                }
 
-                suffix = sourceCode.substring(range[1], extRange[1]);
-                count = (suffix.match(/\n/g) || []).length;
-                result.push(stringRepeat('\n', count));
-            } else {
-                comment = stmt.leadingComments[0];
-                result = [];
-                if (safeConcatenation && stmt.type === Syntax.Program && stmt.body.length === 0) {
-                    result.push('\n');
-                }
-                result.push(generateComment(comment));
-                if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
-                    result.push('\n');
-                }
+                    for (i = 1, len = leadingComments.length; i < len; i++) {
+                        comment = leadingComments[i];
+                        range = comment.range;
 
-                for (i = 1, len = stmt.leadingComments.length; i < len; ++i) {
-                    comment = stmt.leadingComments[i];
-                    fragment = [generateComment(comment)];
-                    if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
-                        fragment.push('\n');
+                        infix = sourceCode.substring(prevRange[1], range[0]);
+                        count = (infix.match(/\n/g) || []).length;
+                        result.push(stringRepeat('\n', count));
+                        result.push(addIndent(generateComment(comment)));
+
+                        prevRange = range;
                     }
-                    result.push(addIndent(fragment));
-                }
-            }
 
-            result.push(addIndent(save));
+                    suffix = sourceCode.substring(range[1], extRange[1]);
+                    count = (suffix.match(/\n/g) || []).length;
+                    result.push(stringRepeat('\n', count));
+                } else {
+                    comment = leadingComments[0];
+                    result = [];
+                    if (safeConcatenation && stmt.type === Syntax.Program && stmt.body.length === 0) {
+                        result.push('\n');
+                    }
+                    result.push(generateComment(comment));
+                    if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
+                        result.push('\n');
+                    }
+
+                    for (i = 1, len = leadingComments.length; i < len; ++i) {
+                        comment = leadingComments[i];
+                        fragment = [generateComment(comment)];
+                        if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
+                            fragment.push('\n');
+                        }
+                        result.push(addIndent(fragment));
+                    }
+                }
+                result.push(addIndent(save));
+            }
         }
 
         if (stmt.trailingComments) {
+            stmt.trailingComments.forEach(function (trailingComment) {
+                var commentRange;
+                if (typeof trailingComment.range  === 'object') {
+                    commentRange = Object.keys(trailingComment.range).map(function (key) {
+                        return trailingComment.range[key];
+                    });
+                } else {
+                    commentRange = trailingComment.range;
+                }
+                rangesInTrailingComments.add(commentRange.join(','));
+            });
 
             if (preserveBlankLines) {
                 comment = stmt.trailingComments[0];
@@ -773,7 +800,6 @@
                 }
             }
         }
-
         return result;
     }
 
