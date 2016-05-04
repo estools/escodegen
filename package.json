@@ -45,7 +45,6 @@
         "bower-registry-client": "^0.2.1",
         "chai": "^1.10.0",
         "commonjs-everywhere": "^0.9.7",
-        "esprima-moz": "*",
         "gulp": "^3.8.10",
         "gulp-eslint": "^0.2.0",
         "gulp-mocha": "^2.0.0",
