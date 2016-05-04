@@ -976,7 +976,7 @@
             result = join(result, operator);
             result = [join(
                 result,
-                that.generateExpression(stmt.right, Precedence.Sequence, E_TTT)
+                that.generateExpression(stmt.right, Precedence.Sequence + (operator === 'of' ? 1 : 0), E_TTT)
             ), ')'];
         });
         result.push(this.maybeBlock(stmt.body, flags));
