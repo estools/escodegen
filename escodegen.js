@@ -2088,10 +2088,6 @@
             return result;
         },
 
-        RestElement: function(expr, precedence, flags) {
-            return '...' + this.generatePattern(expr.argument);
-        },
-
         ClassExpression: function (expr, precedence, flags) {
             var result, fragment;
             result = ['class'];
