@@ -510,6 +510,103 @@ data = {
     },
 
     'Object destructuring (and aliasing)':  {
+        '({a = "b", b = {\n        c: "d",\n        e: "f"\n    }} = {}) => {\n};': {
+            generateFrom: {
+                type: "ExpressionStatement",
+                expression: {
+                    type: "ArrowFunctionExpression",
+                    id: null,
+                    params: [{
+                        type: "ObjectPattern",
+                        properties: [{
+                            type: "Property",
+                            key: {
+                                type: "Identifier",
+                                name: "a"
+                            },
+                            computed: false,
+                            value: {
+                                type: "AssignmentPattern",
+                                left: {
+                                    type: "Identifier",
+                                    name: "a"
+                                },
+                                right: {
+                                    type: "Literal",
+                                    value: "b",
+                                    raw: "\"b\""
+                                }
+                            },
+                            kind: "init",
+                            method: false,
+                            shorthand: true
+                        }, {
+                            type: "Property",
+                            key: {
+                                type: "Identifier",
+                                name: "b"
+                            },
+                            computed: false,
+                            value: {
+                                type: "AssignmentPattern",
+                                left: {
+                                    type: "Identifier",
+                                    name: "b"
+                                },
+                                right: {
+                                    type: "ObjectExpression",
+                                    properties: [{
+                                        type: "Property",
+                                        key: {
+                                            type: "Identifier",
+                                            name: "c"
+                                        },
+                                        computed: false,
+                                        value: {
+                                            type: "Literal",
+                                            value: "d",
+                                            raw: "\"d\""
+                                        },
+                                        kind: "init",
+                                        method: false,
+                                        shorthand: false
+                                    }, {
+                                        type: "Property",
+                                        key: {
+                                            type: "Identifier",
+                                            name: "e"
+                                        },
+                                        computed: false,
+                                        value: {
+                                            type: "Literal",
+                                            value: "f",
+                                            raw: "\"f\""
+                                        },
+                                        kind: "init",
+                                        method: false,
+                                        shorthand: false
+                                    }]
+                                }
+                            },
+                            kind: "init",
+                            method: false,
+                            shorthand: true
+                        }]
+                    }],
+                    defaults: [{
+                        type: "ObjectExpression",
+                        properties: []
+                    }],
+                    body: {
+                        type: "BlockStatement",
+                        body: []
+                    },
+                    generator: false,
+                    expression: false
+                }
+            }
+        },
+
         'var {\n    a,\n    b: C\n} = {};' : {
             generateFrom: {
                 type: 'Program',
