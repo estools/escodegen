@@ -2584,6 +2584,5 @@
     exports.browser = false;
     exports.FORMAT_MINIFY = FORMAT_MINIFY;
     exports.FORMAT_DEFAULTS = FORMAT_DEFAULTS;
-    exports._addInlineComment = addInlineComment
 }());
 /* vim: set sw=4 ts=4 et tw=80 : */
