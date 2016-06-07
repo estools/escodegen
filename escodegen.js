@@ -692,7 +692,7 @@
             } else {
 		return result;
             }
-        }        
+        }
     }
 
     function addComments(stmt, result) {
