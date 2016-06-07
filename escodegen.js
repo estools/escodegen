@@ -664,7 +664,7 @@
         return '/*' + comment.value + '*/';
     }
 
-    function addInlineComment(stmt, result) {
+    function addInlineComment(stmt, result, bAddIndent) {
         if (stmt.inlineComments) {
             for (var i = 0; i < stmt.inlineComments.length; i++) {
                 var comment = stmt.inlineComments[i];
@@ -685,8 +685,14 @@
                     result.splice(2 + i, 0, generateComment(comment));
                 }
             }
-        }
-        return result;
+            return result;
+        } else {
+            if (bAddIndent) {
+		return addIndent(result);
+            } else {
+		return result;
+            }
+        }        
     }
 
     function addComments(stmt, result) {
@@ -752,11 +758,11 @@
             }
 
             // Add inline comments after the leading comments were added
-            result.push(addInlineComment(stmt, save));
+            result.push(addInlineComment(stmt, save, true));
         }
         else {
           // Add inline comments
-          result = addInlineComment(stmt, result);
+          result = addInlineComment(stmt, result, false);
         }
 
         if (stmt.trailingComments) {
