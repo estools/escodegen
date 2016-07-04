@@ -47,6 +47,7 @@
         base,
         indent,
         json,
+        realJson,
         renumber,
         hexadecimal,
         quotes,
@@ -182,6 +183,7 @@
                 newline: '\n',
                 space: ' ',
                 json: false,
+                realjson: false,
                 renumber: false,
                 hexadecimal: false,
                 quotes: 'single',
@@ -2147,8 +2149,12 @@
                 ];
             }
 
+            var wrapQuotesIfJson = function(key) {
+                return realJson ? ('"' + key + '"') : key;
+            };
+
             return [
-                this.generatePropertyKey(expr.key, expr.computed),
+                wrapQuotesIfJson(this.generatePropertyKey(expr.key, expr.computed)),
                 ':' + space,
                 this.generateExpression(expr.value, Precedence.Assignment, E_TTT)
             ];
@@ -2520,7 +2526,8 @@
             indent = options.format.indent.style;
             base = stringRepeat(indent, options.format.indent.base);
         }
-        json = options.format.json;
+        realJson = options.format.realjson;
+        json = realJson || options.format.json;
         renumber = options.format.renumber;
         hexadecimal = json ? false : options.format.hexadecimal;
         quotes = json ? 'double' : options.format.quotes;
