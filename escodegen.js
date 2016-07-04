@@ -183,7 +183,7 @@
                 newline: '\n',
                 space: ' ',
                 json: false,
-                realJson: false,
+                realjson: false,
                 renumber: false,
                 hexadecimal: false,
                 quotes: 'single',
