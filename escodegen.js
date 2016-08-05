@@ -980,14 +980,20 @@
         return result;
     };
 
-    CodeGenerator.prototype.generatePropertyKey = function (expr, computed) {
+    CodeGenerator.prototype.generatePropertyKey = function (expr, computed, value) {
         var result = [];
 
         if (computed) {
             result.push('[');
         }
 
-        result.push(this.generateExpression(expr, Precedence.Sequence, E_TTT));
+        if (value.type === 'AssignmentPattern') {
+            result.push(this.AssignmentPattern(value, Precedence.Sequence, E_TTT));
+        }
+        else {
+            result.push(this.generateExpression(expr, Precedence.Sequence, E_TTT));
+        }
+
         if (computed) {
             result.push(']');
         }
@@ -2113,13 +2119,13 @@
             }
             if (expr.kind === 'get' || expr.kind === 'set') {
                 fragment = [
-                    join(expr.kind, this.generatePropertyKey(expr.key, expr.computed)),
+                    join(expr.kind, this.generatePropertyKey(expr.key, expr.computed, expr.value)),
                     this.generateFunctionBody(expr.value)
                 ];
             } else {
                 fragment = [
                     generateMethodPrefix(expr),
-                    this.generatePropertyKey(expr.key, expr.computed),
+                    this.generatePropertyKey(expr.key, expr.computed, expr.value),
                     this.generateFunctionBody(expr.value)
                 ];
             }
@@ -2130,25 +2136,25 @@
             if (expr.kind === 'get' || expr.kind === 'set') {
                 return [
                     expr.kind, noEmptySpace(),
-                    this.generatePropertyKey(expr.key, expr.computed),
+                    this.generatePropertyKey(expr.key, expr.computed, expr.value),
                     this.generateFunctionBody(expr.value)
                 ];
             }
 
             if (expr.shorthand) {
-                return this.generatePropertyKey(expr.key, expr.computed);
+                return this.generatePropertyKey(expr.key, expr.computed, expr.value);
             }
 
             if (expr.method) {
                 return [
                     generateMethodPrefix(expr),
-                    this.generatePropertyKey(expr.key, expr.computed),
+                    this.generatePropertyKey(expr.key, expr.computed, expr.value),
                     this.generateFunctionBody(expr.value)
                 ];
             }
 
             return [
-                this.generatePropertyKey(expr.key, expr.computed),
+                this.generatePropertyKey(expr.key, expr.computed, expr.value),
                 ':' + space,
                 this.generateExpression(expr.value, Precedence.Assignment, E_TTT)
             ];
