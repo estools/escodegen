@@ -989,8 +989,7 @@
 
         if (value.type === 'AssignmentPattern') {
             result.push(this.AssignmentPattern(value, Precedence.Sequence, E_TTT));
-        }
-        else {
+        } else {
             result.push(this.generateExpression(expr, Precedence.Sequence, E_TTT));
         }
 
