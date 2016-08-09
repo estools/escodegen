@@ -2331,7 +2331,7 @@
                 return expr.value ? 'true' : 'false';
             }
 
-            return generateRegExp(expr.value);
+            return generateRegExp(expr.raw);
         },
 
         GeneratorExpression: function (expr, precedence, flags) {
