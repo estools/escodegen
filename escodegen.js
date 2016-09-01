@@ -2331,6 +2331,9 @@
                 return expr.value ? 'true' : 'false';
             }
 
+            if (expr.regex) {
+              return '/' + expr.regex.pattern + '/' + expr.regex.flags;
+            }
             return generateRegExp(expr.value);
         },
 
