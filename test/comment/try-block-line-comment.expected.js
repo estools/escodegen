@@ -4,13 +4,11 @@ finally {
 }
 try {
 } catch (e) {
-}    //
-finally {
+} finally {
 }
 {
     try {
     } catch (e) {
-    }    //
-    finally {
+    } finally {
     }
 }
