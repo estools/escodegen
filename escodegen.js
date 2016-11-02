@@ -1028,7 +1028,8 @@
     CodeGenerator.Statement = {
 
         BlockStatement: function (stmt, flags) {
-            var range, content, result = ['{', newline], that = this;
+            var open = stmt.label ? stmt.label.name + '{' : '{';
+            var range, content, result = [open, newline], that = this;
 
             withIndent(function () {
                 // handle functions without any code
