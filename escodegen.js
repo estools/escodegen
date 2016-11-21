@@ -2061,7 +2061,7 @@
             if (!expr.elements.length) {
                 return '[]';
             }
-            multiline = isPattern ? false : expr.elements.length > 1;
+            multiline = isPattern ? false : expr.elements.length > 10 && expr.elements[0].type !== Syntax.Literal;
             result = ['[', multiline ? newline : ''];
             withIndent(function (indent) {
                 var i, iz;
