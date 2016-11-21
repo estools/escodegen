@@ -33,16 +33,23 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*global exports:true, require:true, global:true*/
-(function () {
+/*global exports:true, require:true, define:true*/
+(function (global, factory) {
+  'use strict';
+  if (typeof exports === 'object' && typeof module !== 'undefined') {
+    factory(exports, require('estraverse'), require('esutils'), require('source-map'));
+  } else if (typeof define === 'function' && define.amd) {
+    define(['exports', 'estraverse', 'esutils', 'source-map'], factory);
+  } else {
+    factory(global.escodegen = {}, global.estraverse, global.esutils, global.sourceMap);
+  }
+})(this, function (exports, estraverse, esutils, sourceMap) {
     'use strict';
 
     var Syntax,
         Precedence,
         BinaryPrecedence,
         SourceNode,
-        estraverse,
-        esutils,
         isArray,
         base,
         indent,
@@ -59,14 +66,10 @@
         directive,
         extra,
         parse,
-        sourceMap,
         sourceCode,
         preserveBlankLines,
         FORMAT_MINIFY,
         FORMAT_DEFAULTS;
-
-    estraverse = require('estraverse');
-    esutils = require('esutils');
 
     Syntax = estraverse.Syntax;
 
@@ -2543,24 +2546,17 @@
         safeConcatenation = options.format.safeConcatenation;
         directive = options.directive;
         parse = json ? null : options.parse;
-        sourceMap = options.sourceMap;
         sourceCode = options.sourceCode;
         preserveBlankLines = options.format.preserveBlankLines && sourceCode !== null;
         extra = options;
 
         if (sourceMap) {
-            if (!exports.browser) {
-                // We assume environment is node.js
-                // And prevent from including source-map by browserify
-                SourceNode = require('source-map').SourceNode;
-            } else {
-                SourceNode = global.sourceMap.SourceNode;
-            }
+          SourceNode = sourceMap.SourceNode;
         }
 
         result = generateInternal(node);
 
-        if (!sourceMap) {
+        if (!options.sourceMap) {
             pair = {code: result.toString(), map: null};
             return options.sourceMapWithCode ? pair : pair.code;
         }
@@ -2599,12 +2595,12 @@
 
     FORMAT_DEFAULTS = getDefaultOptions().format;
 
-    exports.version = require('./package.json').version;
+    exports.version = '1.6.1';
     exports.generate = generate;
     exports.attachComments = estraverse.attachComments;
     exports.Precedence = updateDeeply({}, Precedence);
     exports.browser = false;
     exports.FORMAT_MINIFY = FORMAT_MINIFY;
     exports.FORMAT_DEFAULTS = FORMAT_DEFAULTS;
-}());
+});
 /* vim: set sw=4 ts=4 et tw=80 : */
