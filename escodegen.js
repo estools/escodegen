@@ -739,6 +739,10 @@
                 prefix = sourceCode.substring(extRange[0], range[0]);
                 count = (prefix.match(/\n/g) || []).length;
 
+                if (typeof result !== 'array') {
+                    result = [result];
+                }
+
                 if (count > 0) {
                     result.push(stringRepeat('\n', count));
                     result.push(addIndent(generateComment(comment)));
@@ -2160,12 +2164,14 @@
         },
 
         ObjectExpression: function (expr, precedence, flags) {
-            var multiline, result, fragment, that = this;
+            var multiline, result, fragment, trailingCommentExists, that = this;
 
             if (!expr.properties.length) {
                 return '{}';
             }
-            multiline = expr.properties.length > 1;
+            
+            trailingCommentExists = extra.comment && expr.properties.length === 1 && expr.properties[0].value.trailingComments;
+            multiline = expr.properties.length > 1 || trailingCommentExists;
 
             withIndent(function () {
                 fragment = that.generateExpression(expr.properties[0], Precedence.Sequence, E_TTT);
