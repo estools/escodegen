@@ -6011,6 +6011,42 @@ data = {
                 "async": true
             }
         },
+
+    },
+
+    "Harmony new.target": {
+        'function Foo() {\n    new.target;\n}': {
+            generateFrom: {
+                "type": "FunctionDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "Foo"
+                },
+                "params": [],
+                "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                        {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                                "type": "MetaProperty",
+                                "meta": {
+                                    "type": "Identifier",
+                                    "name": "new"
+                                },
+                                "property": {
+                                    "type": "Identifier",
+                                    "name": "target"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "generator": false,
+                "expression": false,
+                "async": false
+            }
+        }
     }
 };
 

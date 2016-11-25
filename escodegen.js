@@ -1953,11 +1953,12 @@
         },
 
         MetaProperty: function (expr, precedence, flags) {
-            var result;
-            result = [];
-            result.push(expr.meta);
-            result.push('.');
-            result.push(expr.property);
+            var result, meta, property;
+            meta = typeof expr.meta.type === "string" && expr.meta.type === Syntax.Identifier ?
+              expr.meta.name : expr.meta;
+            property = typeof expr.property.type === "string" && expr.property.type === Syntax.Identifier ?
+              expr.property.name : expr.property;
+            result = [meta, ".", property];
             return parenthesize(result, Precedence.Member, precedence);
         },
 
