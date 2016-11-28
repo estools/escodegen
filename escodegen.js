@@ -2315,7 +2315,7 @@
                 }
             }
 
-            if (expr.value === null) {
+            if (typeof expr.value === 'undefined' || expr.value === null) {
                 return 'null';
             }
 
