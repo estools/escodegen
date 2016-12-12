@@ -2563,7 +2563,7 @@
         JSXNamespacedName: function (expr, precedence, flags) {
           return [
             this.generateExpression(expr.namespace, Precedence.Sequence, 0),
-            '.',
+            ':',
             this.generateExpression(expr.name, Precedence.Sequence, 0)
           ];
         },
