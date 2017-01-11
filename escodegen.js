@@ -1983,7 +1983,7 @@
                     if (((leftCharCode === 0x2B  /* + */ || leftCharCode === 0x2D  /* - */) && leftCharCode === rightCharCode) ||
                             (esutils.code.isIdentifierPartES5(leftCharCode) && esutils.code.isIdentifierPartES5(rightCharCode))) {
                         result.push(noEmptySpace());
-                        result.push(fragment);
+                        result.push('('+fragment+')');
                     } else {
                         result.push(fragment);
                     }
