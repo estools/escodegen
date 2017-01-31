@@ -2408,6 +2408,20 @@
           ];
         },
 
+        SpreadProperty: function (expr, precedence, flags) {
+            return [
+            '...',
+            this.generateExpression(expr.argument, Precedence.Assignment, E_TTT)
+          ];
+        },
+
+        RestProperty: function (expr, precedence, flags) {
+          return [
+            '...',
+            this.generatePattern(expr.argument, Precedence.Assignment, E_TTT)
+          ];
+        },
+
         TaggedTemplateExpression: function (expr, precedence, flags) {
             var itemFlags = E_TTF;
             if (!(flags & F_ALLOW_CALL)) {
