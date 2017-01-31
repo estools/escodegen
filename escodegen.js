@@ -572,7 +572,19 @@
     }
 
     function addIndent(stmt) {
-        return [base, stmt];
+        var baseSourceNode = base;
+        // use SourceNode so it does not break source-maps mappings
+        // this will make sure that the line is kept when indentation is added
+        if (sourceMap) {
+            baseSourceNode = new SourceNode(
+                stmt.line,
+                0,
+                stmt.source || null,
+                base,
+                null
+            );
+        }
+        return [baseSourceNode, stmt];
     }
 
     function withIndent(fn) {
