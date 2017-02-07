@@ -520,4 +520,119 @@ describe('source map test', function () {
         expect(result.code).to.be.a('string');
         expect(result.map).to.be.equal(null);
     });
+
+    it('indented line should map to the same line of the following statement', function() {
+        var ast = {
+            "type": "FunctionDeclaration",
+            "id": {
+                "type": "Identifier",
+                "name": "fn",
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 9
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 11
+                    }
+                }
+            },
+            "params": [],
+            "body": {
+                "type": "BlockStatement",
+                "body": [
+                    {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "unit",
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 5
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 9
+                                        }
+                                    }
+                                },
+                                "init": {
+                                    "type": "Literal",
+                                    "value": "test",
+                                    "raw": "\"test\"",
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 12
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 18
+                                        }
+                                    }
+                                },
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 5
+                                    },
+                                    "end": {
+                                        "line": 2,
+                                        "column": 18
+                                    }
+                                }
+                            }
+                        ],
+                        "kind": "var",
+                        "loc": {
+                            "start": {
+                                "line": 2,
+                                "column": 1
+                            },
+                            "end": {
+                                "line": 2,
+                                "column": 19
+                            }
+                        }
+                    }
+                ],
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 15
+                    },
+                    "end": {
+                        "line": 3,
+                        "column": 1
+                    }
+                }
+            },
+            "generator": false,
+            "expression": false,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 3,
+                    "column": 1
+                }
+            }
+        };
+
+        var result = escodegen.generate(ast, {
+            sourceMap: "unit-test.js"
+        });
+        var consumer = new sourcemap.SourceMapConsumer(result.toString());
+        var generatedPosition = { line: 2, column: 0 };
+        var originalPosition = consumer.originalPositionFor(generatedPosition);
+        expect(originalPosition.line).to.be.equal(generatedPosition.line);
+        expect(originalPosition.column).to.be.equal(generatedPosition.column);
+    });
 });
