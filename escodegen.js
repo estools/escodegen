@@ -2568,9 +2568,8 @@
             } else {
                 SourceNode = global.sourceMap.SourceNode;
             }
-            // convert nodes to a SourceNodes in order to work with sourceMaps
+            // convert newline to a SourceNode in order to work with sourceMaps
             newline = toSourceNodeWhenNeeded(newline);
-            indent = toSourceNodeWhenNeeded(indent);
         }
 
         result = generateInternal(node);
