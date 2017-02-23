@@ -1144,7 +1144,7 @@
                 var i, iz;
 
                 for (i = 0, iz = stmt.body.length; i < iz; ++i) {
-                    results.push(
+                    result.push(
                         addIndent(
                             that.generateExpression(stmt.body[i], Precedence.Sequence, E_TTT),
                             indent
