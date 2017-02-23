@@ -2098,7 +2098,6 @@
                             result.push(',');
                         }
                     } else {
-                        result.push(multiline ? indent : '');
                         var fragment = that.generateExpression(expr.elements[i], Precedence.Assignment, E_TTT);
                         if (multiline) {
                             result.push(addIndent(fragment, indent));
