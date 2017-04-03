@@ -62,6 +62,7 @@
         sourceMap,
         sourceCode,
         preserveBlankLines,
+        wrapIIFE,
         FORMAT_MINIFY,
         FORMAT_DEFAULTS;
 
@@ -190,7 +191,8 @@
                 parentheses: true,
                 semicolons: true,
                 safeConcatenation: false,
-                preserveBlankLines: false
+                preserveBlankLines: false,
+                wrapIIFE: false
             },
             moz: {
                 comprehensionExpressionStartsWithAssignment: false,
@@ -1872,7 +1874,7 @@
         },
 
         CallExpression: function (expr, precedence, flags) {
-            var result, i, iz;
+            var result, i, iz, isIIFE;
             // F_ALLOW_UNPARATH_NEW becomes false.
             result = [this.generateExpression(expr.callee, Precedence.Call, E_TTF)];
             result.push('(');
@@ -1887,7 +1889,12 @@
             if (!(flags & F_ALLOW_CALL)) {
                 return ['(', result, ')'];
             }
-            return parenthesize(result, Precedence.Call, precedence);
+
+            isIIFE = expr.callee.id === null && expr.callee.params.length === 0;
+
+            return (isIIFE && wrapIIFE) ?
+                parenthesize(result, 0, 1) :
+                parenthesize(result, Precedence.Call, precedence);
         },
 
         NewExpression: function (expr, precedence, flags) {
@@ -2546,6 +2553,7 @@
         sourceMap = options.sourceMap;
         sourceCode = options.sourceCode;
         preserveBlankLines = options.format.preserveBlankLines && sourceCode !== null;
+        wrapIIFE = options.format.wrapIIFE;
         extra = options;
 
         if (sourceMap) {
