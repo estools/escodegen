@@ -1710,7 +1710,8 @@
 
                     // handle spaces between lines
                     if (i > 0) {
-                        if (!stmt.body[i - 1].trailingComments && !stmt.body[i].leadingComments) {
+                        if (!stmt.body[i - 1].trailingComments && !stmt.body[i].leadingComments &&
+                          stmt.body[i - 1].range && stmt.body[i].range) {
                             generateBlankLines(stmt.body[i - 1].range[1], stmt.body[i].range[0], result);
                         }
                     }
