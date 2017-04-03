@@ -741,6 +741,10 @@
                 prefix = sourceCode.substring(extRange[0], range[0]);
                 count = (prefix.match(/\n/g) || []).length;
 
+                if (typeof result === 'string') {
+                  result = [result];
+                }
+
                 if (count > 0) {
                     result.push(stringRepeat('\n', count));
                     result.push(addIndent(generateComment(comment)));
@@ -1062,14 +1066,15 @@
                                     result = ['{'];
                                 }
                             }
-                            if (!stmt.body[0].leadingComments) {
+                            if (!stmt.body[0].leadingComments && stmt.body[0].range) {
                                 generateBlankLines(stmt.range[0], stmt.body[0].range[0], result);
                             }
                         }
 
                         // handle spaces between lines
                         if (i > 0) {
-                            if (!stmt.body[i - 1].trailingComments  && !stmt.body[i].leadingComments) {
+                            if (!stmt.body[i - 1].trailingComments  && !stmt.body[i].leadingComments &&
+                              stmt.body[i - 1].range && stmt.body[i].range) {
                                 generateBlankLines(stmt.body[i - 1].range[1], stmt.body[i].range[0], result);
                             }
                         }
@@ -1101,7 +1106,7 @@
                     if (preserveBlankLines) {
                         // handle spaces after the last line
                         if (i === iz - 1) {
-                            if (!stmt.body[i].trailingComments) {
+                            if (!stmt.body[i].trailingComments && stmt.body[i].range) {
                                 generateBlankLines(stmt.body[i].range[1], stmt.range[1], result);
                             }
                         }
@@ -1703,7 +1708,7 @@
                 if (preserveBlankLines) {
                     // handle spaces before the first line
                     if (i === 0) {
-                        if (!stmt.body[0].leadingComments) {
+                        if (!stmt.body[0].leadingComments && stmt.body[i].range) {
                             generateBlankLines(stmt.range[0], stmt.body[i].range[0], result);
                         }
                     }
@@ -1732,7 +1737,7 @@
                 if (preserveBlankLines) {
                     // handle spaces after the last line
                     if (i === iz - 1) {
-                        if (!stmt.body[i].trailingComments) {
+                        if (!stmt.body[i].trailingComments && stmt.body[i].range) {
                             generateBlankLines(stmt.body[i].range[1], stmt.range[1], result);
                         }
                     }
