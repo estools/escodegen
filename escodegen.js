@@ -2223,13 +2223,13 @@
             multiline = false;
             if (expr.properties.length === 1) {
                 property = expr.properties[0];
-                if (property.value.type !== Syntax.Identifier) {
+                if (property.type !== "RestElement" && property.value.type !== Syntax.Identifier) {
                     multiline = true;
                 }
             } else {
                 for (i = 0, iz = expr.properties.length; i < iz; ++i) {
                     property = expr.properties[i];
-                    if (!property.shorthand) {
+                    if (property.type !== "RestElement" && !property.shorthand) {
                         multiline = true;
                         break;
                     }
