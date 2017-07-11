@@ -1979,9 +1979,20 @@
         MetaProperty: function (expr, precedence, flags) {
             var result;
             result = [];
-            result.push(expr.meta);
+            if (typeof expr.meta === 'string') {
+              result.push(expr.meta);
+            } else {
+              result.push(expr.meta.name);
+            }
+
             result.push('.');
-            result.push(expr.property);
+
+            if (typeof expr.property === 'string') {
+              result.push(expr.property);
+            } else {
+              result.push(expr.property.name);
+            }
+
             return parenthesize(result, Precedence.Member, precedence);
         },
 
