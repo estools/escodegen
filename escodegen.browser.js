@@ -1626,12 +1626,23 @@
           return parenthesize(result, Precedence.Member, precedence);
         },
         MetaProperty: function (expr, precedence, flags) {
-          var result;
-          result = [];
-          result.push(expr.meta);
-          result.push('.');
-          result.push(expr.property);
-          return parenthesize(result, Precedence.Member, precedence);
+            var result;
+            result = [];
+            if (typeof expr.meta === 'string') {
+              result.push(expr.meta);
+            } else {
+              result.push(expr.meta.name);
+            }
+
+            result.push('.');
+
+            if (typeof expr.property === 'string') {
+              result.push(expr.property);
+            } else {
+              result.push(expr.property.name);
+            }
+
+            return parenthesize(result, Precedence.Member, precedence);
         },
         UnaryExpression: function (expr, precedence, flags) {
           var result, fragment, rightCharCode, leftSource, leftCharCode;
