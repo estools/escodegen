@@ -571,8 +571,20 @@
         return [left, space, right];
     }
 
-    function addIndent(stmt) {
-        return [base, stmt];
+    function addIndent(stmt, indent) {
+        var baseSourceNode = typeof indent === 'undefined' ? base : indent;
+        // use SourceNode so it does not break source-maps mappings
+        // this will make sure that the line is kept when indentation is added
+        if (sourceMap) {
+            baseSourceNode = new SourceNode(
+                stmt.line,
+                0,
+                stmt.source || null,
+                base,
+                null
+            );
+        }
+        return [baseSourceNode, stmt];
     }
 
     function withIndent(fn) {
@@ -1132,8 +1144,12 @@
                 var i, iz;
 
                 for (i = 0, iz = stmt.body.length; i < iz; ++i) {
-                    result.push(indent);
-                    result.push(that.generateExpression(stmt.body[i], Precedence.Sequence, E_TTT));
+                    result.push(
+                        addIndent(
+                            that.generateExpression(stmt.body[i], Precedence.Sequence, E_TTT),
+                            indent
+                        )
+                    );
                     if (i + 1 < iz) {
                         result.push(newline);
                     }
@@ -1249,8 +1265,12 @@
                         var i, iz;
                         result.push(newline);
                         for (i = 0, iz = stmt.specifiers.length; i < iz; ++i) {
-                            result.push(indent);
-                            result.push(that.generateExpression(stmt.specifiers[i], Precedence.Sequence, E_TTT));
+                            result.push(
+                                addIndent(
+                                    that.generateExpression(stmt.specifiers[i], Precedence.Sequence, E_TTT),
+                                    indent
+                                )
+                            );
                             if (i + 1 < iz) {
                                 result.push(',' + newline);
                             }
@@ -1411,8 +1431,12 @@
                             var i, iz;
                             result.push(newline);
                             for (i = cursor, iz = stmt.specifiers.length; i < iz; ++i) {
-                                result.push(indent);
-                                result.push(that.generateExpression(stmt.specifiers[i], Precedence.Sequence, E_TTT));
+                                result.push(
+                                    addIndent(
+                                        that.generateExpression(stmt.specifiers[i], Precedence.Sequence, E_TTT),
+                                        indent
+                                    )
+                                );
                                 if (i + 1 < iz) {
                                     result.push(',' + newline);
                                 }
@@ -1955,9 +1979,20 @@
         MetaProperty: function (expr, precedence, flags) {
             var result;
             result = [];
-            result.push(expr.meta);
+            if (typeof expr.meta === 'string') {
+              result.push(expr.meta);
+            } else {
+              result.push(expr.meta.name);
+            }
+
             result.push('.');
-            result.push(expr.property);
+
+            if (typeof expr.property === 'string') {
+              result.push(expr.property);
+            } else {
+              result.push(expr.property.name);
+            }
+
             return parenthesize(result, Precedence.Member, precedence);
         },
 
@@ -2074,8 +2109,12 @@
                             result.push(',');
                         }
                     } else {
-                        result.push(multiline ? indent : '');
-                        result.push(that.generateExpression(expr.elements[i], Precedence.Assignment, E_TTT));
+                        var fragment = that.generateExpression(expr.elements[i], Precedence.Assignment, E_TTT);
+                        if (multiline) {
+                            result.push(addIndent(fragment, indent));
+                        } else {
+                            result.push(fragment);
+                        }
                     }
                     if (i + 1 < iz) {
                         result.push(',' + (multiline ? newline : space));
@@ -2187,13 +2226,15 @@
 
             withIndent(function (indent) {
                 var i, iz;
-                result = [ '{', newline, indent, fragment ];
+                result = [ '{', newline, addIndent(fragment, indent) ];
 
                 if (multiline) {
                     result.push(',' + newline);
                     for (i = 1, iz = expr.properties.length; i < iz; ++i) {
-                        result.push(indent);
-                        result.push(that.generateExpression(expr.properties[i], Precedence.Sequence, E_TTT));
+                        result.push(addIndent(
+                            that.generateExpression(expr.properties[i], Precedence.Sequence, E_TTT),
+                            indent
+                        ));
                         if (i + 1 < iz) {
                             result.push(',' + newline);
                         }
@@ -2239,8 +2280,12 @@
             withIndent(function (indent) {
                 var i, iz;
                 for (i = 0, iz = expr.properties.length; i < iz; ++i) {
-                    result.push(multiline ? indent : '');
-                    result.push(that.generateExpression(expr.properties[i], Precedence.Sequence, E_TTT));
+                    var fragment = that.generateExpression(expr.properties[i], Precedence.Sequence, E_TTT);
+                    if (multiline) {
+                        result.push(addIndent(fragment, indent));
+                    } else {
+                        result.push(fragment);
+                    }
                     if (i + 1 < iz) {
                         result.push(',' + (multiline ? newline : space));
                     }
@@ -2556,6 +2601,8 @@
             } else {
                 SourceNode = global.sourceMap.SourceNode;
             }
+            // convert newline to a SourceNode in order to work with sourceMaps
+            newline = toSourceNodeWhenNeeded(newline);
         }
 
         result = generateInternal(node);
