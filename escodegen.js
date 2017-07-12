@@ -2266,6 +2266,10 @@
             return generateIdentifier(expr);
         },
 
+        Import: function (expr, precedence, flags) {
+          return 'import';
+        },
+
         ImportDefaultSpecifier: function (expr, precedence, flags) {
             return generateIdentifier(expr.id || expr.local);
         },
