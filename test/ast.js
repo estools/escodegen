@@ -144,7 +144,27 @@ data = {
                 },
             }],
             expected: '/(?:)/i;'
-        }
+        },
+        {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'MemberExpression',
+                    computed: false,
+                    object: {
+                        type: 'Literal',
+                        value: 1,
+                        raw: '1'
+                    },
+                    property: {
+                        type: 'Identifier',
+                        name: 'a'
+                    }
+                }
+            }],
+            expected: '1 .a;'
+        },
     ]
 };
 
