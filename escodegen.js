@@ -1953,11 +1953,12 @@
         },
 
         MetaProperty: function (expr, precedence, flags) {
-            var result;
-            result = [];
-            result.push(expr.meta);
-            result.push('.');
-            result.push(expr.property);
+            var result, meta, property;
+            meta = typeof expr.meta.type === "string" && expr.meta.type === Syntax.Identifier ?
+              expr.meta.name : expr.meta;
+            property = typeof expr.property.type === "string" && expr.property.type === Syntax.Identifier ?
+              expr.property.name : expr.property;
+            result = [meta, ".", property];
             return parenthesize(result, Precedence.Member, precedence);
         },
 
@@ -2222,13 +2223,13 @@
             multiline = false;
             if (expr.properties.length === 1) {
                 property = expr.properties[0];
-                if (property.value.type !== Syntax.Identifier) {
+                if (property.type !== "RestElement" && property.value.type !== Syntax.Identifier) {
                     multiline = true;
                 }
             } else {
                 for (i = 0, iz = expr.properties.length; i < iz; ++i) {
                     property = expr.properties[i];
-                    if (!property.shorthand) {
+                    if (property.type !== "RestElement" && !property.shorthand) {
                         multiline = true;
                         break;
                     }
