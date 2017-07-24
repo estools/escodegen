@@ -2465,7 +2465,8 @@
         },
 
         JSXText: function (expr, precedence, flags) {
-            return this.Literal(expr, precedence, flags);
+            if (expr.hasOwnProperty("raw")) return expr.raw;
+            return String(expr.value);
         },
 
         JSXAttribute: function (expr, precedence, flags) {
