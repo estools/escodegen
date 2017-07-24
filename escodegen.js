@@ -2464,6 +2464,10 @@
             return this.Literal(expr, precedence, flags);
         },
 
+        JSXText: function (expr, precedence, flags) {
+            return this.Literal(expr, precedence, flags);
+        },
+
         JSXAttribute: function (expr, precedence, flags) {
           var result = [];
 
