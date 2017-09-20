@@ -69,6 +69,8 @@
     esutils = require('esutils');
 
     Syntax = estraverse.Syntax;
+    Syntax.ExperimentalSpreadProperty = 'ExperimentalSpreadProperty';
+    estraverse.VisitorKeys.ExperimentalSpreadProperty = ['argument'];
 
     // Generation is done by generateExpression.
     function isExpression(node) {
@@ -2400,6 +2402,13 @@
         },
 
         SpreadElement: function (expr, precedence, flags) {
+            return [
+                '...',
+                this.generateExpression(expr.argument, Precedence.Assignment, E_TTT)
+            ];
+        },
+
+        ExperimentalSpreadProperty: function (expr, precedence, flags) {
             return [
                 '...',
                 this.generateExpression(expr.argument, Precedence.Assignment, E_TTT)
