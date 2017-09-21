@@ -71,6 +71,8 @@
     Syntax = estraverse.Syntax;
     Syntax.ExperimentalSpreadProperty = 'ExperimentalSpreadProperty';
     estraverse.VisitorKeys.ExperimentalSpreadProperty = ['argument'];
+    Syntax.ExperimentalRestProperty = 'ExperimentalRestProperty';
+    estraverse.VisitorKeys.ExperimentalRestProperty = ['argument'];
 
     // Generation is done by generateExpression.
     function isExpression(node) {
@@ -2093,6 +2095,10 @@
         },
 
         RestElement: function(expr, precedence, flags) {
+            return '...' + this.generatePattern(expr.argument);
+        },
+
+        ExperimentalRestProperty: function(expr, precedence, flags) {
             return '...' + this.generatePattern(expr.argument);
         },
 
