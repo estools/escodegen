@@ -69,6 +69,10 @@
     esutils = require('esutils');
 
     Syntax = estraverse.Syntax;
+    Syntax.ExperimentalSpreadProperty = 'ExperimentalSpreadProperty';
+    estraverse.VisitorKeys.ExperimentalSpreadProperty = ['argument'];
+    Syntax.ExperimentalRestProperty = 'ExperimentalRestProperty';
+    estraverse.VisitorKeys.ExperimentalRestProperty = ['argument'];
 
     // Generation is done by generateExpression.
     function isExpression(node) {
@@ -987,7 +991,7 @@
             result.push('[');
         }
 
-        if (value.type === 'AssignmentPattern') {
+        if (value.type === 'AssignmentPattern' && expr.name === value.left.name) {
             result.push(this.AssignmentPattern(value, Precedence.Sequence, E_TTT));
         } else {
             result.push(this.generateExpression(expr, Precedence.Sequence, E_TTT));
@@ -2094,6 +2098,10 @@
             return '...' + this.generatePattern(expr.argument);
         },
 
+        ExperimentalRestProperty: function(expr, precedence, flags) {
+            return '...' + this.generatePattern(expr.argument);
+        },
+
         ClassExpression: function (expr, precedence, flags) {
             var result, fragment;
             result = ['class'];
@@ -2400,6 +2408,13 @@
         },
 
         SpreadElement: function (expr, precedence, flags) {
+            return [
+                '...',
+                this.generateExpression(expr.argument, Precedence.Assignment, E_TTT)
+            ];
+        },
+
+        ExperimentalSpreadProperty: function (expr, precedence, flags) {
             return [
                 '...',
                 this.generateExpression(expr.argument, Precedence.Assignment, E_TTT)
