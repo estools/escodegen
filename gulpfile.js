@@ -51,7 +51,7 @@ var ESLINT_OPTION = {
                 'args': 'none'
             }
         ],
-        'no-multi-spaces': false,
+        'no-multi-spaces': 0,
         'new-cap': [
             2,
             {

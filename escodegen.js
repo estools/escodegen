@@ -1944,7 +1944,7 @@
                             esutils.code.isDecimalDigit(fragment.charCodeAt(fragment.length - 1)) &&
                             !(fragment.length >= 2 && fragment.charCodeAt(0) === 48)  // '0'
                             ) {
-                        result.push('.');
+                        result.push(' ');
                     }
                 }
                 result.push('.');
