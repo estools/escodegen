@@ -2467,7 +2467,7 @@
         },
 
         JSXText: function (expr, precedence, flags) {
-            if (expr.hasOwnProperty("raw")) return expr.raw;
+            if (expr.hasOwnProperty("raw")) { return expr.raw; }
             return String(expr.value);
         },
 
