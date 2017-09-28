@@ -41,6 +41,7 @@
     },
     "devDependencies": {
         "acorn": "^2.7.0",
+        "acorn-babel": "^0.11.1",
         "bluebird": "^2.3.11",
         "bower-registry-client": "^0.2.1",
         "chai": "^1.10.0",
