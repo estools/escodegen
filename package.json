@@ -9,7 +9,6 @@
     },
     "files": [
         "LICENSE.BSD",
-        "LICENSE.source-map",
         "README.md",
         "bin",
         "escodegen.js",
