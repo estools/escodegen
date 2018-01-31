@@ -43,7 +43,6 @@
         SourceNode,
         estraverse,
         esutils,
-        isArray,
         base,
         indent,
         json,
@@ -216,13 +215,6 @@
         }
 
         return result;
-    }
-
-    isArray = Array.isArray;
-    if (!isArray) {
-        isArray = function isArray(array) {
-            return Object.prototype.toString.call(array) === '[object Array]';
-        };
     }
 
     function hasLineTerminator(str) {
@@ -505,7 +497,7 @@
         var i, iz, elem, result = '';
         for (i = 0, iz = arr.length; i < iz; ++i) {
             elem = arr[i];
-            result += isArray(elem) ? flattenToString(elem) : elem;
+            result += Array.isArray(elem) ? flattenToString(elem) : elem;
         }
         return result;
     }
@@ -518,7 +510,7 @@
             // with no source maps, generated is either an
             // array or a string.  if an array, flatten it.
             // if a string, just return it
-            if (isArray(generated)) {
+            if (Array.isArray(generated)) {
                 return flattenToString(generated);
             } else {
                 return generated;
@@ -1525,7 +1517,7 @@
 
                 // new interface
                 if (stmt.handler) {
-                    if (isArray(stmt.handler)) {
+                    if (Array.isArray(stmt.handler)) {
                         for (i = 0, iz = stmt.handler.length; i < iz; ++i) {
                             result = join(result, this.generateStatement(stmt.handler[i], S_TFFF));
                             if (stmt.finalizer || i + 1 !== iz) {
