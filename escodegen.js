@@ -2145,7 +2145,7 @@
             }
 
             return [
-                this.generatePropertyKey(expr.key, expr.computed, expr.value),
+                this.generatePropertyKey(expr.key, expr.computed, E_TTT),
                 ':' + space,
                 this.generateExpression(expr.value, Precedence.Assignment, E_TTT)
             ];
