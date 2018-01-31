@@ -979,7 +979,7 @@
             result.push('[');
         }
 
-        if (value.type === 'AssignmentPattern') {
+        if (value.type === 'AssignmentPattern' && expr.name === value.left.name) {
             result.push(this.AssignmentPattern(value, Precedence.Sequence, E_TTT));
         } else {
             result.push(this.generateExpression(expr, Precedence.Sequence, E_TTT));
