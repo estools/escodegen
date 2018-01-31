@@ -36,7 +36,7 @@
         "optionator": "^0.8.1"
     },
     "optionalDependencies": {
-        "source-map": "~0.5.6"
+        "source-map": "~0.6.1"
     },
     "devDependencies": {
         "acorn": "^4.0.4",
