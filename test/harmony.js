@@ -510,6 +510,203 @@ data = {
     },
 
     'Object destructuring (and aliasing)':  {
+        "let {\n    test: myvar = 'a'\n} = { test: 'b' };": {
+            generateFrom: {
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 3,
+                        column: 23
+                    }
+                },
+                type: "Program",
+                body: [
+                    {
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 3,
+                            column: 23
+                        }
+                    },
+                    type: "VariableDeclaration",
+                    declarations: [
+                        {
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 4
+                            },
+                            end: {
+                                line: 3,
+                                column: 22
+                            }
+                        },
+                        type: "VariableDeclarator",
+                        id: {
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 3,
+                                    column: 1
+                                }
+                            },
+                            type: "ObjectPattern",
+                            properties: [
+                                {
+                                loc: {
+                                    start: {
+                                        line: 2,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 2,
+                                        column: 27
+                                    }
+                                },
+                                type: "Property",
+                                key: {
+                                    loc: {
+                                        start: {
+                                            line: 2,
+                                            column: 4
+                                        },
+                                        end: {
+                                            line: 2,
+                                            column: 8
+                                        }
+                                    },
+                                    type: "Identifier",
+                                    name: "test"
+                                },
+                                computed: false,
+                                value: {
+                                    loc: {
+                                        start: {
+                                            line: 2,
+                                            column: 10
+                                        },
+                                        end: {
+                                            line: 2,
+                                            column: 27
+                                        }
+                                    },
+                                    type: "AssignmentPattern",
+                                    left: {
+                                        loc: {
+                                            start: {
+                                                line: 2,
+                                                column: 10
+                                            },
+                                            end: {
+                                                line: 2,
+                                                column: 15
+                                            }
+                                        },
+                                        type: "Identifier",
+                                        name: "myvar"
+                                    },
+                                    right: {
+                                        loc: {
+                                            start: {
+                                                line: 2,
+                                                column: 18
+                                            },
+                                            end: {
+                                                line: 2,
+                                                column: 27
+                                            }
+                                        },
+                                        type: "Literal",
+                                        value: "a",
+                                        raw: "'a'"
+                                    }
+                                },
+                                kind: "init",
+                                method: false,
+                                shorthand: false
+                            }
+                            ]
+                        },
+                        init: {
+                            loc: {
+                                start: {
+                                    line: 3,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 3,
+                                    column: 22
+                                }
+                            },
+                            type: "ObjectExpression",
+                            properties: [
+                                {
+                                loc: {
+                                    start: {
+                                        line: 3,
+                                        column: 6
+                                    },
+                                    end: {
+                                        line: 3,
+                                        column: 20
+                                    }
+                                },
+                                type: "Property",
+                                key: {
+                                    loc: {
+                                        start: {
+                                            line: 3,
+                                            column: 6
+                                        },
+                                        end: {
+                                            line: 3,
+                                            column: 10
+                                        }
+                                    },
+                                    type: "Identifier",
+                                    name: "test"
+                                },
+                                computed: false,
+                                value: {
+                                    loc: {
+                                        start: {
+                                            line: 3,
+                                            column: 12
+                                        },
+                                        end: {
+                                            line: 3,
+                                            column: 20
+                                        }
+                                    },
+                                    type: "Literal",
+                                    value: "b",
+                                    raw: "'b'"
+                                },
+                                kind: "init",
+                                method: false,
+                                shorthand: false
+                            }
+                            ]
+                        }
+                    }
+                    ],
+                    kind: "let"
+                }
+                ],
+                sourceType: "script"
+            }
+        },
+
         '({a = "b", b = {\n        c: "d",\n        e: "f"\n    }} = {}) => {\n};': {
             generateFrom: {
                 type: "ExpressionStatement",
