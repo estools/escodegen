@@ -499,8 +499,9 @@ describe('source map test', function () {
         expect(output.code).to.be.equal("a + b;");
 
 
-        var consumer = new sourcemap.SourceMapConsumer(output.map.toString());
-        expect(consumer.sourceContentFor("sum.ls")).to.be.equal(source);
+        return new sourcemap.SourceMapConsumer(output.map.toString()).then(function(consumer) {
+          expect(consumer.sourceContentFor("sum.ls")).to.be.equal(source);
+        });
     });
 
     it('sourceMapWithCode forces output format', function() {
