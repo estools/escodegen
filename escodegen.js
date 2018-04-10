@@ -1738,10 +1738,19 @@
 
         ReturnStatement: function (stmt, flags) {
             if (stmt.argument) {
-                return [join(
-                    'return',
-                    this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
-                ), this.semicolon(flags)];
+                var shouldParenthesize = stmt.argument.leadingComments && stmt.argument.leadingComments.length > 0;
+                var result = [];
+                if (shouldParenthesize) {
+                    var that = this;
+                    result.push('(', newline)
+                    withIndent(function () {
+                        result.push(addIndent(that.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)), newline)
+                    });
+                    result.push(addIndent(')'))
+                } else {
+                    result.push(this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT));
+                }
+                return [join('return', result), this.semicolon(flags)];
             }
             return ['return' + this.semicolon(flags)];
         },
