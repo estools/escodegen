@@ -1943,9 +1943,9 @@
         MetaProperty: function (expr, precedence, flags) {
             var result;
             result = [];
-            result.push(expr.meta);
+            result.push(typeof expr.meta === "string" ? expr.meta : generateIdentifier(expr.meta));
             result.push('.');
-            result.push(expr.property);
+            result.push(typeof expr.property === "string" ? expr.property : generateIdentifier(expr.property));
             return parenthesize(result, Precedence.Member, precedence);
         },
 
