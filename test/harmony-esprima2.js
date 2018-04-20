@@ -39,7 +39,7 @@ var esprima = require('./3rdparty/esprima-2.7.1'),
 
 data = {
     'Harmony MetaProperty': {
-        'class SomeClass { constructor() { if (new.target === SomeClass) { throw new Error(\'Boom\'); }}}': {            
+        'class SomeClass { constructor() { if (new.target === SomeClass) { throw new Error(\'Boom\'); }}}': {
             type: 'Program',
             body: [ {
                 type: "ClassDeclaration",
@@ -73,8 +73,14 @@ data = {
                                                 operator: "===",
                                                 left: {
                                                     type: "MetaProperty",
-                                                    meta: "new",
-                                                    property: "target"
+                                                    meta: {
+                                                        type: "Identifier",
+                                                        name: "new"
+                                                    },
+                                                    property: {
+                                                        type: "Identifier",
+                                                        name: "target"
+                                                    },
                                                 },
                                                 right: {
                                                     type: "Identifier",
