@@ -6208,6 +6208,78 @@ data = {
                 "async": true
             }
         },
+    },
+
+    'ES2018 for-await-of': {
+        'async function f() {\n    for await (const x of ait) {\n        console.log(x);\n    }\n}': {
+            generateFrom: {
+                "type": "FunctionDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "f"
+                },
+                "params": [],
+                "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                        {
+                            "type": "ForOfStatement",
+                            "left": {
+                                "type": "VariableDeclaration",
+                                "declarations": [
+                                    {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                            "type": "Identifier",
+                                            "name": "x"
+                                        },
+                                        "init": null
+                                    }
+                                ],
+                                "kind": "const"
+                            },
+                            "right": {
+                                "type": "Identifier",
+                                "name": "ait"
+                            },
+                            "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                    {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                                "type": "MemberExpression",
+                                                "object": {
+                                                    "type": "Identifier",
+                                                    "name": "console"
+                                                },
+                                                "property": {
+                                                    "type": "Identifier",
+                                                    "name": "log"
+                                                },
+                                                "computed": false
+                                            },
+                                            "arguments": [
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "x"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            "await": true
+                        }
+                    ]
+                },
+                "generator": false,
+                "async": true
+            }
+        }
+
     }
 };
 
