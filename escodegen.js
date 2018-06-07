@@ -1208,7 +1208,8 @@
             if (isStatement(stmt.declaration)) {
                 result = join(result, this.generateStatement(stmt.declaration, bodyFlags));
             } else {
-                result = join(result, this.generateExpression(stmt.declaration, Precedence.Assignment, E_TTT) + this.semicolon(flags));
+                result = join(result, this.generateExpression(stmt.declaration, Precedence.Assignment, E_TTT));
+                result.push(this.semicolon(flags));
             }
             return result;
         },

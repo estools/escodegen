@@ -520,4 +520,182 @@ describe('source map test', function () {
         expect(result.code).to.be.a('string');
         expect(result.map).to.be.equal(null);
     });
+
+    it('ExportDefaultDeclaration test', function () {
+        var ast = {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExportDefaultDeclaration",
+                    "declaration": {
+                        "type": "ObjectExpression",
+                        "properties": [
+                            {
+                                "type": "Property",
+                                "key": {
+                                    "type": "Identifier",
+                                    "name": "a",
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 1
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 2
+                                        }
+                                    }
+                                },
+                                "computed": false,
+                                "value": {
+                                    "type": "FunctionExpression",
+                                    "id": null,
+                                    "params": [],
+                                    "body": {
+                                        "type": "BlockStatement",
+                                        "body": [],
+                                        "loc": {
+                                            "start": {
+                                                "line": 2,
+                                                "column": 5
+                                            },
+                                            "end": {
+                                                "line": 2,
+                                                "column": 7
+                                            }
+                                        }
+                                    },
+                                    "generator": false,
+                                    "expression": false,
+                                    "async": false,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 2
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 7
+                                        }
+                                    }
+                                },
+                                "kind": "init",
+                                "method": true,
+                                "shorthand": false,
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 1
+                                    },
+                                    "end": {
+                                        "line": 2,
+                                        "column": 7
+                                    }
+                                }
+                            }
+                        ],
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 15
+                            },
+                            "end": {
+                                "line": 3,
+                                "column": 1
+                            }
+                        }
+                    },
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 5,
+                            "column": 1
+                        }
+                    }
+                },
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "FunctionExpression",
+                            "id": null,
+                            "params": [],
+                            "body": {
+                                "type": "BlockStatement",
+                                "body": [],
+                                "loc": {
+                                    "start": {
+                                        "line": 5,
+                                        "column": 14
+                                    },
+                                    "end": {
+                                        "line": 5,
+                                        "column": 16
+                                    }
+                                }
+                            },
+                            "generator": false,
+                            "expression": false,
+                            "async": false,
+                            "loc": {
+                                "start": {
+                                    "line": 5,
+                                    "column": 2
+                                },
+                                "end": {
+                                    "line": 5,
+                                    "column": 16
+                                }
+                            }
+                        },
+                        "arguments": [],
+                        "loc": {
+                            "start": {
+                                "line": 5,
+                                "column": 1
+                            },
+                            "end": {
+                                "line": 5,
+                                "column": 19
+                            }
+                        }
+                    },
+                    "loc": {
+                        "start": {
+                            "line": 5,
+                            "column": 1
+                        },
+                        "end": {
+                            "line": 5,
+                            "column": 19
+                        }
+                    }
+                }
+            ],
+            "sourceType": "module",
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 5,
+                    "column": 19
+                }
+            }
+        };
+
+
+        var result = escodegen.generate(ast, {
+            sourceMap: "export",
+            sourceMapWithCode: true
+        });
+
+        var map = JSON.parse(result.map.toString());
+        expect(map.mappings.split(';').slice(0, 4).join(';')).to.not.be.equal('"AAAA;AAAA;AAAA;AAAA;');
+    });
 });
