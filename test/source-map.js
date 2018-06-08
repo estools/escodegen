@@ -696,6 +696,6 @@ describe('source map test', function () {
         });
 
         var map = JSON.parse(result.map.toString());
-        expect(map.mappings.split(';').slice(0, 4).join(';')).to.not.be.equal('"AAAA;AAAA;AAAA;AAAA;');
+        expect(map.mappings.split(';').slice(0, 4).join(';')).to.not.be.equal('"AAAA;AAAA;AAAA;AAAA');
     });
 });
