@@ -868,13 +868,15 @@
     }
 
     function generateMethodPrefix(prop) {
-        var func = prop.value;
+        var func = prop.value, prefix = '';
         if (func.async) {
-            return generateAsyncPrefix(func, !prop.computed);
-        } else {
-            // avoid space before method name
-            return generateStarSuffix(func) ? '*' : '';
+            prefix += generateAsyncPrefix(func, !prop.computed);
         }
+        if (func.generator) {
+            // avoid space before method name
+            prefix += generateStarSuffix(func) ? '*' : '';
+        }
+        return prefix;
     }
 
     CodeGenerator.prototype.generatePattern = function (node, precedence, flags) {

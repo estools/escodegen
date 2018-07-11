@@ -6280,7 +6280,104 @@ data = {
             }
         }
 
+    },
+
+    'ES2018 async generator method': {
+        'class C {\n    async *readLines(file) {\n        while (!file.EOF) {\n            yield await file.readLine();\n        }\n    }\n}': {
+            generateFrom: {
+                "type": "ClassDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "C"
+                },
+                "superClass": null,
+                "body": {
+                    "type": "ClassBody",
+                    "body": [
+                        {
+                            "type": "MethodDefinition",
+                            "key": {
+                                "type": "Identifier",
+                                "name": "readLines"
+                            },
+                            "value": {
+                                "type": "FunctionExpression",
+                                "id": null,
+                                "params": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "file"
+                                    }
+                                ],
+                                "body": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                        {
+                                            "type": "WhileStatement",
+                                            "test": {
+                                                "type": "UnaryExpression",
+                                                "operator": "!",
+                                                "prefix": true,
+                                                "argument": {
+                                                    "type": "MemberExpression",
+                                                    "object": {
+                                                        "type": "Identifier",
+                                                        "name": "file"
+                                                    },
+                                                    "property": {
+                                                        "type": "Identifier",
+                                                        "name": "EOF"
+                                                    },
+                                                    "computed": false
+                                                }
+                                            },
+                                            "body": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                    {
+                                                        "type": "ExpressionStatement",
+                                                        "expression": {
+                                                            "type": "YieldExpression",
+                                                            "argument": {
+                                                                "type": "AwaitExpression",
+                                                                "argument": {
+                                                                    "type": "CallExpression",
+                                                                    "callee": {
+                                                                        "type": "MemberExpression",
+                                                                        "object": {
+                                                                            "type": "Identifier",
+                                                                            "name": "file"
+                                                                        },
+                                                                        "property": {
+                                                                            "type": "Identifier",
+                                                                            "name": "readLine"
+                                                                        },
+                                                                        "computed": false
+                                                                    },
+                                                                    "arguments": []
+                                                                }
+                                                            },
+                                                            "delegate": false
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
+                                "generator": true,
+                                "async": true
+                            },
+                            "kind": "method",
+                            "computed": false,
+                            "static": false
+                        }
+                    ]
+                }
+            }
+        }
     }
+
 };
 
 function updateDeeply(target, override) {
