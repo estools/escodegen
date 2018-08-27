@@ -3,4 +3,6 @@ function test() {
     }
     for (let i of array) {
     }
+    for (let c of ('x', String('cat'))) {
+    }
 }

@@ -967,7 +967,7 @@
             result = join(result, operator);
             result = [join(
                 result,
-                that.generateExpression(stmt.right, Precedence.Sequence, E_TTT)
+                that.generateExpression(stmt.right, Precedence.Assignment, E_TTT)
             ), ')'];
         });
         result.push(this.maybeBlock(stmt.body, flags));
