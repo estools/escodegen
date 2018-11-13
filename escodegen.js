@@ -2434,7 +2434,13 @@
 
         ModuleSpecifier: function (expr, precedence, flags) {
             return this.Literal(expr, precedence, flags);
-        }
+        },
+
+        Import: function(expr, precedence, flag) {
+            expr.name = 'import';
+
+            return generateIdentifier(expr);
+        },
 
     };
 
