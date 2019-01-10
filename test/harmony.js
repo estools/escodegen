@@ -5927,6 +5927,46 @@ data = {
             }
         },
 
+        'async function test() {\n    await (foo ? bar : quux);\n}': {
+            generateFrom: {
+                "type": "FunctionDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "test"
+                },
+                "params": [],
+                "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                        {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                                "type": "AwaitExpression",
+                                "argument": {
+                                    "type": "ConditionalExpression",
+                                    "test": {
+                                        "type": "Identifier",
+                                        "name": "foo"
+                                    },
+                                    "consequent": {
+                                        "type": "Identifier",
+                                        "name": "bar"
+                                    },
+                                    "alternate": {
+                                        "type": "Identifier",
+                                        "name": "quux"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                "generator": false,
+                "expression": false,
+                "async": true
+            }   
+        },
+
         'f(async function (promise) {\n    await promise;\n});': {
             generateFrom: {
                 "type": "ExpressionStatement",
