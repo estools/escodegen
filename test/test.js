@@ -30,7 +30,7 @@
 
 'use strict';
 
-var esprima = require('./3rdparty/esprima-1.0.0-dev'),
+var esprima = require('esprima'),
     escodegen = require('./loader'),
     chai = require('chai'),
     expect = chai.expect,
@@ -14871,6 +14871,357 @@ data = {
             },
             tokens: []
         }
+    },
+
+    'JSX': {
+
+        '<Tag/>': {
+            type: 'JSXElement',
+            openingElement: {
+                type: 'JSXOpeningElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'Tag'
+                },
+                selfClosing: true,
+                attributes: []
+            },
+            children: [],
+            closingElement: null
+        },
+
+        '<TagWithSpace />': {
+            type: 'JSXElement',
+            openingElement: {
+                type: 'JSXOpeningElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'TagWithSpace'
+                },
+                selfClosing: true,
+                attributes: []
+            },
+            children: [],
+            closingElement: null
+        },
+
+
+        '<Member.Expression.Tag.Name/>': {
+            type: 'JSXElement',
+            openingElement: {
+                type: 'JSXOpeningElement',
+                name: {
+                    type: 'JSXMemberExpression',
+                    object: {
+                        type: 'JSXMemberExpression',
+                        object: {
+                            type: 'JSXMemberExpression',
+                            object: {
+                                type: 'JSXIdentifier',
+                                name: 'Member'
+                            },
+                            property: {
+                                type: 'JSXIdentifier',
+                                name: 'Expression'
+                            }
+                        },
+                        property: {
+                            type: 'JSXIdentifier',
+                            name: 'Tag'
+                        },
+                    },
+                    property: {
+                        type: 'JSXIdentifier',
+                        name: 'Name'
+                    }
+                },
+                selfClosing: true,
+                attributes: []
+            },
+            children: [],
+            closingElement: null
+        },
+
+        '<Tag attr="string"/>': {
+            type: 'JSXElement',
+            openingElement: {
+                type: 'JSXOpeningElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'Tag'
+                },
+                selfClosing: true,
+                attributes: [
+                    {
+                        type: 'JSXAttribute',
+                        name: {
+                            type: 'JSXIdentifier',
+                            name: 'attr'
+                        },
+                        value: {
+                            type: 'Literal',
+                            value: 'string',
+                            raw: '\"string\"'
+                        }
+                    }
+                ]
+            },
+            children: [],
+            closingElement: null
+        },
+
+        '<Spread {...{ attr: "string", func: () => {} }}/>': {
+            type: 'JSXElement',
+            openingElement: {
+                type: 'JSXOpeningElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'Spread'
+                },
+                selfClosing: true,
+                attributes: [
+                    {
+                        type: 'JSXSpreadAttribute',
+                        argument: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Identifier',
+                                        name: 'attr'
+                                    },
+                                    computed: false,
+                                    value: {
+                                        type: 'Literal',
+                                        value: 'string',
+                                        raw: 'string',
+                                    },
+                                    kind: 'init',
+                                    method: false,
+                                    shorthand: false
+                                },
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Identifier',
+                                        name: 'func'
+                                    },
+                                    computed: false,
+                                    value: {
+                                        type: 'ArrowFunctionExpression',
+                                        id: null,
+                                        params: [],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: []
+                                        },
+                                        generator: false,
+                                        expression: false,
+                                        'async': false
+                                    },
+                                    kind: 'init',
+                                    method: false,
+                                    shorthand: false
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            children: [],
+            closingElement: null
+        },
+
+        '<Namespaced:Name/>': {
+            type: 'JSXElement',
+            openingElement: {
+                type: 'JSXOpeningElement',
+                name: {
+                    type: 'JSXNamespacedName',
+                    name: {
+                        type: 'JSXIdentifier',
+                        name: 'Name'
+                    },
+                    namespace: {
+                        type: 'JSXIdentifier',
+                        name: 'Namespaced'
+                    }
+                },
+                selfClosing: true,
+                attributes: []
+            },
+            children: [],
+            closingElement: null
+        },
+
+
+        '<Tag attr="string" expression={() => { return true }}/>': {
+            type: 'JSXElement',
+            openingElement: {
+                type: 'JSXOpeningElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'Tag'
+                },
+                selfClosing: true,
+                attributes: [
+                    {
+                        "type": "JSXAttribute",
+                        "name": {
+                            "type": "JSXIdentifier",
+                            "name": "attr"
+                        },
+                        "value": {
+                            "type": "Literal",
+                            "value": "string",
+                            "raw": "\"string\""
+                        }
+                    },
+                    {
+                        "type": "JSXAttribute",
+                        "name": {
+                            "type": "JSXIdentifier",
+                            "name": "expression"
+                        },
+                        "value": {
+                            "type": "JSXExpressionContainer",
+                            "expression": {
+                                "type": "ArrowFunctionExpression",
+                                "id": null,
+                                "params": [],
+                                "body": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                        {
+                                            "type": "ReturnStatement",
+                                            "argument": {
+                                                "type": "Literal",
+                                                "value": true,
+                                                "raw": "true"
+                                            }
+                                        }
+                                    ]
+                                },
+                                generator: false,
+                                expression: false
+                            }
+                        }
+                    }
+                ]
+            },
+            children: [],
+            closingElement: null
+        },
+
+        '<WithClosingTag></WithClosingTag>': {
+            type: 'JSXElement',
+            openingElement: {
+                type: 'JSXOpeningElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'WithClosingTag'
+                },
+                attributes: []
+            },
+            children: [],
+            closingElement: {
+                type: 'JSXClosingElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'WithClosingTag'
+                }
+            }
+        },
+
+        '<WithTextChild>text</WithTextChild>': {
+            type: 'JSXElement',
+            openingElement: {
+                type: 'JSXOpeningElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'WithTextChild'
+                },
+                attributes: []
+            },
+            children: [
+                {
+                    type: 'JSXText',
+                    value: 'text',
+                    raw: 'text'
+                }
+            ],
+            closingElement: {
+                type: 'JSXClosingElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'WithTextChild'
+                }
+            }
+        },
+
+        '<WithExpressionChild>{() => {}}</WithExpressionChild>': {
+            type: 'JSXElement',
+            openingElement: {
+                type: 'JSXOpeningElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'WithExpressionChild'
+                },
+                attributes: []
+            },
+            children: [
+                {
+                    type: 'JSXExpressionContainer',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        id: null,
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: []
+                        },
+                        generator: false,
+                        expression: false,
+                        'async': false
+                    }
+                }
+            ],
+            closingElement: {
+                type: 'JSXClosingElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'WithExpressionChild'
+                }
+            }
+        },
+
+        '<EmptyExpression>{}</EmptyExpression>': {
+            type: 'JSXElement',
+            openingElement: {
+                type: 'JSXOpeningElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'EmptyExpression'
+                },
+                selfClosing: false,
+            },
+            children: [
+                {
+                    type: 'JSXExpressionContainer',
+                    expression: {
+                        type: 'JSXEmptyExpression'
+                    }
+                }
+            ],
+            closingElement: {
+                type: 'JSXClosingElement',
+                name: {
+                    type: 'JSXIdentifier',
+                    name: 'EmptyExpression'
+                }
+            }
+        },
     }
 };
 
@@ -14895,7 +15246,8 @@ function testIdentity(code, syntax) {
         range: false,
         loc: false,
         tokens: false,
-        raw: false
+        raw: false,
+        jsx: true
     };
 
     expect(function () {
