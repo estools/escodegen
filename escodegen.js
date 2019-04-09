@@ -2474,7 +2474,7 @@
                     result.push(this.generateExpression(expr.attributes[i], precedence, flags));
                 }
             }
-            result.push(expr.selfClosing ? [' />'] : '>');
+            result.push(expr.selfClosing ? ' />' : '>');
             return result;
         },
 
