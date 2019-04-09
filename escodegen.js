@@ -2434,8 +2434,90 @@
 
         ModuleSpecifier: function (expr, precedence, flags) {
             return this.Literal(expr, precedence, flags);
-        }
+        },
 
+        JSXIdentifier: function (expr, precedence, flags) {
+            return expr.name;
+        },
+
+        JSXMemberExpression: function (expr, precedence, flags) {
+            var result = [];
+            result.push(this.generateExpression(expr.object, precedence, flags));
+            result.push('.');
+            result.push(this.generateExpression(expr.property, precedence, flags));
+            return result;
+        },
+
+        JSXNamespacedName: function (expr, precedence, flags) {
+            var result = [];
+            result.push(this.generateExpression(expr.namespace, precedence, flags));
+            result.push(':');
+            result.push(this.generateExpression(expr.name, precedence, flags));
+            return result;
+        },
+
+        JSXEmptyExpression: function (expr, precedence, flags) {
+            return '';
+        },
+
+        JSXExpressionContainer: function (expr, precedence, flags) {
+            return ['{', this.generateExpression(expr.expression, precedence, flags), '}'];
+        },
+
+        JSXOpeningElement: function (expr, precedence, flags) {
+            var result, i, iz;
+            result = ['<'];
+            result.push(this.generateExpression(expr.name, precedence, flags));
+            if (expr.attributes) {
+                for(i = 0, iz = expr.attributes.length; i < iz; ++i) {
+                    result.push(' ');
+                    result.push(this.generateExpression(expr.attributes[i], precedence, flags));
+                }
+            }
+            result.push(expr.selfClosing ? ' />' : '>');
+            return result;
+        },
+
+        JSXClosingElement: function (expr, precedence, flags) {
+            return ['</', this.generateExpression(expr.name, precedence, flags), '>'];
+        },
+
+        JSXAttribute: function (expr, precedence, flags) {
+            var result = [];
+            result.push(this.generateExpression(expr.name, precedence, flags));
+            result.push('=');
+            if (expr.value.type === 'Literal') {
+                result.push(this.generateExpression(expr.value, precedence, flags));
+                return result;
+            }
+            if (expr.value.type === 'JSXExpressionContainer') {
+                result.push(this.generateExpression(expr.value.expression, precedence, flags));
+                return result;
+            }
+        },
+
+        JSXSpreadAttribute: function (expr, precedence, flags) {
+            return ['{...', this.generateExpression(expr.argument, precedence, flags), '}'];
+        },
+
+        JSXText: function (expr, precedence, flags) {
+            return expr.value;
+        },
+
+        JSXElement: function (expr, precedence, flags) {
+            var result, i, iz;
+            result = [];
+            result.push(this.generateExpression(expr.openingElement, precedence, flags));
+            if (expr.children) {
+                for(i = 0, iz = expr.children.length; i < iz; ++i) {
+                    result.push(this.generateExpression(expr.children[i], precedence, flags));
+                }
+            }
+            if (expr.closingElement) {
+                result.push(this.generateExpression(expr.closingElement, precedence, flags));
+            }
+            return result;
+        }
     };
 
     merge(CodeGenerator.prototype, CodeGenerator.Expression);
