@@ -6416,8 +6416,88 @@ data = {
                 }
             }
         }
-    }
+    },
 
+    // Stage 3: https://github.com/tc39/proposal-dynamic-import/#import
+    'dynamic import': {
+        "import('foo').then(quux);": {
+            generateFrom: {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                        "type": "MemberExpression",
+                        "object": {
+                            "type": "CallExpression",
+                            "callee": {
+                                "type": "Import",
+                            },
+                            "arguments": [
+                                {
+                                    "type": "Literal",
+                                    "value": "foo"
+                                }
+                            ]
+                        },
+                        "property": {
+                            "type": "Identifier",
+                            "name": "then"
+                        },
+                        "computed": false
+                    },
+                    "arguments": [
+                        {
+                            "type": "Identifier",
+                            "name": "quux"
+                        }
+                    ]
+                }
+            }
+        },
+
+        "import('foo' + bar).then(quux);": {
+            generateFrom: {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                        "type": "MemberExpression",
+                        "object": {
+                            "type": "CallExpression",
+                            "callee": {
+                                "type": "Import",
+                            },
+                            "arguments": [
+                                {
+                                    "type": "BinaryExpression",
+                                    "left": {
+                                        "type": "Literal",
+                                        "value": "foo"
+                                    },
+                                    "operator": "+",
+                                    "right": {
+                                        "type": "Identifier",
+                                        "name": "bar"
+                                    }
+                                }
+                            ]
+                        },
+                        "property": {
+                            "type": "Identifier",
+                            "name": "then"
+                        },
+                        "computed": false
+                    },
+                    "arguments": [
+                        {
+                            "type": "Identifier",
+                            "name": "quux"
+                        }
+                    ]
+                }
+            }
+        }
+    }
 };
 
 function updateDeeply(target, override) {
