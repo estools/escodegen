@@ -1744,10 +1744,20 @@
 
         ReturnStatement: function (stmt, flags) {
             if (stmt.argument) {
-                return [join(
-                    'return',
-                    this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
-                ), this.semicolon(flags)];
+                // taken from https://github.com/micschro/escodegen/commit/26be28d52b44f1d70afee148c08360c6048ef9d6
+                var shouldParenthesize = stmt.argument.leadingComments && stmt.argument.leadingComments.length > 0;
+                var result = [];
+                if (shouldParenthesize) {
+                    var that = this;
+                    result.push('(', newline)
+                    withIndent(function () {
+                        result.push(addIndent(that.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)), newline)
+                    });
+                    result.push(addIndent(')'))
+                } else {
+                    result.push(this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT));
+                }
+                return [join('return', result), this.semicolon(flags)];
             }
             return ['return' + this.semicolon(flags)];
         },
