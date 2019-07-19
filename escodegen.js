@@ -1176,15 +1176,19 @@
             withIndent(function () {
                 var guard;
 
-                result = [
-                    'catch' + space + '(',
-                    that.generateExpression(stmt.param, Precedence.Sequence, E_TTT),
-                    ')'
-                ];
+                if (!stmt.param) {
+                    result = ['catch'];
+                } else {
+                    result = [
+                        'catch' + space + '(',
+                        that.generateExpression(stmt.param, Precedence.Sequence, E_TTT),
+                        ')'
+                    ];
 
-                if (stmt.guard) {
-                    guard = that.generateExpression(stmt.guard, Precedence.Sequence, E_TTT);
-                    result.splice(2, 0, ' if ', guard);
+                    if (stmt.guard) {
+                        guard = that.generateExpression(stmt.guard, Precedence.Sequence, E_TTT);
+                        result.splice(2, 0, ' if ', guard);
+                    }
                 }
             });
             result.push(this.maybeBlock(stmt.body, S_TFFF));

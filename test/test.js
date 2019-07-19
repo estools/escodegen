@@ -13320,6 +13320,44 @@ data = {
                     expression: false
                 }]
             }
+        },
+
+        'try { } catch { }': {
+            type: 'TryStatement',
+            block: {
+                type: 'BlockStatement',
+                body: [],
+                range: [4, 7],
+                loc: {
+                    start: { line: 1, column: 4 },
+                    end: { line: 1, column: 7 }
+                }
+            },
+            handlers: [{
+                type: 'CatchClause',
+                param: null,
+                guard: null,
+                body: {
+                    type: 'BlockStatement',
+                    body: [],
+                    range: [14, 17],
+                    loc: {
+                        start: { line: 1, column: 14 },
+                        end: { line: 1, column: 17 }
+                    }
+                },
+                range: [8, 17],
+                loc: {
+                    start: { line: 1, column: 8 },
+                    end: { line: 1, column: 17 }
+                }
+            }],
+            finalizer: null,
+            range: [0, 17],
+            loc: {
+                start: { line: 1, column: 0 },
+                end: { line: 1, column: 17 }
+            }
         }
 
     },
