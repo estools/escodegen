@@ -12090,6 +12090,53 @@ data = {
                 start: { line: 1, column: 0 },
                 end: { line: 1, column: 28 }
             }
+        },
+        '(function foo() { return ( /* inline comment */ \nfunction bar() {}) })': {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "FunctionExpression",
+                "id": {
+                    "type": "Identifier",
+                    "name": "foo"
+                },
+                "params": [],
+                "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                        {
+                            "type": "ReturnStatement",
+                            "argument": {
+                                "type": "FunctionExpression",
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "bar"
+                                },
+                                "params": [],
+                                "body": {
+                                    "type": "BlockStatement",
+                                    "body": []
+                                },
+                                "generator": false,
+                                "expression": false,
+                                "async": false,
+                                "leadingComments": [
+                                    {
+                                        "type": "Block",
+                                        "value": " inline comment ",
+                                        "range": [
+                                            27,
+                                            47
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "generator": false,
+                "expression": false,
+                "async": false
+            }
         }
     },
 
@@ -13322,6 +13369,8 @@ data = {
             }
         },
 
+        /* this will not work until esprima is updated
+         * https://github.com/jquery/esprima/pull/1954
         'try { } catch { }': {
             type: 'TryStatement',
             block: {
@@ -13358,7 +13407,7 @@ data = {
                 start: { line: 1, column: 0 },
                 end: { line: 1, column: 17 }
             }
-        }
+        }*/
 
     },
 
