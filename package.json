@@ -1,7 +1,7 @@
 {
-    "name": "escodegen",
+    "name": "@contrast/escodegen",
     "description": "ECMAScript code generator",
-    "homepage": "http://github.com/estools/escodegen",
+    "homepage": "https://github.com/Contrast-Security-OSS/escodegen",
     "main": "escodegen.js",
     "bin": {
         "esgenerate": "./bin/esgenerate.js",
@@ -27,7 +27,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "http://github.com/estools/escodegen.git"
+        "url": "https://github.com/Contrast-Security-OSS/escodegen.git"
     },
     "dependencies": {
         "estraverse": "^4.2.0",
