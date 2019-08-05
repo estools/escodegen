@@ -2436,10 +2436,12 @@
             return this.Literal(expr, precedence, flags);
         },
 
-        Import: function(expr, precedence, flag) {
-            expr.name = 'import';
-
-            return generateIdentifier(expr);
+        ImportExpression: function(expr, precedence, flag) {
+            return [
+                'import(',
+                this.generateExpression(expr.source),
+                ')'
+            ];
         },
 
     };

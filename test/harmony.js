@@ -6428,16 +6428,11 @@ data = {
                     "callee": {
                         "type": "MemberExpression",
                         "object": {
-                            "type": "CallExpression",
-                            "callee": {
-                                "type": "Import",
-                            },
-                            "arguments": [
-                                {
-                                    "type": "Literal",
-                                    "value": "foo"
-                                }
-                            ]
+                            "type": "ImportExpression",
+                            "source": {
+                                "type": "Literal",
+                                "value": "foo"
+                            }
                         },
                         "property": {
                             "type": "Identifier",
@@ -6463,24 +6458,19 @@ data = {
                     "callee": {
                         "type": "MemberExpression",
                         "object": {
-                            "type": "CallExpression",
-                            "callee": {
-                                "type": "Import",
-                            },
-                            "arguments": [
-                                {
-                                    "type": "BinaryExpression",
-                                    "left": {
-                                        "type": "Literal",
-                                        "value": "foo"
-                                    },
-                                    "operator": "+",
-                                    "right": {
-                                        "type": "Identifier",
-                                        "name": "bar"
-                                    }
+                            "type": "ImportExpression",
+                            "source": {
+                                "type": "BinaryExpression",
+                                "left": {
+                                    "type": "Literal",
+                                    "value": "foo"
+                                },
+                                "operator": "+",
+                                "right": {
+                                    "type": "Identifier",
+                                    "name": "bar"
                                 }
-                            ]
+                            }
                         },
                         "property": {
                             "type": "Identifier",
