@@ -6469,6 +6469,20 @@ data = {
             }
         },
 
+        "new (import('foo'))()": {
+            generateFrom: {
+                "type": "NewExpression",
+                "callee": {
+                    "type": "ImportExpression",
+                    "source": {
+                        "type": "Literal",
+                        "value": "foo"
+                    }
+                },
+                "arguments": []
+            }
+        },
+
         "import('foo' + bar).then(quux);": {
             generateFrom: {
                 "type": "ExpressionStatement",
