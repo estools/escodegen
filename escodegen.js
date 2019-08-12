@@ -2439,7 +2439,7 @@
         ImportExpression: function(expr, precedence, flag) {
             return [
                 'import(',
-                this.generateExpression(expr.source),
+                this.generateExpression(expr.source, Precedence.Assignment, E_TTT),
                 ')'
             ];
         },
