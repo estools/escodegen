@@ -6450,6 +6450,25 @@ data = {
             }
         },
 
+        "import(('a', 'b'))": {
+            generateFrom: {
+                "type": "ImportExpression",
+                "source": {
+                    "type": "SequenceExpression",
+                    "expressions": [
+                        {
+                            "type": "Literal",
+                            "value": "a"
+                        },
+                        {
+                            "type": "Literal",
+                            "value": "b"
+                        }
+                    ]
+                }
+            }
+        },
+
         "import('foo' + bar).then(quux);": {
             generateFrom: {
                 "type": "ExpressionStatement",
