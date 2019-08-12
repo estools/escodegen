@@ -6418,7 +6418,7 @@ data = {
         }
     },
 
-    // Stage 3: https://github.com/tc39/proposal-dynamic-import/#import
+    // https://github.com/tc39/proposal-dynamic-import/#import
     'dynamic import': {
         "import('foo').then(quux);": {
             generateFrom: {
