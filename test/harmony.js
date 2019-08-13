@@ -6416,8 +6416,111 @@ data = {
                 }
             }
         }
-    }
+    },
 
+    // https://github.com/tc39/proposal-dynamic-import/#import
+    'dynamic import': {
+        "import('foo').then(quux);": {
+            generateFrom: {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                        "type": "MemberExpression",
+                        "object": {
+                            "type": "ImportExpression",
+                            "source": {
+                                "type": "Literal",
+                                "value": "foo"
+                            }
+                        },
+                        "property": {
+                            "type": "Identifier",
+                            "name": "then"
+                        },
+                        "computed": false
+                    },
+                    "arguments": [
+                        {
+                            "type": "Identifier",
+                            "name": "quux"
+                        }
+                    ]
+                }
+            }
+        },
+
+        "import(('a', 'b'))": {
+            generateFrom: {
+                "type": "ImportExpression",
+                "source": {
+                    "type": "SequenceExpression",
+                    "expressions": [
+                        {
+                            "type": "Literal",
+                            "value": "a"
+                        },
+                        {
+                            "type": "Literal",
+                            "value": "b"
+                        }
+                    ]
+                }
+            }
+        },
+
+        "new (import('foo'))()": {
+            generateFrom: {
+                "type": "NewExpression",
+                "callee": {
+                    "type": "ImportExpression",
+                    "source": {
+                        "type": "Literal",
+                        "value": "foo"
+                    }
+                },
+                "arguments": []
+            }
+        },
+
+        "import('foo' + bar).then(quux);": {
+            generateFrom: {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                        "type": "MemberExpression",
+                        "object": {
+                            "type": "ImportExpression",
+                            "source": {
+                                "type": "BinaryExpression",
+                                "left": {
+                                    "type": "Literal",
+                                    "value": "foo"
+                                },
+                                "operator": "+",
+                                "right": {
+                                    "type": "Identifier",
+                                    "name": "bar"
+                                }
+                            }
+                        },
+                        "property": {
+                            "type": "Identifier",
+                            "name": "then"
+                        },
+                        "computed": false
+                    },
+                    "arguments": [
+                        {
+                            "type": "Identifier",
+                            "name": "quux"
+                        }
+                    ]
+                }
+            }
+        }
+    }
 };
 
 function updateDeeply(target, override) {
