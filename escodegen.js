@@ -2308,7 +2308,7 @@
                 }
             }
 
-            if (expr.value === null) {
+            if (expr.value === null || (expr.raw === 'null' && expr.value===undefined)) {
                 return 'null';
             }
 
