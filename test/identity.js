@@ -43,9 +43,8 @@ function adjustRegexLiteral(key, value) {
 }
 
 fixtures = [
-    'jQuery 1.7.1',
-    'jQuery 1.6.4',
-    'jQuery.Mobile 1.0',
+    'jQuery 3.4.1',
+    'jQuery.Mobile 1.4.5',
     'Prototype 1.7.0.0',
     'Prototype 1.6.1',
     'Ext Core 3.1.0',
