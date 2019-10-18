@@ -79,5 +79,5 @@ gulp.task('lint', function () {
         .pipe(eslint.failOnError());
 });
 
-gulp.task('travis', [ 'lint', 'test' ]);
-gulp.task('default', [ 'travis' ]);
+gulp.task('travis', gulp.parallel('lint', 'test'));
+gulp.task('default', gulp.parallel('travis'));
