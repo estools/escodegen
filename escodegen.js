@@ -61,7 +61,6 @@
         sourceMap,
         sourceCode,
         preserveBlankLines,
-        noRange,
         FORMAT_MINIFY,
         FORMAT_DEFAULTS;
 
@@ -82,11 +81,10 @@
 
     // Get range either by directly accessing .start + .end or accessing .range
     function getRange(node) {
-        if (!noRange) {
-            return node.range;
-        } else {
+        if (!("range" in node)) {
             return [node.start, node.end];
         }
+        return node.range;
     }
 
     Precedence = {
@@ -211,8 +209,7 @@
             directive: false,
             raw: true,
             verbatim: null,
-            sourceCode: null,
-            noRange: false
+            sourceCode: null
         };
     }
 
@@ -2558,7 +2555,6 @@
         sourceMap = options.sourceMap;
         sourceCode = options.sourceCode;
         preserveBlankLines = options.format.preserveBlankLines && sourceCode !== null;
-        noRange = options.noRange;
         extra = options;
 
         if (sourceMap) {
