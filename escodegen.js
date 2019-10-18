@@ -61,6 +61,7 @@
         sourceMap,
         sourceCode,
         preserveBlankLines,
+        noRange,
         FORMAT_MINIFY,
         FORMAT_DEFAULTS;
 
@@ -77,6 +78,15 @@
     // Generation is done by generateStatement.
     function isStatement(node) {
         return CodeGenerator.Statement.hasOwnProperty(node.type);
+    }
+
+    // Get range either by directly accessing .start + .end or accessing .range
+    function getRange(node) {
+        if (!noRange) {
+            return node.range;
+        } else {
+            return [node.start, node.end];
+        }
     }
 
     Precedence = {
@@ -201,7 +211,8 @@
             directive: false,
             raw: true,
             verbatim: null,
-            sourceCode: null
+            sourceCode: null,
+            noRange: false
         };
     }
 
@@ -668,7 +679,7 @@
                 result = [];
 
                 extRange = comment.extendedRange;
-                range = comment.range;
+                range = getRange(comment);
 
                 prefix = sourceCode.substring(extRange[0], range[0]);
                 count = (prefix.match(/\n/g) || []).length;
@@ -684,7 +695,7 @@
 
                 for (i = 1, len = stmt.leadingComments.length; i < len; i++) {
                     comment = stmt.leadingComments[i];
-                    range = comment.range;
+                    range = getRange(comment);
 
                     infix = sourceCode.substring(prevRange[1], range[0]);
                     count = (infix.match(/\n/g) || []).length;
@@ -726,7 +737,7 @@
             if (preserveBlankLines) {
                 comment = stmt.trailingComments[0];
                 extRange = comment.extendedRange;
-                range = comment.range;
+                range = getRange(comment);
 
                 prefix = sourceCode.substring(extRange[0], range[0]);
                 count = (prefix.match(/\n/g) || []).length;
@@ -1023,7 +1034,7 @@
             withIndent(function () {
                 // handle functions without any code
                 if (stmt.body.length === 0 && preserveBlankLines) {
-                    range = stmt.range;
+                    range = getRange(stmt);
                     if (range[1] - range[0] > 2) {
                         content = sourceCode.substring(range[0] + 1, range[1] - 1);
                         if (content[0] === '\n') {
@@ -1051,14 +1062,14 @@
                                 }
                             }
                             if (!stmt.body[0].leadingComments) {
-                                generateBlankLines(stmt.range[0], stmt.body[0].range[0], result);
+                                generateBlankLines(getRange(stmt)[0], getRange(stmt.body[0])[0], result);
                             }
                         }
 
                         // handle spaces between lines
                         if (i > 0) {
                             if (!stmt.body[i - 1].trailingComments  && !stmt.body[i].leadingComments) {
-                                generateBlankLines(stmt.body[i - 1].range[1], stmt.body[i].range[0], result);
+                                generateBlankLines(getRange(stmt.body[i - 1])[1], getRange(stmt.body[i])[0], result);
                             }
                         }
                     }
@@ -1090,7 +1101,7 @@
                         // handle spaces after the last line
                         if (i === iz - 1) {
                             if (!stmt.body[i].trailingComments) {
-                                generateBlankLines(stmt.body[i].range[1], stmt.range[1], result);
+                                generateBlankLines(getRange(stmt.body[i])[1], getRange(stmt)[1], result);
                             }
                         }
                     }
@@ -1692,14 +1703,14 @@
                     // handle spaces before the first line
                     if (i === 0) {
                         if (!stmt.body[0].leadingComments) {
-                            generateBlankLines(stmt.range[0], stmt.body[i].range[0], result);
+                            generateBlankLines(getRange(stmt)[0], getRange(stmt.body[i])[0], result);
                         }
                     }
 
                     // handle spaces between lines
                     if (i > 0) {
                         if (!stmt.body[i - 1].trailingComments && !stmt.body[i].leadingComments) {
-                            generateBlankLines(stmt.body[i - 1].range[1], stmt.body[i].range[0], result);
+                            generateBlankLines(getRange(stmt.body[i - 1])[1], getRange(stmt.body[i])[0], result);
                         }
                     }
                 }
@@ -1720,7 +1731,7 @@
                     // handle spaces after the last line
                     if (i === iz - 1) {
                         if (!stmt.body[i].trailingComments) {
-                            generateBlankLines(stmt.body[i].range[1], stmt.range[1], result);
+                            generateBlankLines(getRange(stmt.body[i])[1], getRange(stmt)[1], result);
                         }
                     }
                 }
@@ -2547,6 +2558,7 @@
         sourceMap = options.sourceMap;
         sourceCode = options.sourceCode;
         preserveBlankLines = options.format.preserveBlankLines && sourceCode !== null;
+        noRange = options.noRange;
         extra = options;
 
         if (sourceMap) {
