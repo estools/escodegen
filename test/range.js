@@ -34,7 +34,6 @@ function test(tree) {
     var tree, actual;
     var code = "{\n    }";
     var options = {
-        preserveBlankLines: true,
         sourceCode: code,
         format: {
             preserveBlankLines: true
