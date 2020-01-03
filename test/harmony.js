@@ -6322,6 +6322,83 @@ data = {
 
     },
 
+    'ES2018 for-await-of with `compact: true`': {
+        'async function f(){for await(const x of ait){console.log(x);}}': {
+            options: {
+                format: {
+                    compact: true
+                }
+            },
+            generateFrom: {
+                "type": "FunctionDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "f"
+                },
+                "params": [],
+                "body": {
+                    "type": "BlockStatement",
+                    "body": [
+                        {
+                            "type": "ForOfStatement",
+                            "left": {
+                                "type": "VariableDeclaration",
+                                "declarations": [
+                                    {
+                                        "type": "VariableDeclarator",
+                                        "id": {
+                                            "type": "Identifier",
+                                            "name": "x"
+                                        },
+                                        "init": null
+                                    }
+                                ],
+                                "kind": "const"
+                            },
+                            "right": {
+                                "type": "Identifier",
+                                "name": "ait"
+                            },
+                            "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                    {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                                "type": "MemberExpression",
+                                                "object": {
+                                                    "type": "Identifier",
+                                                    "name": "console"
+                                                },
+                                                "property": {
+                                                    "type": "Identifier",
+                                                    "name": "log"
+                                                },
+                                                "computed": false
+                                            },
+                                            "arguments": [
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "x"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            "await": true
+                        }
+                    ]
+                },
+                "generator": false,
+                "async": true
+            }
+        }
+
+    },
+
     'ES2018 async generator method': {
         'class C {\n    async *readLines(file) {\n        while (!file.EOF) {\n            yield await file.readLine();\n        }\n    }\n}': {
             generateFrom: {

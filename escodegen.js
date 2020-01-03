@@ -953,7 +953,7 @@
     };
 
     CodeGenerator.prototype.generateIterationForStatement = function (operator, stmt, flags) {
-        var result = ['for' + space + (stmt.await ? 'await' + space : '') + '('], that = this;
+        var result = ['for' + (stmt.await ? noEmptySpace() + 'await' : '') + space + '('], that = this;
         withIndent(function () {
             if (stmt.left.type === Syntax.VariableDeclaration) {
                 withIndent(function () {
