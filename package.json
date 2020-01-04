@@ -40,7 +40,7 @@
         "commonjs-everywhere": "^0.9.7",
         "espree": "^6.1.2",
         "esprima": "^4.0.1",
-        "gulp": "^3.8.10",
+        "gulp": "^4.0.2",
         "gulp-eslint": "^3.0.1",
         "gulp-mocha": "^3.0.1",
         "semver": "^5.1.0"

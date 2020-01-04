@@ -64,20 +64,24 @@ var ESLINT_OPTION = {
     }
 };
 
-gulp.task('test', function () {
+function test() {
     return gulp.src(TEST)
         .pipe(mocha({
             reporter: 'spec',
             timeout: 100000 // 100s
         }));
-});
+}
 
-gulp.task('lint', function () {
-    return gulp.src(LINT)
+function lint() {
+    return  gulp.src(LINT)
         .pipe(eslint(ESLINT_OPTION))
         .pipe(eslint.formatEach('stylish', process.stderr))
         .pipe(eslint.failOnError());
-});
+}
 
-gulp.task('travis', [ 'lint', 'test' ]);
-gulp.task('default', [ 'travis' ]);
+var travis = gulp.parallel(lint, test);
+
+exports.test = test;
+exports.lint = lint;
+exports.travis = travis;
+exports.default = travis;
