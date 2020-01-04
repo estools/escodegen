@@ -3,18 +3,13 @@
     "description": "ECMAScript code generator",
     "homepage": "http://github.com/estools/escodegen",
     "main": "escodegen.js",
-    "bin": {
-        "esgenerate": "./bin/esgenerate.js",
-        "escodegen": "./bin/escodegen.js"
-    },
     "files": [
         "LICENSE.BSD",
         "README.md",
-        "bin",
         "escodegen.js",
         "package.json"
     ],
-    "version": "1.12.1",
+    "version": "2.0.0",
     "engines": {
         "node": ">=4.0"
     },
@@ -32,7 +27,6 @@
     "dependencies": {
         "estraverse": "^4.2.0",
         "esutils": "^2.0.2",
-        "esprima": "^4.0.1",
         "optionator": "^0.8.1"
     },
     "optionalDependencies": {
@@ -44,6 +38,8 @@
         "bower-registry-client": "^1.0.0",
         "chai": "^3.5.0",
         "commonjs-everywhere": "^0.9.7",
+        "espree": "^6.1.2",
+        "esprima": "^4.0.1",
         "gulp": "^3.8.10",
         "gulp-eslint": "^3.0.1",
         "gulp-mocha": "^3.0.1",

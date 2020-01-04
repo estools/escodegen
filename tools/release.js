@@ -28,10 +28,7 @@
 var fs = require('fs'),
     path = require('path'),
     root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
-    escodegen = require(root),
-    esprima = require('esprima'),
     RegistryClient = require('bower-registry-client'),
-    semver = require('semver'),
     child_process = require('child_process'),
     Promise = require('bluebird');
 

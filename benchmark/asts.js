@@ -1,6 +1,5 @@
 var fs = require('fs'),
-    path = require('path'),
-    esprima = require('esprima');
+    path = require('path');
 
 var FILES_PATH = path.join(__dirname, './asts');
 
