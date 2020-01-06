@@ -1145,7 +1145,17 @@
                 result = join(result, this.generateExpression(stmt.id, Precedence.Sequence, E_TTT));
             }
             if (stmt.superClass) {
-                fragment = join('extends', this.generateExpression(stmt.superClass, Precedence.Assignment, E_TTT));
+                var superClassExpression = this.generateExpression(stmt.superClass, Precedence.Assignment, E_TTT);
+                var superClassStmtType = stmt.superClass.type;
+
+                if (
+                    superClassStmtType === Syntax.AssignmentExpression
+                    || superClassStmtType === Syntax.LogicalExpression
+                ) {
+                    superClassExpression = ['(', space, superClassExpression, space, ')'];
+                }
+
+                fragment = join('extends', superClassExpression);
                 result = join(result, fragment);
             }
             result.push(space);
@@ -2091,7 +2101,17 @@
                 result = join(result, this.generateExpression(expr.id, Precedence.Sequence, E_TTT));
             }
             if (expr.superClass) {
-                fragment = join('extends', this.generateExpression(expr.superClass, Precedence.Assignment, E_TTT));
+                var superClassExpression = this.generateExpression(expr.superClass, Precedence.Assignment, E_TTT);
+                var superClassStmtType = expr.superClass.type;
+
+                if (
+                    superClassStmtType === Syntax.AssignmentExpression
+                    || superClassStmtType === Syntax.LogicalExpression
+                ) {
+                    superClassExpression = ['(', space, superClassExpression, space, ')'];
+                }
+
+                fragment = join('extends', superClassExpression);
                 result = join(result, fragment);
             }
             result.push(space);

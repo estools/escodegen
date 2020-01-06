@@ -3016,6 +3016,128 @@ data = {
             }
         },
 
+        'class hello extends([]||[]){}': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'hello',
+                        range: [6, 11],
+                        loc: {
+                            start: { line: 1, column: 6 },
+                            end: { line: 1, column: 11 }
+                        }
+                    },
+                    superClass: {
+                        type: 'LogicalExpression',
+                        start: 47,
+                        end: 55,
+                        left: {
+                            type: 'ArrayExpression',
+                            start: 47,
+                            end: 49,
+                            elements: []
+                        },
+                        operator: '||',
+                        right: {
+                            type: 'ArrayExpression',
+                            start: 53,
+                            end: 55,
+                            elements: []
+                        },
+                    },
+                    body: {
+                        type: 'ClassBody',
+                        body: [],
+                        range: [21, 23],
+                        loc: {
+                            start: { line: 1, column: 21 },
+                            end: { line: 1, column: 23 }
+                        }
+                    },
+                    range: [0, 23],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 23 }
+                    }
+                }],
+                range: [0, 23],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 23 }
+                }
+            }
+        },
+
+        'class hello extends([]=[]){}': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'hello',
+                        range: [6, 11],
+                        loc: {
+                            start: { line: 1, column: 6 },
+                            end: { line: 1, column: 11 }
+                        }
+                    },
+                    superClass: {
+                        type: 'AssignmentExpression',
+                        start: 47,
+                        end: 55,
+                        left: {
+                            type: 'ArrayExpression',
+                            start: 47,
+                            end: 49,
+                            elements: []
+                        },
+                        operator: '=',
+                        right: {
+                            type: 'ArrayExpression',
+                            start: 53,
+                            end: 55,
+                            elements: []
+                        },
+                    },
+                    body: {
+                        type: 'ClassBody',
+                        body: [],
+                        range: [21, 23],
+                        loc: {
+                            start: { line: 1, column: 21 },
+                            end: { line: 1, column: 23 }
+                        }
+                    },
+                    range: [0, 23],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 23 }
+                    }
+                }],
+                range: [0, 23],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 23 }
+                }
+            }
+        },
+
         'class hello extends[]{static[ok](){}}': {
             options: {
                 format: {
@@ -4053,6 +4175,210 @@ data = {
                                 start: { line: 1, column: 14 },
                                 end: { line: 1, column: 16 }
                             }
+                        },
+                        body: {
+                            type: 'ClassBody',
+                            body: [{
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'ok',
+                                    range: [24, 26],
+                                    loc: {
+                                        start: { line: 1, column: 24 },
+                                        end: { line: 1, column: 26 }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    id: null,
+                                    params: [],
+                                    defaults: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        range: [29, 31],
+                                        loc: {
+                                            start: { line: 1, column: 29 },
+                                            end: { line: 1, column: 31 }
+                                        }
+                                    },
+                                    rest: null,
+                                    generator: false,
+                                    expression: false,
+                                    range: [29, 31],
+                                    loc: {
+                                        start: { line: 1, column: 29 },
+                                        end: { line: 1, column: 31 }
+                                    }
+                                },
+                                kind: '',
+                                'static': true,
+                                computed: true,
+                                range: [17, 31],
+                                loc: {
+                                    start: { line: 1, column: 17 },
+                                    end: { line: 1, column: 31 }
+                                }
+                            }],
+                            range: [16, 32],
+                            loc: {
+                                start: { line: 1, column: 16 },
+                                end: { line: 1, column: 32 }
+                            }
+                        },
+                        range: [1, 32],
+                        loc: {
+                            start: { line: 1, column: 1 },
+                            end: { line: 1, column: 32 }
+                        }
+                    },
+                    range: [0, 33],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 33 }
+                    }
+                }],
+                range: [0, 33],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 33 }
+                }
+            }
+        },
+
+        '(class extends([]||[]){static[ok](){}})': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ClassExpression',
+                        superClass: {
+                            type: 'LogicalExpression',
+                            start: 47,
+                            end: 55,
+                            left: {
+                                type: 'ArrayExpression',
+                                start: 47,
+                                end: 49,
+                                elements: []
+                            },
+                            operator: '||',
+                            right: {
+                                type: 'ArrayExpression',
+                                start: 53,
+                                end: 55,
+                                elements: []
+                            },
+                        },
+                        body: {
+                            type: 'ClassBody',
+                            body: [{
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'ok',
+                                    range: [24, 26],
+                                    loc: {
+                                        start: { line: 1, column: 24 },
+                                        end: { line: 1, column: 26 }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    id: null,
+                                    params: [],
+                                    defaults: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        range: [29, 31],
+                                        loc: {
+                                            start: { line: 1, column: 29 },
+                                            end: { line: 1, column: 31 }
+                                        }
+                                    },
+                                    rest: null,
+                                    generator: false,
+                                    expression: false,
+                                    range: [29, 31],
+                                    loc: {
+                                        start: { line: 1, column: 29 },
+                                        end: { line: 1, column: 31 }
+                                    }
+                                },
+                                kind: '',
+                                'static': true,
+                                computed: true,
+                                range: [17, 31],
+                                loc: {
+                                    start: { line: 1, column: 17 },
+                                    end: { line: 1, column: 31 }
+                                }
+                            }],
+                            range: [16, 32],
+                            loc: {
+                                start: { line: 1, column: 16 },
+                                end: { line: 1, column: 32 }
+                            }
+                        },
+                        range: [1, 32],
+                        loc: {
+                            start: { line: 1, column: 1 },
+                            end: { line: 1, column: 32 }
+                        }
+                    },
+                    range: [0, 33],
+                    loc: {
+                        start: { line: 1, column: 0 },
+                        end: { line: 1, column: 33 }
+                    }
+                }],
+                range: [0, 33],
+                loc: {
+                    start: { line: 1, column: 0 },
+                    end: { line: 1, column: 33 }
+                }
+            }
+        },
+
+        '(class extends([]=[]){static[ok](){}})': {
+            options: {
+                format: {
+                    compact: true,
+                    semicolons: false
+                }
+            },
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ClassExpression',
+                        superClass: {
+                            type: 'AssignmentExpression',
+                            start: 47,
+                            end: 55,
+                            left: {
+                                type: 'ArrayExpression',
+                                start: 47,
+                                end: 49,
+                                elements: []
+                            },
+                            operator: '=',
+                            right: {
+                                type: 'ArrayExpression',
+                                start: 53,
+                                end: 55,
+                                elements: []
+                            },
                         },
                         body: {
                             type: 'ClassBody',
