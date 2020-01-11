@@ -1176,9 +1176,7 @@
             withIndent(function () {
                 var guard;
 
-                if (!stmt.param) {
-                    result = ['catch'];
-                } else {
+                if (stmt.param) {
                     result = [
                         'catch' + space + '(',
                         that.generateExpression(stmt.param, Precedence.Sequence, E_TTT),
@@ -1189,6 +1187,8 @@
                         guard = that.generateExpression(stmt.guard, Precedence.Sequence, E_TTT);
                         result.splice(2, 0, ' if ', guard);
                     }
+                } else {
+                    result = ['catch'];
                 }
             });
             result.push(this.maybeBlock(stmt.body, S_TFFF));
