@@ -2312,6 +2312,10 @@
                 }
             }
 
+            if (expr.regex) {
+              return '/' + expr.regex.pattern + '/' + expr.regex.flags;
+            }
+
             if (expr.value === null) {
                 return 'null';
             }
@@ -2328,9 +2332,6 @@
                 return expr.value ? 'true' : 'false';
             }
 
-            if (expr.regex) {
-              return '/' + expr.regex.pattern + '/' + expr.regex.flags;
-            }
             return generateRegExp(expr.value);
         },
 
