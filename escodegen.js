@@ -95,14 +95,15 @@
         BitwiseSHIFT: 10,
         Additive: 11,
         Multiplicative: 12,
-        Await: 13,
-        Unary: 13,
-        Postfix: 14,
-        Call: 15,
-        New: 16,
-        TaggedTemplate: 17,
-        Member: 18,
-        Primary: 19
+        Exponentiation: 13,
+        Await: 14,
+        Unary: 14,
+        Postfix: 15,
+        Call: 16,
+        New: 17,
+        TaggedTemplate: 18,
+        Member: 19,
+        Primary: 20
     };
 
     BinaryPrecedence = {
@@ -130,7 +131,8 @@
         '-': Precedence.Additive,
         '*': Precedence.Multiplicative,
         '%': Precedence.Multiplicative,
-        '/': Precedence.Multiplicative
+        '/': Precedence.Multiplicative,
+        '**': Precedence.Exponentiation
     };
 
     //Flags
