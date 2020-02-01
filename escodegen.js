@@ -1840,7 +1840,13 @@
                 flags |= F_ALLOW_IN;
             }
 
-            fragment = this.generateExpression(expr.left, currentPrecedence, flags);
+            if (expr.operator === '**' && expr.left.operator) {
+                var leftExpressionPrecedence = BinaryPrecedence[expr.left.operator];
+
+                fragment = ['(', this.generateExpression(expr.left, leftExpressionPrecedence), ')'];
+            } else {
+                fragment = this.generateExpression(expr.left, currentPrecedence, flags);
+            }
 
             leftSource = fragment.toString();
 

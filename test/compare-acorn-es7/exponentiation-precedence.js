@@ -4,3 +4,7 @@ x ** (y * z);
 x * (y ** z);
 x ** y * z;
 x * y ** z;
+var foo = (-1) ** 0;
+var foo = 0 ** (-1);
+var foo = (1) ** 0;
+var foo = 0 ** (1);
