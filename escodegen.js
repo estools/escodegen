@@ -1833,20 +1833,16 @@
         },
 
         BinaryExpression: function (expr, precedence, flags) {
-            var result, currentPrecedence, fragment, leftSource;
+            var result, leftPrecedence, rightPrecedence, currentPrecedence, fragment, leftSource;
             currentPrecedence = BinaryPrecedence[expr.operator];
+            leftPrecedence = expr.operator === '**' ? Precedence.Postfix : currentPrecedence + 1;
+            rightPrecedence = expr.operator === '**' ? currentPrecedence : currentPrecedence + 1;
 
             if (currentPrecedence < precedence) {
                 flags |= F_ALLOW_IN;
             }
 
-            if (expr.operator === '**' && expr.left.operator) {
-                var leftExpressionPrecedence = BinaryPrecedence[expr.left.operator];
-
-                fragment = ['(', this.generateExpression(expr.left, leftExpressionPrecedence), ')'];
-            } else {
-                fragment = this.generateExpression(expr.left, currentPrecedence, flags);
-            }
+            fragment = this.generateExpression(expr.left, leftPrecedence, flags);
 
             leftSource = fragment.toString();
 
@@ -1856,7 +1852,7 @@
                 result = join(fragment, expr.operator);
             }
 
-            fragment = this.generateExpression(expr.right, currentPrecedence + 1, flags);
+            fragment = this.generateExpression(expr.right, rightPrecedence, flags);
 
             if (expr.operator === '/' && fragment.toString().charAt(0) === '/' ||
             expr.operator.slice(-1) === '<' && fragment.toString().slice(0, 3) === '!--') {
