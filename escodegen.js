@@ -1835,7 +1835,7 @@
         BinaryExpression: function (expr, precedence, flags) {
             var result, leftPrecedence, rightPrecedence, currentPrecedence, fragment, leftSource;
             currentPrecedence = BinaryPrecedence[expr.operator];
-            leftPrecedence = expr.operator === '**' ? Precedence.Postfix : currentPrecedence + 1;
+            leftPrecedence = expr.operator === '**' ? Precedence.Postfix : currentPrecedence;
             rightPrecedence = expr.operator === '**' ? currentPrecedence : currentPrecedence + 1;
 
             if (currentPrecedence < precedence) {
