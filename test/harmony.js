@@ -2548,6 +2548,24 @@ data = {
         }
     },
 
+    'Harmony object pattern single rest-element property': {
+        '{...a}': {
+            generateFrom: {
+                type: 'ObjectPattern',
+                start: 8,
+                properties: [
+                    {
+                        type: 'RestElement',
+                        'argument': {
+                            type: 'Identifier',
+                            name: 'a'
+                        }
+                    }
+                ]
+            }
+        }
+    },
+
     'Harmony method property': {
         'var obj = { test() { } }': {
             type: 'Program',
