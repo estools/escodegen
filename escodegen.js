@@ -2117,6 +2117,23 @@
             return result;
         },
 
+        ClassProperty: function(expr, precedence, flags) {
+            return [
+                this.generatePropertyKey(expr.key),
+                '=',
+                this.generateExpression(expr.value)
+            ]
+        },
+
+        ClassPrivateProperty: function(expr, precedence, flags) {
+            return [
+                '#',
+                this.generatePropertyKey(expr.key),
+                '=',
+                this.generateExpression(expr.value)
+            ]
+        },
+
         MethodDefinition: function (expr, precedence, flags) {
             var result, fragment;
             if (expr['static']) {
