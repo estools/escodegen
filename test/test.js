@@ -4429,6 +4429,32 @@ data = {
                 value: '/[P QR]/\\g',
                 range: [8, 18]
             }]
+        },
+
+        'var x = /foo/i;': {
+            generateFrom: {
+                type: 'Program',
+                body: [{
+                    type: 'VariableDeclaration',
+                    kind: 'var',
+                    declarations: [{
+                        type: 'VariableDeclarator',
+                        id: {
+                            type: 'Identifier',
+                            name: 'x',
+                        },
+                        init: {
+                            type: 'Literal',
+                            value: null,
+                            raw: '/foo/i',
+                            regex: {
+                                pattern: 'foo',
+                                flags: 'i'
+                            }
+                        },
+                    }]
+                }],
+            }
         }
 
     },

@@ -95,14 +95,15 @@
         BitwiseSHIFT: 10,
         Additive: 11,
         Multiplicative: 12,
-        Await: 13,
-        Unary: 13,
-        Postfix: 14,
-        Call: 15,
-        New: 16,
-        TaggedTemplate: 17,
-        Member: 18,
-        Primary: 19
+        Exponentiation: 13,
+        Await: 14,
+        Unary: 14,
+        Postfix: 15,
+        Call: 16,
+        New: 17,
+        TaggedTemplate: 18,
+        Member: 19,
+        Primary: 20
     };
 
     BinaryPrecedence = {
@@ -130,7 +131,8 @@
         '-': Precedence.Additive,
         '*': Precedence.Multiplicative,
         '%': Precedence.Multiplicative,
-        '/': Precedence.Multiplicative
+        '/': Precedence.Multiplicative,
+        '**': Precedence.Exponentiation
     };
 
     //Flags
@@ -953,7 +955,7 @@
     };
 
     CodeGenerator.prototype.generateIterationForStatement = function (operator, stmt, flags) {
-        var result = ['for' + space + (stmt.await ? 'await' + space : '') + '('], that = this;
+        var result = ['for' + (stmt.await ? noEmptySpace() + 'await' : '') + space + '('], that = this;
         withIndent(function () {
             if (stmt.left.type === Syntax.VariableDeclaration) {
                 withIndent(function () {
@@ -1145,7 +1147,7 @@
                 result = join(result, this.generateExpression(stmt.id, Precedence.Sequence, E_TTT));
             }
             if (stmt.superClass) {
-                fragment = join('extends', this.generateExpression(stmt.superClass, Precedence.Assignment, E_TTT));
+                fragment = join('extends', this.generateExpression(stmt.superClass, Precedence.Unary, E_TTT));
                 result = join(result, fragment);
             }
             result.push(space);
@@ -1176,9 +1178,7 @@
             withIndent(function () {
                 var guard;
 
-                if (!stmt.param) {
-                    result = ['catch'];
-                } else {
+                if (stmt.param) {
                     result = [
                         'catch' + space + '(',
                         that.generateExpression(stmt.param, Precedence.Sequence, E_TTT),
@@ -1189,6 +1189,8 @@
                         guard = that.generateExpression(stmt.guard, Precedence.Sequence, E_TTT);
                         result.splice(2, 0, ' if ', guard);
                     }
+                } else {
+                    result = ['catch'];
                 }
             });
             result.push(this.maybeBlock(stmt.body, S_TFFF));
@@ -1841,14 +1843,16 @@
         },
 
         BinaryExpression: function (expr, precedence, flags) {
-            var result, currentPrecedence, fragment, leftSource;
+            var result, leftPrecedence, rightPrecedence, currentPrecedence, fragment, leftSource;
             currentPrecedence = BinaryPrecedence[expr.operator];
+            leftPrecedence = expr.operator === '**' ? Precedence.Postfix : currentPrecedence;
+            rightPrecedence = expr.operator === '**' ? currentPrecedence : currentPrecedence + 1;
 
             if (currentPrecedence < precedence) {
                 flags |= F_ALLOW_IN;
             }
 
-            fragment = this.generateExpression(expr.left, currentPrecedence, flags);
+            fragment = this.generateExpression(expr.left, leftPrecedence, flags);
 
             leftSource = fragment.toString();
 
@@ -1858,7 +1862,7 @@
                 result = join(fragment, expr.operator);
             }
 
-            fragment = this.generateExpression(expr.right, currentPrecedence + 1, flags);
+            fragment = this.generateExpression(expr.right, rightPrecedence, flags);
 
             if (expr.operator === '/' && fragment.toString().charAt(0) === '/' ||
             expr.operator.slice(-1) === '<' && fragment.toString().slice(0, 3) === '!--') {
@@ -2105,7 +2109,7 @@
                 result = join(result, this.generateExpression(expr.id, Precedence.Sequence, E_TTT));
             }
             if (expr.superClass) {
-                fragment = join('extends', this.generateExpression(expr.superClass, Precedence.Assignment, E_TTT));
+                fragment = join('extends', this.generateExpression(expr.superClass, Precedence.Unary, E_TTT));
                 result = join(result, fragment);
             }
             result.push(space);
@@ -2322,6 +2326,10 @@
                 }
             }
 
+            if (expr.regex) {
+              return '/' + expr.regex.pattern + '/' + expr.regex.flags;
+            }
+
             if (expr.value === null) {
                 return 'null';
             }
@@ -2338,9 +2346,6 @@
                 return expr.value ? 'true' : 'false';
             }
 
-            if (expr.regex) {
-              return '/' + expr.regex.pattern + '/' + expr.regex.flags;
-            }
             return generateRegExp(expr.value);
         },
 
@@ -2448,7 +2453,15 @@
 
         ModuleSpecifier: function (expr, precedence, flags) {
             return this.Literal(expr, precedence, flags);
-        }
+        },
+
+        ImportExpression: function(expr, precedence, flag) {
+            return parenthesize([
+                'import(',
+                this.generateExpression(expr.source, Precedence.Assignment, E_TTT),
+                ')'
+            ], Precedence.Call, precedence);
+        },
 
     };
 
