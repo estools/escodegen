@@ -11,29 +11,34 @@ code generator from [Mozilla's Parser API](https://developer.mozilla.org/en/Spid
 AST. See the [online generator](https://estools.github.io/escodegen/demo/index.html)
 for a demo.
 
-
 ### Install
 
 Escodegen can be used in a web browser:
 
-    <script src="escodegen.browser.js"></script>
+```html
+<script src="escodegen.browser.js"></script>
+```
 
 escodegen.browser.js can be found in tagged revisions on GitHub.
 
 Or in a Node.js application via npm:
 
-    npm install escodegen
+```sh
+npm install escodegen
+```
 
 ### Usage
 
 A simple example: the program
 
-    escodegen.generate({
-        type: 'BinaryExpression',
-        operator: '+',
-        left: { type: 'Literal', value: 40 },
-        right: { type: 'Literal', value: 2 }
-    });
+```js
+escodegen.generate({
+    type: 'BinaryExpression',
+    operator: '+',
+    left: { type: 'Literal', value: 40 },
+    right: { type: 'Literal', value: 2 }
+});
+```
 
 produces the string `'40 + 2'`.
 
@@ -45,13 +50,17 @@ options. To run the tests, execute `npm test` in the root directory.
 At first, execute `npm install` to install the all dev dependencies.
 After that,
 
-    npm run-script build
+```sh
+npm run-script build
+```
 
 will generate `escodegen.browser.js`, which can be used in browser environments.
 
 And,
 
-    npm run-script build-min
+```sh
+npm run-script build-min
+```
 
 will generate the minified file `escodegen.browser.min.js`.
 

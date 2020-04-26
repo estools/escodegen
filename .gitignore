@@ -10,3 +10,6 @@ node_modules/
 cover_html/
 
 npm-debug.log
+
+escodegen.browser.min.js
+escodegen.browser.js

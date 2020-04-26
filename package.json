@@ -2,62 +2,64 @@
     "name": "escodegen",
     "description": "ECMAScript code generator",
     "homepage": "http://github.com/estools/escodegen",
+    "bugs": "http://github.com/estools/escodegen/issues",
     "main": "escodegen.js",
     "bin": {
         "esgenerate": "./bin/esgenerate.js",
         "escodegen": "./bin/escodegen.js"
     },
+    "keywords": [
+        "code",
+        "generation"
+    ],
     "files": [
         "LICENSE.BSD",
         "README.md",
         "bin",
         "escodegen.js",
+        "escodegen.browser.min.js",
+        "escodegen.browser.js",
         "package.json"
     ],
     "version": "2.0.0",
     "engines": {
         "node": ">=6.0"
     },
-    "maintainers": [
-        {
-            "name": "Yusuke Suzuki",
-            "email": "utatane.tea@gmail.com",
-            "web": "http://github.com/Constellation"
-        }
-    ],
+    "author": {
+        "name": "Yusuke Suzuki",
+        "email": "utatane.tea@gmail.com",
+        "web": "http://github.com/Constellation"
+    },
+    "contributors": [],
     "repository": {
         "type": "git",
         "url": "http://github.com/estools/escodegen.git"
     },
     "dependencies": {
+        "esprima": "^4.0.1",
         "estraverse": "^5.2.0",
-        "esutils": "^2.0.2",
-        "esprima": "^4.0.1"
+        "esutils": "^2.0.3",
+        "optionator": "^0.9.1"
     },
     "optionalDependencies": {
-        "source-map": "~0.6.1"
+        "source-map": "~0.7.3"
     },
     "devDependencies": {
         "acorn": "^8.0.4",
-        "bluebird": "^3.4.7",
-        "bower-registry-client": "^1.0.0",
+        "browserify": "^16.5.1",
         "chai": "^4.2.0",
         "chai-exclude": "^2.0.2",
-        "commonjs-everywhere": "^0.9.7",
-        "gulp": "^4.0.2",
-        "gulp-eslint": "^6.0.0",
-        "gulp-mocha": "^7.0.2",
-        "minimist": "^1.2.5",
-        "optionator": "^0.9.1",
-        "semver": "^7.3.4"
+        "eslint": "^6.8.0",
+        "mocha": "^7.1.2",
+        "uglifyify": "^5.0.2"
     },
     "license": "BSD-2-Clause",
     "scripts": {
-        "test": "gulp travis",
-        "unit-test": "gulp test",
-        "lint": "gulp lint",
+        "test": "npm run unit-test && npm run lint",
+        "unit-test": "mocha test/*.js --timeout 100000",
+        "lint": "eslint --rulesdir tools/rules/ .",
         "release": "node tools/release.js",
-        "build-min": "./node_modules/.bin/cjsify -ma path: tools/entry-point.js > escodegen.browser.min.js",
-        "build": "./node_modules/.bin/cjsify -a path: tools/entry-point.js > escodegen.browser.js"
+        "build-min": "browserify -t uglifyify -e tools/entry-point.js -o escodegen.browser.min.js",
+        "build": "browserify -e tools/entry-point.js -o escodegen.browser.js"
     }
 }
