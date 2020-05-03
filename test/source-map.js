@@ -313,7 +313,8 @@ describe('source map test', function () {
                             "type": "VariableDeclarator",
                             "id": {
                                 "type": "Identifier",
-                                "name": "fooga",
+                                "name": "a",
+                                "originalName": "fooga",
                                 "loc": {
                                     "start": {
                                         "line": 1,
@@ -413,7 +414,8 @@ describe('source map test', function () {
                         "arguments": [
                             {
                                 "type": "Identifier",
-                                "name": "fooga",
+                                "name": "a",
+                                "originalName": "fooga",
                                 "loc": {
                                     "start": {
                                         "line": 3,
@@ -466,7 +468,7 @@ describe('source map test', function () {
             sourceMapWithCode: true
         });
 
-        expect(result.map._names._array.length).to.be.equal(3);
+        expect(result.map._names._array).to.be.eql(["fooga", "console", "log"]);
     });
 
     it('sourceContent support', function() {
