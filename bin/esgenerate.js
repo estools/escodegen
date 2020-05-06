@@ -51,7 +51,7 @@ if (files.length === 0) {
 
 if (args.config) {
     try {
-        options = JSON.parse(fs.readFileSync(args.config, 'utf-8'))
+        options = JSON.parse(fs.readFileSync(args.config, 'utf-8'));
     } catch (err) {
         console.error('Error parsing config: ', err);
     }

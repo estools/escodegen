@@ -22,7 +22,7 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict'
+'use strict';
 
 module.exports = function (context) {
     var MESSAGE = '"push" with multiple arguments hurts performance since optimizing compiler would not support it';

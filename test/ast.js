@@ -60,7 +60,7 @@ data = {
                 type: 'ExpressionStatement',
                 expression: {
                     type: 'Literal',
-                    value: new RegExp('\n', 'i')
+                    value: /\n/i
                 },
             }],
             expected: '/\\n/i;'
@@ -71,7 +71,7 @@ data = {
                 type: 'ExpressionStatement',
                 expression: {
                     type: 'Literal',
-                    value: new RegExp('\r', 'i')
+                    value: /\r/i
                 },
             }],
             expected: '/\\r/i;'

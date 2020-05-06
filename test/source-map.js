@@ -470,7 +470,7 @@ describe('source map test', function () {
     });
 
     it('sourceContent support', async function() {
-        var source = "(+ a b)"
+        var source = "(+ a b)";
         var ast = {
             "type": "ExpressionStatement",
             "expression": {"type": "BinaryExpression",
