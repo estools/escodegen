@@ -2549,19 +2549,37 @@ data = {
     },
 
     'Harmony object pattern single rest-element property': {
-        '{...a}': {
+        'const {...foo} = {};': {
             generateFrom: {
-                type: 'ObjectPattern',
-                start: 8,
-                properties: [
+                type: 'Program',
+                body: [
                     {
-                        type: 'RestElement',
-                        'argument': {
-                            type: 'Identifier',
-                            name: 'a'
-                        }
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                id: {
+                                    type: 'ObjectPattern',
+                                    properties: [
+                                        {
+                                            type: 'RestElement',
+                                            'argument': {
+                                                type: 'Identifier',
+                                                name: 'foo'
+                                            }
+                                        }
+                                    ]
+                                },
+                                init: {
+                                    type: 'ObjectExpression',
+                                    properties: []
+                                }
+                            }
+                        ],
+                        kind: 'const'
                     }
-                ]
+                ],
+                sourceType: "script"
             }
         }
     },
