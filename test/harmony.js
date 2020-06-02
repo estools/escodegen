@@ -2548,7 +2548,7 @@ data = {
         }
     },
 
-    'Harmony object pattern single rest-element property': {
+    'Harmony object pattern, singleline, 1 property: RestElement': {
         'const {...foo} = {};': {
             generateFrom: {
                 type: 'Program',
@@ -2568,6 +2568,227 @@ data = {
                                                 name: 'foo'
                                             }
                                         }
+                                    ]
+                                },
+                                init: {
+                                    type: 'ObjectExpression',
+                                    properties: []
+                                }
+                            }
+                        ],
+                        kind: 'const'
+                    }
+                ],
+                sourceType: "script"
+            }
+        }
+    },
+
+    'Harmony object pattern, singleline, 2 properties: Property, Property': {
+        'const {foo, bar} = {};': {
+            generateFrom: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                id: {
+                                    type: 'ObjectPattern',
+                                    properties: [
+                                        {
+                                            type: 'Property',
+                                            method: false,
+                                            shorthand: true,
+                                            computed: false,
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'foo'
+                                            },
+                                            kind: 'init',
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'foo'
+                                            }
+                                        },
+                                        {
+                                            type: 'Property',
+                                            method: false,
+                                            shorthand: true,
+                                            computed: false,
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'bar'
+                                            },
+                                            kind: 'init',
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'bar'
+                                            }
+                                        },
+                                    ]
+                                },
+                                init: {
+                                    type: 'ObjectExpression',
+                                    properties: []
+                                }
+                            }
+                        ],
+                        kind: 'const'
+                    }
+                ],
+                sourceType: "script"
+            }
+        }
+    },
+
+    'Harmony object pattern, singleline, 2 properties: Property, RestElement': {
+        'const {foo, ...bar} = {};': {
+            generateFrom: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                id: {
+                                    type: 'ObjectPattern',
+                                    properties: [
+                                        {
+                                            type: 'Property',
+                                            method: false,
+                                            shorthand: true,
+                                            computed: false,
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'foo'
+                                            },
+                                            kind: 'init',
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'foo'
+                                            }
+                                        },
+                                        {
+                                            type: 'RestElement',
+                                            'argument': {
+                                                type: 'Identifier',
+                                                name: 'bar'
+                                            }
+                                        }
+                                    ]
+                                },
+                                init: {
+                                    type: 'ObjectExpression',
+                                    properties: []
+                                }
+                            }
+                        ],
+                        kind: 'const'
+                    }
+                ],
+                sourceType: "script"
+            }
+        }
+    },
+
+    'Harmony object pattern, multiline, 1 property: Property': {
+        'const {\n    foo = 1\n} = {};': {
+            generateFrom: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                id: {
+                                    type: 'ObjectPattern',
+                                    properties: [
+                                        {
+                                            type: 'Property',
+                                            method: false,
+                                            shorthand: true,
+                                            computed: false,
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'foo'
+                                            },
+                                            kind: 'init',
+                                            value: {
+                                                type: 'AssignmentPattern',
+                                                left: {
+                                                    type: 'Identifier',
+                                                    name: 'foo'
+                                                },
+                                                right: {
+                                                    type: 'Literal',
+                                                    value: 1,
+                                                    raw: '1'
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                init: {
+                                    type: 'ObjectExpression',
+                                    properties: []
+                                }
+                            }
+                        ],
+                        kind: 'const'
+                    }
+                ],
+                sourceType: "script"
+            }
+        }
+    },
+
+    'Harmony object pattern, multiline, 2 properties: Property, Property': {
+        'const {\n    foo: bar,\n    baz\n} = {};': {
+            generateFrom: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                id: {
+                                    type: 'ObjectPattern',
+                                    properties: [
+                                        {
+                                            type: 'Property',
+                                            method: false,
+                                            shorthand: false,
+                                            computed: false,
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'foo'
+                                            },
+                                            kind: 'init',
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'bar'
+                                            }
+                                        },
+                                        {
+                                            type: 'Property',
+                                            method: false,
+                                            shorthand: true,
+                                            computed: false,
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'baz'
+                                            },
+                                            kind: 'init',
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'baz'
+                                            }
+                                        },
                                     ]
                                 },
                                 init: {

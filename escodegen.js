@@ -2224,7 +2224,10 @@
             } else {
                 for (i = 0, iz = expr.properties.length; i < iz; ++i) {
                     property = expr.properties[i];
-                    if (!property.shorthand) {
+                    if (
+                        property.type === Syntax.Property
+                        && !property.shorthand
+                    ) {
                         multiline = true;
                         break;
                     }
