@@ -1893,6 +1893,12 @@
             return parenthesize(result, Precedence.Call, precedence);
         },
 
+        ChainExpression: function (expr, precedence, flags) {
+            var expression = expr.expression;
+
+            return this[expression.type](expression, precedence, flags);
+        },
+
         NewExpression: function (expr, precedence, flags) {
             var result, length, i, iz, itemFlags;
             length = expr['arguments'].length;
@@ -2460,15 +2466,7 @@
                 this.generateExpression(expr.source, Precedence.Assignment, E_TTT),
                 ')'
             ], Precedence.Call, precedence);
-        },
-
-        OptionalMemberExpression: function(expr, precedence, flag) {
-            return this.MemberExpression(expr, precedence, flag);
-        },
-
-        OptionalCallExpression: function(expr, precedence, flag) {
-            return this.CallExpression(expr, precedence, flag);
-        },
+        }
     };
 
     merge(CodeGenerator.prototype, CodeGenerator.Expression);
