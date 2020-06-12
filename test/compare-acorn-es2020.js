@@ -28,16 +28,16 @@ var fs = require('fs'),
     acorn = require('acorn'),
     escodegen = require('./loader'),
     chai = require('chai'),
+    chaiExclude = require('chai-exclude'),
     expect = chai.expect;
 
-function test(code, expected) {
-    var tree, actual, options, StringObject;
+chai.use(chaiExclude);
 
-    // alias, so that JSLint does not complain.
-    StringObject = String;
+function test(code, expected) {
+    var tree, actual, actualTree, options;
 
     options = {
-        ranges: true,
+        ranges: false,
         locations: false,
         ecmaVersion: 11
     };
@@ -45,18 +45,18 @@ function test(code, expected) {
     tree = acorn.parse(code, options);
 
     // for UNIX text comment
-    actual = escodegen.generate(tree).replace(/[\n\r]$/, '') + '\n';
+    actual = escodegen.generate(tree);
+    actualTree = acorn.parse(actual, options);
+
     expect(actual).to.be.equal(expected);
+    expect(tree).excludingEvery(['start', 'end']).to.deep.equal(actualTree);
 }
 
 function testMin(code, expected) {
-    var tree, actual, options, StringObject;
-
-    // alias, so that JSLint does not complain.
-    StringObject = String;
+    var tree, actual, actualTree, options;
 
     options = {
-        ranges: true,
+        ranges: false,
         locations: false,
         ecmaVersion: 11
     };
@@ -68,7 +68,10 @@ function testMin(code, expected) {
         format: escodegen.FORMAT_MINIFY,
         raw: false
     }).replace(/[\n\r]$/, '') + '\n';
+    actualTree = acorn.parse(actual, options);
+
     expect(actual).to.be.equal(expected);
+    expect(tree).excludingEvery(['start', 'end']).to.deep.equal(actualTree);
 }
 
 describe('compare acorn es2020 test', function () {
