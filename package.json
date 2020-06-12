@@ -42,7 +42,7 @@
         "acorn": "^7.3.1",
         "bluebird": "^3.4.7",
         "bower-registry-client": "^1.0.0",
-        "chai": "^3.5.0",
+        "chai": "^4.2.0",
         "chai-exclude": "^2.0.2",
         "commonjs-everywhere": "^0.9.7",
         "gulp": "^3.8.10",
