@@ -16,7 +16,7 @@
     ],
     "version": "1.14.1",
     "engines": {
-        "node": ">=4.0"
+        "node": ">=6.0"
     },
     "maintainers": [
         {
