@@ -1930,7 +1930,7 @@
         MemberExpression: function (expr, precedence, flags) {
             var result, fragment;
 
-            if (!expr.optional && expr.object.type === 'ChainExpression') {
+            if (expr.object.type === 'ChainExpression' && expr.object.expression.optional) {
                 // F_ALLOW_UNPARATH_NEW becomes false.
                 result = [this.generateExpression(expr.object, Precedence.Member, (flags & F_ALLOW_CALL) ? E_TTF : E_TFF)];
             } else {
