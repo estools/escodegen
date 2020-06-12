@@ -102,8 +102,9 @@
         Call: 16,
         New: 17,
         TaggedTemplate: 18,
-        Member: 19,
-        Primary: 20
+        OptionalMember: 19,
+        Member: 20,
+        Primary: 21
     };
 
     BinaryPrecedence = {
@@ -1929,8 +1930,13 @@
         MemberExpression: function (expr, precedence, flags) {
             var result, fragment;
 
-            // F_ALLOW_UNPARATH_NEW becomes false.
-            result = [this.generateExpression(expr.object, Precedence.Call, (flags & F_ALLOW_CALL) ? E_TTF : E_TFF)];
+            if (!expr.optional && expr.object.type === 'ChainExpression') {
+                // F_ALLOW_UNPARATH_NEW becomes false.
+                result = [this.generateExpression(expr.object, Precedence.Member, (flags & F_ALLOW_CALL) ? E_TTF : E_TFF)];
+            } else {
+                // F_ALLOW_UNPARATH_NEW becomes false.
+                result = [this.generateExpression(expr.object, Precedence.Call, (flags & F_ALLOW_CALL) ? E_TTF : E_TFF)];
+            }
 
             if (expr.computed) {
                 if (expr.optional) {
@@ -1960,6 +1966,10 @@
                 }
                 result.push(expr.optional ? '?.' : '.');
                 result.push(generateIdentifier(expr.property));
+            }
+
+            if (precedence === Precedence.Member) {
+                return parenthesize(result, Precedence.OptionalMember, precedence);
             }
 
             return parenthesize(result, Precedence.Member, precedence);
