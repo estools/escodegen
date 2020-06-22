@@ -3,7 +3,7 @@ class ComputedKey {
     }
 }
 class ComputedKeyWithParenthesis {
-    [(n1 + n2) * n3]() {
+    [n1 = (n2 + n3) * n4]() {
     }
 }
 class SequenceExpressionAsKey {
