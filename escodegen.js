@@ -1849,27 +1849,19 @@
                     break;
 
                 case '??':
-                    if (expr.left.operator === '||') {
-                        leftPrecedence = Precedence.LogicalOR + 1;
+                    if (expr.left.operator === '||' || expr.left.operator === '&&') {
+                        leftPrecedence = BinaryPrecedence[expr.left.operator] + 1;
                     }
 
-                    if (expr.left.operator === '&&') {
-                        leftPrecedence = Precedence.LogicalAND + 1;
-                    }
-
-                    if (expr.right.operator === '||') {
-                        rightPrecedence = Precedence.LogicalOR + 1;
-                    }
-
-                    if (expr.right.operator === '&&') {
-                        rightPrecedence = Precedence.LogicalAND + 1;
+                    if (expr.right.operator === '||' || expr.right.operator === '&&') {
+                        rightPrecedence = BinaryPrecedence[expr.right.operator] + 1;
                     }
 
                     break;
 
                 case '||':
                     if (expr.left.operator === '??') {
-                        leftPrecedence = Precedence.NullishCoalescing + 1;
+                        leftPrecedence = BinaryPrecedence[expr.left.operator] + 1;
                     }
 
                     break;
