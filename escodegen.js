@@ -1869,7 +1869,7 @@
 
                 case '||':
                     if (expr.left.operator === '??') {
-                        rightPrecedence = Precedence.NullishCoalescing + 1;
+                        leftPrecedence = Precedence.NullishCoalescing + 1;
                     }
 
                     break;
