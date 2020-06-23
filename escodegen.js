@@ -61,6 +61,7 @@
         sourceMap,
         sourceCode,
         preserveBlankLines,
+        wrapIIFE,
         FORMAT_MINIFY,
         FORMAT_DEFAULTS;
 
@@ -191,7 +192,8 @@
                 parentheses: true,
                 semicolons: true,
                 safeConcatenation: false,
-                preserveBlankLines: false
+                preserveBlankLines: false,
+                wrapIIFE: false
             },
             moz: {
                 comprehensionExpressionStartsWithAssignment: false,
@@ -733,6 +735,10 @@
                 prefix = sourceCode.substring(extRange[0], range[0]);
                 count = (prefix.match(/\n/g) || []).length;
 
+                if (typeof result === 'string') {
+                  result = [result];
+                }
+
                 if (count > 0) {
                     result.push(stringRepeat('\n', count));
                     result.push(addIndent(generateComment(comment)));
@@ -1052,14 +1058,15 @@
                                     result = ['{'];
                                 }
                             }
-                            if (!stmt.body[0].leadingComments) {
+                            if (!stmt.body[0].leadingComments && stmt.body[0].range) {
                                 generateBlankLines(stmt.range[0], stmt.body[0].range[0], result);
                             }
                         }
 
                         // handle spaces between lines
                         if (i > 0) {
-                            if (!stmt.body[i - 1].trailingComments  && !stmt.body[i].leadingComments) {
+                            if (!stmt.body[i - 1].trailingComments  && !stmt.body[i].leadingComments &&
+                              stmt.body[i - 1].range && stmt.body[i].range) {
                                 generateBlankLines(stmt.body[i - 1].range[1], stmt.body[i].range[0], result);
                             }
                         }
@@ -1091,7 +1098,7 @@
                     if (preserveBlankLines) {
                         // handle spaces after the last line
                         if (i === iz - 1) {
-                            if (!stmt.body[i].trailingComments) {
+                            if (!stmt.body[i].trailingComments && stmt.body[i].range) {
                                 generateBlankLines(stmt.body[i].range[1], stmt.range[1], result);
                             }
                         }
@@ -1697,14 +1704,15 @@
                 if (preserveBlankLines) {
                     // handle spaces before the first line
                     if (i === 0) {
-                        if (!stmt.body[0].leadingComments) {
+                        if (!stmt.body[0].leadingComments && stmt.body[i].range) {
                             generateBlankLines(stmt.range[0], stmt.body[i].range[0], result);
                         }
                     }
 
                     // handle spaces between lines
                     if (i > 0) {
-                        if (!stmt.body[i - 1].trailingComments && !stmt.body[i].leadingComments) {
+                        if (!stmt.body[i - 1].trailingComments && !stmt.body[i].leadingComments &&
+                          stmt.body[i - 1].range && stmt.body[i].range) {
                             generateBlankLines(stmt.body[i - 1].range[1], stmt.body[i].range[0], result);
                         }
                     }
@@ -1725,7 +1733,7 @@
                 if (preserveBlankLines) {
                     // handle spaces after the last line
                     if (i === iz - 1) {
-                        if (!stmt.body[i].trailingComments) {
+                        if (!stmt.body[i].trailingComments && stmt.body[i].range) {
                             generateBlankLines(stmt.body[i].range[1], stmt.range[1], result);
                         }
                     }
@@ -1870,7 +1878,7 @@
         },
 
         CallExpression: function (expr, precedence, flags) {
-            var result, i, iz;
+            var result, i, iz, isIIFE;
             // F_ALLOW_UNPARATH_NEW becomes false.
             result = [this.generateExpression(expr.callee, Precedence.Call, E_TTF)];
             result.push('(');
@@ -1885,7 +1893,12 @@
             if (!(flags & F_ALLOW_CALL)) {
                 return ['(', result, ')'];
             }
-            return parenthesize(result, Precedence.Call, precedence);
+
+            isIIFE = expr.callee.id === null && expr.callee.params.length === 0;
+
+            return (isIIFE && wrapIIFE) ?
+                parenthesize(result, 0, 1) :
+                parenthesize(result, Precedence.Call, precedence);
         },
 
         NewExpression: function (expr, precedence, flags) {
@@ -2562,6 +2575,7 @@
         sourceMap = options.sourceMap;
         sourceCode = options.sourceCode;
         preserveBlankLines = options.format.preserveBlankLines && sourceCode !== null;
+        wrapIIFE = options.format.wrapIIFE;
         extra = options;
 
         if (sourceMap) {
