@@ -1,5 +1,5 @@
 {
-    "name": "@javascript-obfuscator/escodegen",
+    "name": "escodegen",
     "description": "ECMAScript code generator",
     "homepage": "http://github.com/estools/escodegen",
     "main": "escodegen.js",
