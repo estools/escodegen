@@ -1877,13 +1877,7 @@
 
             if (expr.callee.type === 'ChainExpression') {
                 // F_ALLOW_UNPARATH_NEW becomes false.
-                result = [this.generateExpression(
-                    expr.callee,
-                    expr.callee.expression.optional
-                        ? Precedence.Member
-                        : Precedence.Primary,
-                    exprCalleeFlags
-                )];
+                result = [this.generateExpression(expr.callee, Precedence.Member, exprCalleeFlags)];
             } else {
                 // F_ALLOW_UNPARATH_NEW becomes false.
                 result = [this.generateExpression(expr.callee, Precedence.Call, exprCalleeFlags)];
@@ -1947,15 +1941,9 @@
                 fragment,
                 exprObjectFlags = (flags & F_ALLOW_CALL) ? E_TTF : E_TFF;
 
-            if (expr.object.type === 'ChainExpression' && expr.object.expression.optional) {
+            if (expr.object.type === 'ChainExpression') {
                 // F_ALLOW_UNPARATH_NEW becomes false.
-                result = [this.generateExpression(
-                    expr.object,
-                    expr.object.expression.type === 'MemberExpression'
-                        ? Precedence.Member
-                        : Precedence.Primary,
-                    exprObjectFlags
-                )];
+                result = [this.generateExpression(expr.object, Precedence.Member, exprObjectFlags)];
             } else {
                 // F_ALLOW_UNPARATH_NEW becomes false.
                 result = [this.generateExpression(expr.object, Precedence.Call, exprObjectFlags)];
