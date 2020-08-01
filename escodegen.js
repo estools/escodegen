@@ -1958,7 +1958,7 @@
                 result.push(this.generateExpression(expr.property, Precedence.Sequence, flags & F_ALLOW_CALL ? E_TTT : E_TFT));
                 result.push(']');
             } else {
-                if (expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
+                if (!expr.optional && expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
                     fragment = toSourceNodeWhenNeeded(result).toString();
                     // When the following conditions are all true,
                     //   1. No floating point
