@@ -1871,13 +1871,10 @@
         },
 
         CallExpression: function (expr, precedence, flags) {
-            var result,
-                i,
-                iz,
-                exprCalleeFlags = E_TTF;
+            var result, i, iz;
 
             // F_ALLOW_UNPARATH_NEW becomes false.
-            result = [this.generateExpression(expr.callee, Precedence.Call, exprCalleeFlags)];
+            result = [this.generateExpression(expr.callee, Precedence.Call, E_TTF)];
 
             if (expr.optional) {
                 result.push('?.');
@@ -1934,12 +1931,10 @@
         },
 
         MemberExpression: function (expr, precedence, flags) {
-            var result,
-                fragment,
-                exprObjectFlags = (flags & F_ALLOW_CALL) ? E_TTF : E_TFF;
+            var result, fragment;
 
             // F_ALLOW_UNPARATH_NEW becomes false.
-            result = [this.generateExpression(expr.object, Precedence.Call, exprObjectFlags)];
+            result = [this.generateExpression(expr.object, Precedence.Call, (flags & F_ALLOW_CALL) ? E_TTF : E_TFF)];
 
             if (expr.computed) {
                 if (expr.optional) {
