@@ -99,11 +99,12 @@
         Await: 14,
         Unary: 14,
         Postfix: 15,
-        Call: 16,
-        New: 17,
-        TaggedTemplate: 18,
-        Member: 19,
-        Primary: 20
+        OptionalChaining: 16,
+        Call: 17,
+        New: 18,
+        TaggedTemplate: 19,
+        Member: 20,
+        Primary: 21
     };
 
     BinaryPrecedence = {
@@ -1875,13 +1876,8 @@
                 iz,
                 exprCalleeFlags = E_TTF;
 
-            if (expr.callee.type === 'ChainExpression') {
-                // F_ALLOW_UNPARATH_NEW becomes false.
-                result = [this.generateExpression(expr.callee, Precedence.Member, exprCalleeFlags)];
-            } else {
-                // F_ALLOW_UNPARATH_NEW becomes false.
-                result = [this.generateExpression(expr.callee, Precedence.Call, exprCalleeFlags)];
-            }
+            // F_ALLOW_UNPARATH_NEW becomes false.
+            result = [this.generateExpression(expr.callee, Precedence.Call, exprCalleeFlags)];
 
             if (expr.optional) {
                 result.push('?.');
@@ -1905,8 +1901,9 @@
 
         ChainExpression: function (expr, precedence, flags) {
             var expression = expr.expression;
+            var result = this[expression.type](expression, precedence, flags);
 
-            return this[expression.type](expression, precedence, flags);
+            return parenthesize(result, Precedence.OptionalChaining, precedence);
         },
 
         NewExpression: function (expr, precedence, flags) {
@@ -1941,13 +1938,8 @@
                 fragment,
                 exprObjectFlags = (flags & F_ALLOW_CALL) ? E_TTF : E_TFF;
 
-            if (expr.object.type === 'ChainExpression') {
-                // F_ALLOW_UNPARATH_NEW becomes false.
-                result = [this.generateExpression(expr.object, Precedence.Member, exprObjectFlags)];
-            } else {
-                // F_ALLOW_UNPARATH_NEW becomes false.
-                result = [this.generateExpression(expr.object, Precedence.Call, exprObjectFlags)];
-            }
+            // F_ALLOW_UNPARATH_NEW becomes false.
+            result = [this.generateExpression(expr.object, Precedence.Call, exprObjectFlags)];
 
             if (expr.computed) {
                 if (expr.optional) {
@@ -1977,10 +1969,6 @@
                 }
                 result.push(expr.optional ? '?.' : '.');
                 result.push(generateIdentifier(expr.property));
-            }
-
-            if (precedence === Precedence.Member) {
-                return parenthesize(result, Precedence.Call, precedence);
             }
 
             return parenthesize(result, Precedence.Member, precedence);
