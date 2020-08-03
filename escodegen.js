@@ -1897,8 +1897,11 @@
         },
 
         ChainExpression: function (expr, precedence, flags) {
-            var expression = expr.expression;
-            var result = this[expression.type](expression, precedence, flags);
+            if (Precedence.OptionalChaining < precedence) {
+                flags |= F_ALLOW_CALL;
+            }
+
+            var result = this.generateExpression(expr.expression, Precedence.OptionalChaining, flags);
 
             return parenthesize(result, Precedence.OptionalChaining, precedence);
         },
