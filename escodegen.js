@@ -1919,12 +1919,6 @@
                 this.generateExpression(expr.callee, Precedence.New, itemFlags)
             );
 
-            var isChainExpressionCalleeWithoutArguments = expr.callee.type === Syntax.ChainExpression && !length;
-
-            if (isChainExpressionCalleeWithoutArguments) {
-                return parenthesize(result, Precedence.New, precedence);
-            }
-
             if (!(flags & F_ALLOW_UNPARATH_NEW) || parentheses || length > 0) {
                 result.push('(');
                 for (i = 0, iz = length; i < iz; ++i) {
