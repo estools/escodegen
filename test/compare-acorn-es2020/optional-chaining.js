@@ -45,3 +45,5 @@ new (a?.b().c);
 new (a?.b());
 new (a?.b().c)();
 new (a?.b())();
+new (a?.b().c)(d, e);
+new (a?.b())(d, e);
