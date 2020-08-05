@@ -99,11 +99,12 @@
         Await: 14,
         Unary: 14,
         Postfix: 15,
-        Call: 16,
-        New: 17,
-        TaggedTemplate: 18,
-        Member: 19,
-        Primary: 20
+        OptionalChaining: 16,
+        Call: 17,
+        New: 18,
+        TaggedTemplate: 19,
+        Member: 20,
+        Primary: 21
     };
 
     BinaryPrecedence = {
@@ -1871,8 +1872,14 @@
 
         CallExpression: function (expr, precedence, flags) {
             var result, i, iz;
+
             // F_ALLOW_UNPARATH_NEW becomes false.
             result = [this.generateExpression(expr.callee, Precedence.Call, E_TTF)];
+
+            if (expr.optional) {
+                result.push('?.');
+            }
+
             result.push('(');
             for (i = 0, iz = expr['arguments'].length; i < iz; ++i) {
                 result.push(this.generateExpression(expr['arguments'][i], Precedence.Assignment, E_TTT));
@@ -1885,7 +1892,18 @@
             if (!(flags & F_ALLOW_CALL)) {
                 return ['(', result, ')'];
             }
+
             return parenthesize(result, Precedence.Call, precedence);
+        },
+
+        ChainExpression: function (expr, precedence, flags) {
+            if (Precedence.OptionalChaining < precedence) {
+                flags |= F_ALLOW_CALL;
+            }
+
+            var result = this.generateExpression(expr.expression, Precedence.OptionalChaining, flags);
+
+            return parenthesize(result, Precedence.OptionalChaining, precedence);
         },
 
         NewExpression: function (expr, precedence, flags) {
@@ -1922,11 +1940,15 @@
             result = [this.generateExpression(expr.object, Precedence.Call, (flags & F_ALLOW_CALL) ? E_TTF : E_TFF)];
 
             if (expr.computed) {
+                if (expr.optional) {
+                    result.push('?.');
+                }
+
                 result.push('[');
                 result.push(this.generateExpression(expr.property, Precedence.Sequence, flags & F_ALLOW_CALL ? E_TTT : E_TFT));
                 result.push(']');
             } else {
-                if (expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
+                if (!expr.optional && expr.object.type === Syntax.Literal && typeof expr.object.value === 'number') {
                     fragment = toSourceNodeWhenNeeded(result).toString();
                     // When the following conditions are all true,
                     //   1. No floating point
@@ -1943,7 +1965,7 @@
                         result.push(' ');
                     }
                 }
-                result.push('.');
+                result.push(expr.optional ? '?.' : '.');
                 result.push(generateIdentifier(expr.property));
             }
 
@@ -2457,8 +2479,7 @@
                 this.generateExpression(expr.source, Precedence.Assignment, E_TTT),
                 ')'
             ], Precedence.Call, precedence);
-        },
-
+        }
     };
 
     merge(CodeGenerator.prototype, CodeGenerator.Expression);

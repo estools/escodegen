@@ -30,7 +30,7 @@
         "url": "http://github.com/estools/escodegen.git"
     },
     "dependencies": {
-        "estraverse": "^4.2.0",
+        "estraverse": "^5.2.0",
         "esutils": "^2.0.2",
         "esprima": "^4.0.1",
         "optionator": "^0.8.1"
@@ -39,10 +39,11 @@
         "source-map": "~0.6.1"
     },
     "devDependencies": {
-        "acorn": "^7.1.0",
+        "acorn": "^7.3.1",
         "bluebird": "^3.4.7",
         "bower-registry-client": "^1.0.0",
-        "chai": "^3.5.0",
+        "chai": "^4.2.0",
+        "chai-exclude": "^2.0.2",
         "commonjs-everywhere": "^0.9.7",
         "gulp": "^3.8.10",
         "gulp-eslint": "^3.0.1",
