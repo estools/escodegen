@@ -1,1 +1,3 @@
 test/3rdparty/**/* -crlf -diff
+# don't collapse diffs of test expectations
+test/compare-*/*.expected.min.js -linguist-generated
