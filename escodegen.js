@@ -1275,14 +1275,23 @@
 
         ExportAllDeclaration: function (stmt, flags) {
             // export * FromClause ;
-            return [
+            var result = [
                 'export' + space,
-                '*' + space,
+                '*' + space
+            ];
+
+            if (stmt.exported) {
+                result.push('as ' + stmt.exported.name + ' ');
+            }
+
+            result = join(result, [
                 'from' + space,
                 // ModuleSpecifier
                 this.generateExpression(stmt.source, Precedence.Sequence, E_TTT),
                 this.semicolon(flags)
-            ];
+            ]);
+
+            return result;
         },
 
         ExpressionStatement: function (stmt, flags) {

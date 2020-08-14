@@ -39,7 +39,8 @@ function test(code, expected) {
     options = {
         ranges: false,
         locations: false,
-        ecmaVersion: 11
+        ecmaVersion: 11,
+        sourceType: 'module'
     };
 
     tree = acorn.parse(code, options);
@@ -58,7 +59,8 @@ function testMin(code, expected) {
     options = {
         ranges: false,
         locations: false,
-        ecmaVersion: 11
+        ecmaVersion: 11,
+        sourceType: 'module'
     };
 
     tree = acorn.parse(code, options);
