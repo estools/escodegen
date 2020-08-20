@@ -2348,17 +2348,17 @@
               return '/' + expr.regex.pattern + '/' + expr.regex.flags;
             }
 
+            // BigInt, eg: 1n
+            if (typeof expr.bigint === 'string' && expr.raw) {
+                return expr.raw;
+            }
+
             if (expr.value === null) {
                 return 'null';
             }
 
             if (typeof expr.value === 'string') {
                 return escapeString(expr.value);
-            }
-
-            // BigInt, eg: 1n
-            if (typeof expr.bigint === 'string' && expr.raw) {
-                return expr.raw;
             }
 
             if (typeof expr.value === 'number') {
