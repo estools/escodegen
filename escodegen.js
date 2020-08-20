@@ -2356,7 +2356,17 @@
                 return escapeString(expr.value);
             }
 
+            // BigInt, eg: 1n
+            if (typeof expr.bigint === 'string' && expr.raw) {
+                return expr.raw;
+            }
+
             if (typeof expr.value === 'number') {
+                // Has Numeric Separator
+                if (expr.raw && expr.raw.indexOf('_') !== -1) {
+                    return expr.raw;
+                }
+
                 return generateNumber(expr.value);
             }
 
