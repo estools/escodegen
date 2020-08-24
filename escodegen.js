@@ -85,6 +85,7 @@
         Assignment: 1,
         Conditional: 2,
         ArrowFunction: 2,
+        NullishCoalescing: 3,
         LogicalOR: 3,
         LogicalAND: 4,
         BitwiseOR: 5,
@@ -108,6 +109,7 @@
     };
 
     BinaryPrecedence = {
+        '??': Precedence.NullishCoalescing,
         '||': Precedence.LogicalOR,
         '&&': Precedence.LogicalAND,
         '|': Precedence.BitwiseOR,
@@ -1836,8 +1838,34 @@
         BinaryExpression: function (expr, precedence, flags) {
             var result, leftPrecedence, rightPrecedence, currentPrecedence, fragment, leftSource;
             currentPrecedence = BinaryPrecedence[expr.operator];
-            leftPrecedence = expr.operator === '**' ? Precedence.Postfix : currentPrecedence;
-            rightPrecedence = expr.operator === '**' ? currentPrecedence : currentPrecedence + 1;
+
+            leftPrecedence = currentPrecedence;
+            rightPrecedence = currentPrecedence + 1;
+
+            switch (expr.operator) {
+                case '**':
+                    leftPrecedence = Precedence.Postfix;
+                    rightPrecedence = currentPrecedence;
+                    break;
+
+                case '??':
+                    if (expr.left.type === Syntax.LogicalExpression && (expr.left.operator === '||' || expr.left.operator === '&&')) {
+                        leftPrecedence = BinaryPrecedence[expr.left.operator] + 1;
+                    }
+
+                    if (expr.right.type === Syntax.LogicalExpression && expr.right.operator === '&&') {
+                        rightPrecedence = BinaryPrecedence[expr.right.operator] + 1;
+                    }
+
+                    break;
+
+                case '||':
+                    if (expr.left.type === Syntax.LogicalExpression && expr.left.operator === '??') {
+                        leftPrecedence = BinaryPrecedence[expr.left.operator] + 1;
+                    }
+
+                    break;
+            }
 
             if (currentPrecedence < precedence) {
                 flags |= F_ALLOW_IN;
