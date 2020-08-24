@@ -1853,7 +1853,7 @@
                         leftPrecedence = BinaryPrecedence[expr.left.operator] + 1;
                     }
 
-                    if (expr.right.operator === '&&') {
+                    if (expr.right.type === Syntax.LogicalExpression && expr.right.operator === '&&') {
                         rightPrecedence = BinaryPrecedence[expr.right.operator] + 1;
                     }
 
