@@ -1849,11 +1849,11 @@
                     break;
 
                 case '??':
-                    if (expr.left.operator === '||' || expr.left.operator === '&&') {
+                    if (expr.left.type === Syntax.LogicalExpression && (expr.left.operator === '||' || expr.left.operator === '&&')) {
                         leftPrecedence = BinaryPrecedence[expr.left.operator] + 1;
                     }
 
-                    if (expr.right.operator === '||' || expr.right.operator === '&&') {
+                    if (expr.right.operator === '&&') {
                         rightPrecedence = BinaryPrecedence[expr.right.operator] + 1;
                     }
 
