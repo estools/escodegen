@@ -1860,7 +1860,7 @@
                     break;
 
                 case '||':
-                    if (expr.left.operator === '??') {
+                    if (expr.left.type === Syntax.LogicalExpression && expr.left.operator === '??') {
                         leftPrecedence = BinaryPrecedence[expr.left.operator] + 1;
                     }
 
