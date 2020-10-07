@@ -1490,9 +1490,23 @@
         },
 
         ThrowStatement: function (stmt, flags) {
+            var shouldParenthesize = false;
+            estraverse.traverse(stmt.argument, {
+                enter: function (node, parent) {
+                    if (node.leadingComments && node.leadingComments.length) {
+                        shouldParenthesize = true;
+                        this.break();
+                    }
+                }
+            });
+            var right = this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
+            if (shouldParenthesize) {
+                right = ['(', right, ')']
+            }
+
             return [join(
-                'throw',
-                this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
+              'throw',
+              right
             ), this.semicolon(flags)];
         },
 
@@ -1747,10 +1761,27 @@
 
         ReturnStatement: function (stmt, flags) {
             if (stmt.argument) {
-                return [join(
-                    'return',
-                    this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
-                ), this.semicolon(flags)];
+                var shouldParenthesize = false;
+                estraverse.traverse(stmt.argument, {
+                    enter: function (node, parent) {
+                        if (node.leadingComments && node.leadingComments.length) {
+                            shouldParenthesize = true;
+                            this.break();
+                        }
+                    }
+                });
+                var result = [];
+                if (shouldParenthesize) {
+                    var that = this;
+                    result.push('(', newline)
+                    withIndent(function () {
+                        result.push(addIndent(that.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)), newline)
+                    });
+                    result.push(addIndent(')'))
+                } else {
+                    result.push(this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT));
+                }
+                return [join('return', result), this.semicolon(flags)];
             }
             return ['return' + this.semicolon(flags)];
         },
