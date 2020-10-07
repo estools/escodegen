@@ -1490,10 +1490,27 @@
         },
 
         ThrowStatement: function (stmt, flags) {
-            return [join(
-                'throw',
-                this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
-            ), this.semicolon(flags)];
+            var shouldParenthesize = false;
+            estraverse.traverse(stmt.argument, {
+                enter: function (node, parent) {
+                    if (node.leadingComments && node.leadingComments.length) {
+                        shouldParenthesize = true;
+                        this.break();
+                    }
+                }
+            });
+            var result = [];
+            if (shouldParenthesize) {
+                var that = this;
+                result.push('(', newline)
+                withIndent(function () {
+                    result.push(addIndent(that.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)), newline)
+                });
+                result.push(addIndent(')'))
+            } else {
+                result.push(this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT));
+            }
+            return [join('throw', result), this.semicolon(flags)];
         },
 
         TryStatement: function (stmt, flags) {
