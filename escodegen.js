@@ -1499,15 +1499,18 @@
                     }
                 }
             });
-            var right = this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
+            var result = [];
             if (shouldParenthesize) {
-                right = ['(', right, ')']
+                var that = this;
+                result.push('(', newline)
+                withIndent(function () {
+                    result.push(addIndent(that.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)), newline)
+                });
+                result.push(addIndent(')'))
+            } else {
+                result.push(this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT));
             }
-
-            return [join(
-              'throw',
-              right
-            ), this.semicolon(flags)];
+            return [join('throw', result), this.semicolon(flags)];
         },
 
         TryStatement: function (stmt, flags) {
