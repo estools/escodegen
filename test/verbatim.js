@@ -127,6 +127,12 @@ StringData = {
             object: { type: 'Literal', value: 0, verbatim: '0' },
             property: { type: 'Identifier', name: 'a' },
             computed: false
+        },
+        // Null assignment
+        "foo = null": {
+            type: 'VariableDeclarator',
+            id: { type: 'Identifier', name: 'foo' },
+            init: { type: 'Literal', raw: 'null' }
         }
     }
 };
