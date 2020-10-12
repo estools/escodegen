@@ -2348,7 +2348,7 @@
               return '/' + expr.regex.pattern + '/' + expr.regex.flags;
             }
 
-            if (expr.value === null) {
+            if (expr.value === null || (expr.raw === 'null' && expr.value === undefined)) {
                 return 'null';
             }
 
