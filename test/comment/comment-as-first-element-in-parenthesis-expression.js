@@ -12,6 +12,15 @@ function foo(a, b, c) {
 }
 
 function foo(a, b, c) {
+    return (
+        ( // comment
+            a >= b &&
+            a <= c)
+        || a === 42 || a === 666
+    );
+}
+
+function foo(a, b, c) {
     throw (
         // comment
         (a >= b && a <= c)
