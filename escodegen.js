@@ -229,6 +229,37 @@
         return len && esutils.code.isLineTerminator(str.charCodeAt(len - 1));
     }
 
+    function removeComments(str) {
+        // https://stackoverflow.com/a/59094308
+        return str.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+    }
+
+    function removeTrailingWhiteSpaces(str) {
+        return str.replace(/\S(\s+)$/g, '');
+    }
+
+    function isParenthesized(str) {
+        str = removeComments(str);
+        str = removeTrailingWhiteSpaces(str);
+        var counter = 0;
+        for (var i = 0; i < str.length; ++i) {
+            if (str[i] == '(') {
+                counter++;
+            }
+            else if (str[i] == ')') {
+                if (counter == 0) {
+                    return false;
+                }
+                counter--;
+            }
+        }
+        return counter == 0 && str[str.length-1] == ')';
+    }
+
+    function hasComment(str) {
+        return (/(\/\/|\/\*)/g).test(str);
+    }
+
     function merge(target, override) {
         var key;
         for (key in override) {
@@ -703,10 +734,10 @@
             } else {
                 comment = stmt.leadingComments[0];
                 result = [];
-                if (safeConcatenation && stmt.type === Syntax.Program && stmt.body.length === 0) {
-                    result.push('\n');
-                }
-                result.push(generateComment(comment));
+                result.push('\n');
+                withIndent(function() {
+                    result.push(addIndent(generateComment(comment)));
+                });
                 if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
                     result.push('\n');
                 }
@@ -717,11 +748,15 @@
                     if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
                         fragment.push('\n');
                     }
-                    result.push(addIndent(fragment));
+                    withIndent(function() {
+                        result.push(addIndent(fragment));
+                    });
                 }
             }
 
-            result.push(addIndent(save));
+            withIndent(function () {
+                result.push(addIndent(save));
+            });
         }
 
         if (stmt.trailingComments) {
@@ -1490,27 +1525,10 @@
         },
 
         ThrowStatement: function (stmt, flags) {
-            var shouldParenthesize = false;
-            estraverse.traverse(stmt.argument, {
-                enter: function (node, parent) {
-                    if (node.leadingComments && node.leadingComments.length) {
-                        shouldParenthesize = true;
-                        this.break();
-                    }
-                }
-            });
-            var result = [];
-            if (shouldParenthesize) {
-                var that = this;
-                result.push('(', newline)
-                withIndent(function () {
-                    result.push(addIndent(that.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)), newline)
-                });
-                result.push(addIndent(')'))
-            } else {
-                result.push(this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT));
-            }
-            return [join('throw', result), this.semicolon(flags)];
+            return [join(
+                'throw',
+                this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
+            ), this.semicolon(flags)];
         },
 
         TryStatement: function (stmt, flags) {
@@ -1764,27 +1782,10 @@
 
         ReturnStatement: function (stmt, flags) {
             if (stmt.argument) {
-                var shouldParenthesize = false;
-                estraverse.traverse(stmt.argument, {
-                    enter: function (node, parent) {
-                        if (node.leadingComments && node.leadingComments.length) {
-                            shouldParenthesize = true;
-                            this.break();
-                        }
-                    }
-                });
-                var result = [];
-                if (shouldParenthesize) {
-                    var that = this;
-                    result.push('(', newline)
-                    withIndent(function () {
-                        result.push(addIndent(that.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)), newline)
-                    });
-                    result.push(addIndent(')'))
-                } else {
-                    result.push(this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT));
-                }
-                return [join('return', result), this.semicolon(flags)];
+                return [join(
+                    'return',
+                    this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
+                ), this.semicolon(flags)];
             }
             return ['return' + this.semicolon(flags)];
         },
@@ -2531,8 +2532,26 @@
 
 
         if (extra.comment) {
-            result = addComments(expr, result);
+            if (!expr.leadingComments) {
+                // TODO!
+                //addComments(expr, result);
+            }
+            else {
+                result = addComments(expr, result);
+                result = ['(', result, newline, ')'];
+
+                /* this fix is now syntactically correct, but we must (try) to maintain the original formatting... */
+                /* which was not really correctly implemented in my original PR ... */
+                // notice that when the comment is removed, the formatting is correct...
+            }
         }
+
+        /* TODO: this should be only executed e.g. when returning to the ReturnStatement, ThrowStatement, ArrayFunction .... */
+        var text = toSourceNodeWhenNeeded(result).toString();
+        if (hasLineTerminator(text) && !isParenthesized(text)) {
+            result = ['(', result, ')'];
+        }
+
         return toSourceNodeWhenNeeded(result, expr);
     };
 
