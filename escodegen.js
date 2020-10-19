@@ -732,7 +732,7 @@
         if (stmt.leadingComments && stmt.leadingComments.length > 0) {
             save = result;
 
-            if (preserveBlankLines) { // TODO?
+            if (preserveBlankLines) {
                 comment = stmt.leadingComments[0];
                 result = [];
 
