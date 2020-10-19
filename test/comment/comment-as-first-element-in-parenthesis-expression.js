@@ -30,6 +30,17 @@ let variable = /* comment */ (
     3+3
 );
 
+let variable = (
+    (
+        // one
+        3+3
+    ) -
+    (
+        // two
+        1+1
+    )
+);
+
 function foo(a, b, c) {
     return (
         // comment
@@ -61,3 +72,16 @@ let arrowFn = () => (
       a: 1, b: 2
     }
 );
+
+var test = [
+    /**
+     * Test 2
+     */
+    a,
+    /*
+     * Test 1
+     */
+    2,
+    // Test 3
+    3+3
+];

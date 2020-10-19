@@ -28,6 +28,8 @@ var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var eslint = require('gulp-eslint');
 
+//var TEST = [ 'test/comment.js' ];
+//var TEST = [ 'test/compare.js' ];
 var TEST = [ 'test/*.js' ];
 
 var LINT = [
