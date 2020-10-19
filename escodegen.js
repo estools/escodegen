@@ -262,14 +262,14 @@
                 isParenthesized(str, '[', ']');
     }
 
-    function shouldParenthesize(str, parentStmt) {
+    function shouldParenthesize(str, parent) {
         if (!hasLineTerminator(str)) {
             return false;
         }
-        if (parentStmt !== undefined && (
-            parentStmt.type == Syntax.ObjectExpression ||
-            parentStmt.type == Syntax.ArrayExpression ||
-            parentStmt.type == Syntax.Property
+        if (parent !== undefined && (
+            parent.type == Syntax.ObjectExpression ||
+            parent.type == Syntax.ArrayExpression ||
+            parent.type == Syntax.Property
             )) {
             return false;
         }
@@ -725,7 +725,7 @@
         return '/*' + comment.value + '*/';
     }
 
-    function addComments(stmt, result, parentStmt) {
+    function addComments(stmt, result, parent) {
         var i, len, comment, save, tailingToStatement, specialBase, fragment,
             extRange, range, prevRange, prefix, infix, suffix, count;
 
@@ -793,7 +793,7 @@
                 result.push(addIndent(save));
             } else {
                 var text = toSourceNodeWhenNeeded(result).toString();
-                if (shouldParenthesize(text, parentStmt)) {
+                if (shouldParenthesize(text, parent)) {
                     withIndent(function () {
                         result = addMultiLineIndent(result);
                     });
@@ -1064,14 +1064,14 @@
         return result;
     };
 
-    CodeGenerator.prototype.generatePropertyKey = function (expr, computed, parentStmt) {
+    CodeGenerator.prototype.generatePropertyKey = function (expr, computed, parent) {
         var result = [];
 
         if (computed) {
             result.push('[');
         }
 
-        result.push(this.generateExpression(expr, Precedence.Assignment, E_TTT, parentStmt));
+        result.push(this.generateExpression(expr, Precedence.Assignment, E_TTT, parent));
 
         if (computed) {
             result.push(']');
@@ -2571,7 +2571,7 @@
 
     merge(CodeGenerator.prototype, CodeGenerator.Expression);
 
-    CodeGenerator.prototype.generateExpression = function (expr, precedence, flags, parentStmt) {
+    CodeGenerator.prototype.generateExpression = function (expr, precedence, flags, parent) {
         var result, type;
 
         type = expr.type || Syntax.Property;
@@ -2584,7 +2584,7 @@
 
 
         if (extra.comment) {
-            result = addComments(expr, result, parentStmt);
+            result = addComments(expr, result, parent);
         }
 
         return toSourceNodeWhenNeeded(result, expr);
