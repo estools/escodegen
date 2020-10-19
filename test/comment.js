@@ -62,8 +62,6 @@ function test(code, expected) {
 describe('comment test', function () {
     fs.readdirSync(__dirname + '/comment').sort().forEach(function(file) {
         var code, expected, p;
-        //if (/comment-as-first-element-in-parenthesis-expression\.js$/.test(file) && !/comment-as-first-element-in-parenthesis-expression\.expected\.js$/.test(file)) {
-        //if (/^computed-property-comments-2\.js$/.test(file) && !/^computed-property-comments-2\.expected\.js$/.test(file)) {
         if (/\.js$/.test(file) && !/expected\.js$/.test(file)) {
             it(file, function () {
                 p = file.replace(/\.js$/, '.expected.js');
