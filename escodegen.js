@@ -811,7 +811,7 @@
             }
         }
 
-        if (stmt.trailingComments) { // TODO?
+        if (stmt.trailingComments) {
 
             if (preserveBlankLines) {
                 comment = stmt.trailingComments[0];
