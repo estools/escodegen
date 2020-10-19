@@ -87,6 +87,7 @@ DIR = 'compare-harmony';
 describe('compare harmony test', function () {
     fs.readdirSync(__dirname + '/' + DIR).sort().forEach(function(file) {
         var code, expected, exp, min;
+        //if (/templates-escape\.js$/.test(file) && !/templates-escape\.expected\.js$/.test(file) && !/templates-escape\.expected\.min\.js$/.test(file)) {
         if (/\.js$/.test(file) && !/expected\.js$/.test(file) && !/expected\.min\.js$/.test(file)) {
             it(file, function () {
                 exp = file.replace(/\.js$/, '.expected.js');

@@ -238,26 +238,49 @@
         return str.replace(/\S(\s+)$/g, '');
     }
 
-    function isParenthesized(str) {
+    function isParenthesized(str, leftPar, rightPar) {
         str = removeComments(str);
         str = removeTrailingWhiteSpaces(str);
         var counter = 0;
         for (var i = 0; i < str.length; ++i) {
-            if (str[i] == '(') {
+            if (str[i] == leftPar) {
                 counter++;
             }
-            else if (str[i] == ')') {
+            else if (str[i] == rightPar) {
                 if (counter == 0) {
                     return false;
                 }
                 counter--;
             }
         }
-        return counter == 0 && str[str.length-1] == ')';
+        return counter == 0 && str[str.length-1] == rightPar;
     }
 
-    function hasComment(str) {
-        return (/(\/\/|\/\*)/g).test(str);
+    function isParenthesizedByAnyBracketKind(str) {
+        return isParenthesized(str, '(', ')') ||
+                isParenthesized(str, '{', '}') ||
+                isParenthesized(str, '[', ']');
+    }
+
+    function shouldParenthesize(str, parentStmt) {
+        if (!hasLineTerminator(str)) {
+            return false;
+        }
+        if (parentStmt !== undefined && (
+            parentStmt.type == Syntax.ObjectExpression ||
+            parentStmt.type == Syntax.ArrayExpression ||
+            parentStmt.type == Syntax.Property
+            )) {
+            return false;
+        }
+        if (!isParenthesizedByAnyBracketKind(str)) {
+            return true;
+        }
+
+        str = removeComments(str);
+        var firstNewlineIdx = str.indexOf(newline);
+        var firstParenthesisIdx = str.match(/[\(\[\{)]/).index;
+        return firstNewlineIdx < firstParenthesisIdx;
     }
 
     function merge(target, override) {
@@ -601,6 +624,18 @@
         return [base, stmt];
     }
 
+    function addMultiLineIndent(stmt) {
+        var str = base + flattenToString(stmt);
+        var split = str.split(/\n/g);
+        var suffix = '';
+        // do not replace the last newline
+        if (split[split.length-1].length == 0) {
+            split = split.slice(0, split.length-1);
+            suffix = newline;
+        }
+        return split.join(newline + base) + suffix;
+    }
+
     function withIndent(fn) {
         var previousBase;
         previousBase = base;
@@ -690,14 +725,14 @@
         return '/*' + comment.value + '*/';
     }
 
-    function addComments(stmt, result) {
+    function addComments(stmt, result, parentStmt) {
         var i, len, comment, save, tailingToStatement, specialBase, fragment,
             extRange, range, prevRange, prefix, infix, suffix, count;
 
         if (stmt.leadingComments && stmt.leadingComments.length > 0) {
             save = result;
 
-            if (preserveBlankLines) {
+            if (preserveBlankLines) { // TODO?
                 comment = stmt.leadingComments[0];
                 result = [];
 
@@ -734,10 +769,12 @@
             } else {
                 comment = stmt.leadingComments[0];
                 result = [];
-                result.push('\n');
-                withIndent(function() {
-                    result.push(addIndent(generateComment(comment)));
-                });
+
+                if (safeConcatenation && stmt.type === Syntax.Program && stmt.body.length === 0) {
+                    result.push('\n');
+                }
+                result.push(generateComment(comment));
+
                 if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
                     result.push('\n');
                 }
@@ -748,18 +785,33 @@
                     if (!endsWithLineTerminator(toSourceNodeWhenNeeded(fragment).toString())) {
                         fragment.push('\n');
                     }
-                    withIndent(function() {
-                        result.push(addIndent(fragment));
-                    });
+                    result.push(addIndent(fragment));
                 }
             }
 
-            withIndent(function () {
+            if (!isExpression(stmt)) {
                 result.push(addIndent(save));
-            });
+            } else {
+                var text = toSourceNodeWhenNeeded(result).toString();
+                if (shouldParenthesize(text, parentStmt)) {
+                    withIndent(function () {
+                        result = addMultiLineIndent(result);
+                    });
+
+                    result = ['(', newline, result];
+
+                    withIndent(function () {
+                        result.push(addMultiLineIndent(save));
+                    });
+
+                    result.push([newline, base, ')']);
+                } else {
+                    result.push(addIndent(save));
+                }
+            }
         }
 
-        if (stmt.trailingComments) {
+        if (stmt.trailingComments) { // TODO?
 
             if (preserveBlankLines) {
                 comment = stmt.trailingComments[0];
@@ -1012,14 +1064,14 @@
         return result;
     };
 
-    CodeGenerator.prototype.generatePropertyKey = function (expr, computed) {
+    CodeGenerator.prototype.generatePropertyKey = function (expr, computed, parentStmt) {
         var result = [];
 
         if (computed) {
             result.push('[');
         }
 
-        result.push(this.generateExpression(expr, Precedence.Assignment, E_TTT));
+        result.push(this.generateExpression(expr, Precedence.Assignment, E_TTT, parentStmt));
 
         if (computed) {
             result.push(']');
@@ -2130,7 +2182,7 @@
                         }
                     } else {
                         result.push(multiline ? indent : '');
-                        result.push(that.generateExpression(expr.elements[i], Precedence.Assignment, E_TTT));
+                        result.push(that.generateExpression(expr.elements[i], Precedence.Assignment, E_TTT, expr));
                     }
                     if (i + 1 < iz) {
                         result.push(',' + (multiline ? newline : space));
@@ -2190,7 +2242,7 @@
             if (expr.kind === 'get' || expr.kind === 'set') {
                 return [
                     expr.kind, noEmptySpace(),
-                    this.generatePropertyKey(expr.key, expr.computed),
+                    this.generatePropertyKey(expr.key, expr.computed, expr),
                     this.generateFunctionBody(expr.value)
                 ];
             }
@@ -2199,19 +2251,19 @@
                 if (expr.value.type === "AssignmentPattern") {
                     return this.AssignmentPattern(expr.value, Precedence.Sequence, E_TTT);
                 }
-                return this.generatePropertyKey(expr.key, expr.computed);
+                return this.generatePropertyKey(expr.key, expr.computed, expr);
             }
 
             if (expr.method) {
                 return [
                     generateMethodPrefix(expr),
-                    this.generatePropertyKey(expr.key, expr.computed),
+                    this.generatePropertyKey(expr.key, expr.computed, expr),
                     this.generateFunctionBody(expr.value)
                 ];
             }
 
             return [
-                this.generatePropertyKey(expr.key, expr.computed),
+                this.generatePropertyKey(expr.key, expr.computed, expr),
                 ':' + space,
                 this.generateExpression(expr.value, Precedence.Assignment, E_TTT)
             ];
@@ -2226,7 +2278,7 @@
             multiline = expr.properties.length > 1;
 
             withIndent(function () {
-                fragment = that.generateExpression(expr.properties[0], Precedence.Sequence, E_TTT);
+                fragment = that.generateExpression(expr.properties[0], Precedence.Sequence, E_TTT, expr);
             });
 
             if (!multiline) {
@@ -2251,7 +2303,7 @@
                     result.push(',' + newline);
                     for (i = 1, iz = expr.properties.length; i < iz; ++i) {
                         result.push(indent);
-                        result.push(that.generateExpression(expr.properties[i], Precedence.Sequence, E_TTT));
+                        result.push(that.generateExpression(expr.properties[i], Precedence.Sequence, E_TTT, expr));
                         if (i + 1 < iz) {
                             result.push(',' + newline);
                         }
@@ -2519,7 +2571,7 @@
 
     merge(CodeGenerator.prototype, CodeGenerator.Expression);
 
-    CodeGenerator.prototype.generateExpression = function (expr, precedence, flags) {
+    CodeGenerator.prototype.generateExpression = function (expr, precedence, flags, parentStmt) {
         var result, type;
 
         type = expr.type || Syntax.Property;
@@ -2532,24 +2584,7 @@
 
 
         if (extra.comment) {
-            if (!expr.leadingComments) {
-                // TODO!
-                //addComments(expr, result);
-            }
-            else {
-                result = addComments(expr, result);
-                result = ['(', result, newline, ')'];
-
-                /* this fix is now syntactically correct, but we must (try) to maintain the original formatting... */
-                /* which was not really correctly implemented in my original PR ... */
-                // notice that when the comment is removed, the formatting is correct...
-            }
-        }
-
-        /* TODO: this should be only executed e.g. when returning to the ReturnStatement, ThrowStatement, ArrayFunction .... */
-        var text = toSourceNodeWhenNeeded(result).toString();
-        if (hasLineTerminator(text) && !isParenthesized(text)) {
-            result = ['(', result, ')'];
+            result = addComments(expr, result, parentStmt);
         }
 
         return toSourceNodeWhenNeeded(result, expr);
