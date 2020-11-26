@@ -275,8 +275,15 @@
         if (path.parent !== null && (
             path.parent.node.type == Syntax.ObjectExpression ||
             path.parent.node.type == Syntax.ArrayExpression ||
-            path.parent.node.type == Syntax.Property
+            path.parent.node.type == Syntax.Property ||
+            path.parent.node.type == Syntax.ImportExpression
             )) {
+            return false;
+        }
+        if (path.parent !== null &&
+            path.node.type == Syntax.ImportSpecifier &&
+            path.parent.node.type == Syntax.ImportDeclaration
+            ) {
             return false;
         }
         if (path.parent !== null && path.parent.parent !== null &&

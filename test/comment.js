@@ -41,7 +41,8 @@ function test(code, expected) {
         range: true,
         loc: false,
         tokens: true,
-        raw: false
+        raw: false,
+        sourceType: 'module'
     };
 
     tree = esprima.parse(code, options);
@@ -63,6 +64,7 @@ describe('comment test', function () {
     fs.readdirSync(__dirname + '/comment').sort().forEach(function(file) {
         var code, expected, p;
         if (/\.js$/.test(file) && !/expected\.js$/.test(file)) {
+        //if (/imports\.js$/.test(file) && !/expected\.js$/.test(file)) {
             it(file, function () {
                 p = file.replace(/\.js$/, '.expected.js');
                 code = fs.readFileSync(__dirname + '/comment/' + file, 'utf-8');
