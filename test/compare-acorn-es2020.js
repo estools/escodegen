@@ -49,7 +49,7 @@ function test(code, expected) {
     actualTree = acorn.parse(actual, options);
 
     expect(actual).to.be.equal(expected);
-    expect(tree).excludingEvery(['start', 'end']).to.deep.equal(actualTree);
+    expect(tree).excludingEvery(['start', 'end', 'raw']).to.deep.equal(actualTree);
 }
 
 function testMin(code, expected) {
@@ -71,7 +71,7 @@ function testMin(code, expected) {
     actualTree = acorn.parse(actual, options);
 
     expect(actual).to.be.equal(expected);
-    expect(tree).excludingEvery(['start', 'end']).to.deep.equal(actualTree);
+    expect(tree).excludingEvery(['start', 'end', 'raw']).to.deep.equal(actualTree);
 }
 
 describe('compare acorn es2020 test', function () {
