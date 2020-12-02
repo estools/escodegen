@@ -11,6 +11,7 @@
   Copyright (C) 2012 Joost-Wim Boekesteijn <joost-wim@boekesteijn.nl>
   Copyright (C) 2012 Kris Kowal <kris.kowal@cixar.com>
   Copyright (C) 2012 Arpad Borsos <arpad.borsos@googlemail.com>
+  Copyright (C) 2020 Apple Inc. All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -2346,6 +2347,16 @@
 
             if (expr.regex) {
               return '/' + expr.regex.pattern + '/' + expr.regex.flags;
+            }
+
+            if (typeof expr.value === 'bigint') {
+                return expr.value.toString() + 'n';
+            }
+
+            // `expr.value` can be null if `expr.bigint` exists. We need to check
+            // `expr.bigint` first.
+            if (expr.bigint) {
+                return expr.bigint + 'n';
             }
 
             if (expr.value === null) {
