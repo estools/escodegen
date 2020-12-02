@@ -1,5 +1,6 @@
 /*
   Copyright (C) 2014 Yusuke Suzuki <utatane.tea@gmail.com>
+  Copyright (C) 2019-2020 Apple Inc. All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -64,20 +65,20 @@ var ESLINT_OPTION = {
     }
 };
 
-gulp.task('test', function () {
+gulp.task('test', gulp.series(function () {
     return gulp.src(TEST)
         .pipe(mocha({
             reporter: 'spec',
             timeout: 100000 // 100s
         }));
-});
+}));
 
-gulp.task('lint', function () {
+gulp.task('lint', gulp.series(function () {
     return gulp.src(LINT)
         .pipe(eslint(ESLINT_OPTION))
         .pipe(eslint.formatEach('stylish', process.stderr))
         .pipe(eslint.failOnError());
-});
+}));
 
-gulp.task('travis', [ 'lint', 'test' ]);
-gulp.task('default', [ 'travis' ]);
+gulp.task('travis', gulp.series([ 'lint', 'test' ]));
+gulp.task('default', gulp.series([ 'travis' ]));

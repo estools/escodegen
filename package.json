@@ -32,23 +32,24 @@
     "dependencies": {
         "estraverse": "^5.2.0",
         "esutils": "^2.0.2",
-        "esprima": "^4.0.1",
-        "optionator": "^0.8.1"
+        "esprima": "^4.0.1"
     },
     "optionalDependencies": {
         "source-map": "~0.6.1"
     },
     "devDependencies": {
-        "acorn": "^7.3.1",
+        "acorn": "^8.0.4",
         "bluebird": "^3.4.7",
         "bower-registry-client": "^1.0.0",
         "chai": "^4.2.0",
         "chai-exclude": "^2.0.2",
         "commonjs-everywhere": "^0.9.7",
-        "gulp": "^3.8.10",
-        "gulp-eslint": "^3.0.1",
-        "gulp-mocha": "^3.0.1",
-        "semver": "^5.1.0"
+        "gulp": "^4.0.2",
+        "gulp-eslint": "^6.0.0",
+        "gulp-mocha": "^7.0.2",
+        "minimist": "^1.2.5",
+        "optionator": "^0.9.1",
+        "semver": "^7.3.4"
     },
     "license": "BSD-2-Clause",
     "scripts": {
