@@ -2372,6 +2372,11 @@
                 return 'null';
             }
 
+            // BigInt, eg: 1n
+            if (typeof expr.bigint === 'string') {
+                return expr.raw;
+            }
+
             if (typeof expr.value === 'string') {
                 return escapeString(expr.value);
             }
