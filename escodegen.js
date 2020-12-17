@@ -273,26 +273,29 @@
             return false;
         }
         if (path.parent !== null && (
-            path.parent.node.type == Syntax.ObjectExpression ||
-            path.parent.node.type == Syntax.ArrayExpression ||
-            path.parent.node.type == Syntax.Property ||
-            path.parent.node.type == Syntax.ImportExpression
+            path.parent.node.type === Syntax.ObjectExpression ||
+            path.parent.node.type === Syntax.ArrayExpression ||
+            path.parent.node.type === Syntax.Property ||
+            path.parent.node.type === Syntax.ImportExpression
             )) {
             return false;
         }
         if (path.parent !== null &&
-            path.node.type == Syntax.ImportSpecifier &&
-            path.parent.node.type == Syntax.ImportDeclaration
+            path.node.type === Syntax.ImportSpecifier &&
+            path.parent.node.type === Syntax.ImportDeclaration
             ) {
             return false;
         }
         if (path.parent !== null && path.parent.parent !== null &&
-            path.parent.parent.node.type == Syntax.MethodDefinition &&
-            path.parent.node.type == Syntax.FunctionExpression &&
-            path.node.type == Syntax.AssignmentPattern) {
+            path.parent.parent.node.type === Syntax.MethodDefinition &&
+            path.parent.node.type === Syntax.FunctionExpression &&
+            path.node.type === Syntax.AssignmentPattern) {
                 return false;
         }
         if (stmt.type === Syntax.MethodDefinition) {
+            return false;
+        }
+        if (path.parent !== null && path.parent.node.type === Syntax.VariableDeclaration) {
             return false;
         }
         if (!isParenthesizedByAnyBracketKind(str)) {
@@ -816,9 +819,8 @@
             } else {
                 var text = toSourceNodeWhenNeeded(result).toString();
                 if (shouldParenthesize(text, stmt, path)) {
-                    withIndent(function () {
-                        result = addMultiLineIndent(result);
-                    });
+                    result = addMultiLineIndent(result);
+                    result = [indent, result];
 
                     result = ['(', newline, result];
 

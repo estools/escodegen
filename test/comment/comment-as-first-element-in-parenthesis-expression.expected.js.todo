@@ -1,0 +1,9 @@
+// this test should pass, but it is not passing due to a bug
+// https://github.com/estools/escodegen/issues/433
+
+function foo() {
+    return /* comment */ (
+        // comment
+        3 + 3
+    );
+}
