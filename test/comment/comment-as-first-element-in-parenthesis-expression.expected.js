@@ -45,9 +45,7 @@ function foo() {
 function foo() {
     return (
         // one
-        3 + 3
-    ) - (
-        // two
+        3 + 3 - // two
         (1 + 1)
     );
 }
@@ -60,8 +58,8 @@ function foo(a, b, c) {
 function foo(a, b, c) {
     return (
         // comment
-        a >= b && a <= c
-    ) || a === 42 || a === 666;
+        a >= b && a <= c || a === 42 || a === 666
+    );
 }
 function foo(a, b, c) {
     throw (

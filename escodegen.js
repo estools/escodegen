@@ -240,6 +240,11 @@
         return str.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
     }
 
+    function startsWithComment(result) {
+        var str = toSourceNodeWhenNeeded(result).toString();
+        return (/^\/\*[\s\S]*?\*\/|^\/\/.*/).test(str);
+    }
+
     function removeTrailingWhiteSpaces(str) {
         return str.replace(/\S(\s+)$/g, '');
     }
@@ -249,17 +254,17 @@
         str = removeTrailingWhiteSpaces(str);
         var counter = 0;
         for (var i = 0; i < str.length; ++i) {
-            if (str[i] == leftPar) {
+            if (str[i] === leftPar) {
                 counter++;
             }
-            else if (str[i] == rightPar) {
-                if (counter == 0) {
+            else if (str[i] === rightPar) {
+                if (counter === 0) {
                     return false;
                 }
                 counter--;
             }
         }
-        return counter == 0 && str[str.length-1] == rightPar;
+        return counter === 0 && str[0] === leftPar && str[str.length-1] === rightPar;
     }
 
     function isParenthesizedByAnyBracketKind(str) {
@@ -272,40 +277,18 @@
         if (!hasLineTerminator(str)) {
             return false;
         }
-        if (path.parent !== null && (
-            path.parent.node.type === Syntax.ObjectExpression ||
-            path.parent.node.type === Syntax.ArrayExpression ||
-            path.parent.node.type === Syntax.Property ||
-            path.parent.node.type === Syntax.ImportExpression
-            )) {
+        if (path.parent === null) {
             return false;
         }
-        if (path.parent !== null &&
-            path.node.type === Syntax.ImportSpecifier &&
-            path.parent.node.type === Syntax.ImportDeclaration
-            ) {
+        var parentNodeType = path.parent.node.type;
+        if (parentNodeType !== Syntax.ReturnStatement &&
+            parentNodeType !== Syntax.ThrowStatement &&
+            parentNodeType !== Syntax.ArrowFunctionExpression) {
             return false;
-        }
-        if (path.parent !== null && path.parent.parent !== null &&
-            path.parent.parent.node.type === Syntax.MethodDefinition &&
-            path.parent.node.type === Syntax.FunctionExpression &&
-            path.node.type === Syntax.AssignmentPattern) {
-                return false;
-        }
-        if (stmt.type === Syntax.MethodDefinition) {
+        };
+        if (isParenthesizedByAnyBracketKind(str))
             return false;
-        }
-        if (path.parent !== null && path.parent.node.type === Syntax.VariableDeclaration) {
-            return false;
-        }
-        if (!isParenthesizedByAnyBracketKind(str)) {
-            return true;
-        }
-
-        str = removeComments(str);
-        var firstNewlineIdx = str.indexOf(newline);
-        var firstParenthesisIdx = str.match(/[\(\[\{)]/).index;
-        return firstNewlineIdx < firstParenthesisIdx;
+        return true;
     }
 
     function merge(target, override) {
@@ -752,10 +735,11 @@
 
     function addComments(stmt, result, path) {
         var i, len, comment, save, tailingToStatement, specialBase, fragment,
-            extRange, range, prevRange, prefix, infix, suffix, count;
+            extRange, range, prevRange, prefix, infix, suffix, count,
+            generatedLeadingComments, hasLeadingComments;
+        save = result;
 
         if (stmt.leadingComments && stmt.leadingComments.length > 0) {
-            save = result;
 
             if (preserveBlankLines) {
                 comment = stmt.leadingComments[0];
@@ -813,26 +797,34 @@
                     result.push(addIndent(fragment));
                 }
             }
+            generatedLeadingComments = true;
+        }
 
-            if (!isExpression(stmt)) {
-                result.push(addIndent(save));
+        hasLeadingComments = generatedLeadingComments || startsWithComment(result);
+        var text = toSourceNodeWhenNeeded(result).toString();
+        var parenthesize = shouldParenthesize(text, stmt, path);
+
+        if (!hasLeadingComments) {
+            result = save;
+        } else if (hasLeadingComments && parenthesize) {
+            if (generatedLeadingComments) {
+                result = addMultiLineIndent(result);
+                result = [indent, result];
+
+                result = ['(', newline, result];
+
+                withIndent(function () {
+                    result.push(addMultiLineIndent(save));
+                });
+
+                result.push([newline, base, ')']);
             } else {
-                var text = toSourceNodeWhenNeeded(result).toString();
-                if (shouldParenthesize(text, stmt, path)) {
-                    result = addMultiLineIndent(result);
-                    result = [indent, result];
-
-                    result = ['(', newline, result];
-
-                    withIndent(function () {
-                        result.push(addMultiLineIndent(save));
-                    });
-
-                    result.push([newline, base, ')']);
-                } else {
-                    result.push(addIndent(save));
-                }
+                result = ['(', newline, indent, addMultiLineIndent(result), newline, base, ')'];
             }
+        } else if (generatedLeadingComments) {
+            result.push(addIndent(save));
+        } else {
+            result = save;
         }
 
         if (stmt.trailingComments) {
