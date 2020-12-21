@@ -11,6 +11,7 @@
   Copyright (C) 2012 Joost-Wim Boekesteijn <joost-wim@boekesteijn.nl>
   Copyright (C) 2012 Kris Kowal <kris.kowal@cixar.com>
   Copyright (C) 2012 Arpad Borsos <arpad.borsos@googlemail.com>
+  Copyright (C) 2020 Apple Inc. All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -85,29 +86,31 @@
         Assignment: 1,
         Conditional: 2,
         ArrowFunction: 2,
-        LogicalOR: 3,
-        LogicalAND: 4,
-        BitwiseOR: 5,
-        BitwiseXOR: 6,
-        BitwiseAND: 7,
-        Equality: 8,
-        Relational: 9,
-        BitwiseSHIFT: 10,
-        Additive: 11,
-        Multiplicative: 12,
-        Exponentiation: 13,
-        Await: 14,
-        Unary: 14,
-        Postfix: 15,
-        OptionalChaining: 16,
-        Call: 17,
-        New: 18,
-        TaggedTemplate: 19,
-        Member: 20,
-        Primary: 21
+        Coalesce: 3,
+        LogicalOR: 4,
+        LogicalAND: 5,
+        BitwiseOR: 6,
+        BitwiseXOR: 7,
+        BitwiseAND: 8,
+        Equality: 9,
+        Relational: 10,
+        BitwiseSHIFT: 11,
+        Additive: 12,
+        Multiplicative: 13,
+        Exponentiation: 14,
+        Await: 15,
+        Unary: 15,
+        Postfix: 16,
+        OptionalChaining: 17,
+        Call: 18,
+        New: 19,
+        TaggedTemplate: 20,
+        Member: 21,
+        Primary: 22
     };
 
     BinaryPrecedence = {
+        '??': Precedence.Coalesce,
         '||': Precedence.LogicalOR,
         '&&': Precedence.LogicalAND,
         '|': Precedence.BitwiseOR,
@@ -142,7 +145,8 @@
         F_ALLOW_UNPARATH_NEW = 1 << 2,
         F_FUNC_BODY = 1 << 3,
         F_DIRECTIVE_CTX = 1 << 4,
-        F_SEMICOLON_OPT = 1 << 5;
+        F_SEMICOLON_OPT = 1 << 5,
+        F_FOUND_COALESCE = 1 << 6;
 
     //Expression flag sets
     //NOTE: Flag order:
@@ -1961,7 +1965,7 @@
             }
             return parenthesize(
                 [
-                    this.generateExpression(expr.test, Precedence.LogicalOR, flags, path),
+                    this.generateExpression(expr.test, Precedence.Coalesce, flags, path),
                     space + '?' + space,
                     this.generateExpression(expr.consequent, Precedence.Assignment, flags, path),
                     space + ':' + space,
@@ -1973,6 +1977,9 @@
         },
 
         LogicalExpression: function (expr, precedence, flags, path) {
+            if (expr.operator === '??') {
+                flags |= F_FOUND_COALESCE;
+            }
             return this.BinaryExpression(expr, precedence, flags, path);
         },
 
@@ -2008,6 +2015,9 @@
             }
 
             if (expr.operator === 'in' && !(flags & F_ALLOW_IN)) {
+                return ['(', result, ')'];
+            }
+            if ((expr.operator === '||' || expr.operator === '&&') && (flags & F_FOUND_COALESCE)) {
                 return ['(', result, ')'];
             }
             return parenthesize(result, currentPrecedence, precedence);
@@ -2490,6 +2500,16 @@
 
             if (expr.regex) {
               return '/' + expr.regex.pattern + '/' + expr.regex.flags;
+            }
+
+            if (typeof expr.value === 'bigint') {
+                return expr.value.toString() + 'n';
+            }
+
+            // `expr.value` can be null if `expr.bigint` exists. We need to check
+            // `expr.bigint` first.
+            if (expr.bigint) {
+                return expr.bigint + 'n';
             }
 
             if (expr.value === null) {
