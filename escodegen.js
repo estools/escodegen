@@ -254,6 +254,9 @@
     }
 
     function isParenthesizedCached(str, leftPar, rightPar) {
+        if (str.length === 0) {
+            return false;
+        }
         var counter = 0;
         for (var i = 0; i < str.length; ++i) {
             if (str[i] === leftPar) {
