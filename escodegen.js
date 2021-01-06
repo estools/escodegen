@@ -289,9 +289,10 @@
             parentNodeType !== Syntax.ThrowStatement &&
             parentNodeType !== Syntax.ArrowFunctionExpression) {
             return false;
-        };
-        if (isParenthesizedByAnyBracketKind(str))
+        }
+        if (isParenthesizedByAnyBracketKind(str)) {
             return false;
+        }
         return true;
     }
 
@@ -782,7 +783,6 @@
             } else {
                 comment = stmt.leadingComments[0];
                 result = [];
-
                 if (safeConcatenation && stmt.type === Syntax.Program && stmt.body.length === 0) {
                     result.push('\n');
                 }
