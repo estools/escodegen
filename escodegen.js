@@ -2163,22 +2163,22 @@
 
         FieldDefinition: function(expr, precedence, flags) {
             var result;
-            if (expr.static) {
-                result = [`static${space}`];
+            if (expr['static']) {
+                result = ['static' + space];
             }
             else {
                 result = [];
             }
             var fragment = [
                 this.generatePropertyKey(expr.key, expr.computed),
-                `${space}=${space}`,
+                space + '=' +space,
                 this.generateExpression(expr.value, Precedence.Assignment, E_TTT)
             ];
             return join(result, fragment);
         },
 
         PrivateName: function(expr, precedence, flags) {
-            return toSourceNodeWhenNeeded(`#${expr.name}`, expr);
+            return toSourceNodeWhenNeeded('#' + expr.name, expr);
         },
 
         Property: function (expr, precedence, flags) {
