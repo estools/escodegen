@@ -787,7 +787,6 @@
                     result.push('\n');
                 }
                 result.push(generateComment(comment));
-
                 if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
                     result.push('\n');
                 }
