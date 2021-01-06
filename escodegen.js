@@ -2162,14 +2162,14 @@
         },
 
         FieldDefinition: function(expr, precedence, flags) {
-            let result;
+            var result;
             if (expr.static) {
                 result = [`static${space}`];
             }
             else {
                 result = [];
             }
-            const fragment = [
+            var fragment = [
                 this.generatePropertyKey(expr.key, expr.computed),
                 `${space}=${space}`,
                 this.generateExpression(expr.value, Precedence.Assignment, E_TTT)
