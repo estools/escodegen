@@ -643,10 +643,13 @@
 
     function addMultiLineIndent(stmt) {
         var str = base + flattenToString(stmt);
+        if (str.length === 0) {
+            return '';
+        }
         var split = str.split(new RegExp(newline, 'g'));
         var suffix = '';
         // do not replace the last newline
-        if (split[split.length-1].length == 0) {
+        if (split[split.length-1].length === 0) {
             split = split.slice(0, split.length-1);
             suffix = newline;
         }
