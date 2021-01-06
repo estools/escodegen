@@ -253,9 +253,7 @@
         return str.replace(/\S(\s+)$/g, '');
     }
 
-    function isParenthesized(str, leftPar, rightPar) {
-        str = removeComments(str);
-        str = removeTrailingWhiteSpaces(str);
+    function isParenthesizedCached(str, leftPar, rightPar) {
         var counter = 0;
         for (var i = 0; i < str.length; ++i) {
             if (str[i] === leftPar) {
@@ -271,10 +269,18 @@
         return counter === 0 && str[0] === leftPar && str[str.length-1] === rightPar;
     }
 
+    function isParenthesized(str, leftPar, rightPar) {
+        str = removeComments(str);
+        str = removeTrailingWhiteSpaces(str);
+        return isParenthesizedCached(str, leftPar, rightPar);
+    }
+
     function isParenthesizedByAnyBracketKind(str) {
-        return isParenthesized(str, '(', ')') ||
-                isParenthesized(str, '{', '}') ||
-                isParenthesized(str, '[', ']');
+        str = removeComments(str);
+        str = removeTrailingWhiteSpaces(str);
+        return isParenthesizedCached(str, '(', ')') ||
+                isParenthesizedCached(str, '{', '}') ||
+                isParenthesizedCached(str, '[', ']');
     }
 
     function shouldParenthesize(str, stmt, path) {
