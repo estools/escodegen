@@ -281,7 +281,7 @@
                 isParenthesized(str, '[', ']');
     }
 
-    function shouldParenthesize(str, stmt, path) {
+    function shouldParenthesize(str, path) {
         if (!hasLineTerminator(str)) {
             return false;
         }
@@ -812,7 +812,7 @@
 
         hasLeadingComments = generatedLeadingComments || startsWithComment(result);
         var text = toSourceNodeWhenNeeded(result).toString();
-        var parenthesize = shouldParenthesize(text, stmt, path);
+        var parenthesize = shouldParenthesize(text, path);
 
         if (!hasLeadingComments) {
             result = save;
