@@ -45,12 +45,12 @@
         "source-map": "~0.7.3"
     },
     "devDependencies": {
-        "acorn": "^8.0.4",
-        "browserify": "^16.5.1",
-        "chai": "^4.2.0",
+        "acorn": "^8.0.5",
+        "browserify": "^17.0.0",
+        "chai": "^4.3.0",
         "chai-exclude": "^2.0.2",
-        "eslint": "^7.3.1",
-        "mocha": "^8.0.1",
+        "eslint": "^7.19.0",
+        "mocha": "^8.2.1",
         "uglifyify": "^5.0.2"
     },
     "license": "BSD-2-Clause",
