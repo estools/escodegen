@@ -49,8 +49,8 @@
         "browserify": "^17.0.0",
         "chai": "^4.3.0",
         "chai-exclude": "^2.0.2",
-        "eslint": "^7.19.0",
-        "mocha": "^8.2.1",
+        "eslint": "^7.20.0",
+        "mocha": "^8.3.0",
         "uglifyify": "^5.0.2"
     },
     "license": "BSD-2-Clause",
