@@ -958,6 +958,78 @@ data = [{
         '!function(){42}': '!function\t()\t{\n    42\n}',
         '42;foo': '42;\nfoo'
     }
+}, {
+    options: {
+      format: {
+          arrays: {
+            multilineArrayStartsInline: true,
+            maxElementsPerLine: 1,
+            maxLineWidth: 40
+          }
+      }
+  },
+  items: {
+      '[,,3]': '[,\n    ,\n    3\n];',
+      '[1, 2, 3]': '[1,\n    2,\n    3\n];',
+      '[1, 2, 3, 4]': '[1,\n    2,\n    3,\n    4\n];',
+      '[1, 2, "three-is-a-longer-string-in-this-test"]': '[1,\n    2,\n    \'three-is-a-longer-string-in-this-test\'\n];',
+      'foo = ["long-text-that-only-fits-in-singl-row"]': 'foo = [\n    \'long-text-that-only-fits-in-singl-row\'\n];',
+      'foo = ["very-long-text-that-will-never-fit-according-to-the-configured-max-width"]': 'foo = [\n    \'very-long-text-that-will-never-fit-according-to-the-configured-max-width\'\n];'
+  }
+}, {
+  options: {
+    format: {
+        arrays: {
+          multilineArrayStartsInline: false,
+          maxElementsPerLine: 1,
+          maxLineWidth: 40
+        }
+    }
+},
+items: {
+  '[,,3]': '[\n    ,\n    ,\n    3\n];',
+  '[1, 2, 3]': '[\n    1,\n    2,\n    3\n];',
+  '[1, 2, 3, 4]': '[\n    1,\n    2,\n    3,\n    4\n];',
+  '[1, 2, "three-is-a-longer-string-in-this-test"]': '[\n    1,\n    2,\n    \'three-is-a-longer-string-in-this-test\'\n];',
+  'foo = ["long-text-that-only-fits-in-singl-row"]': 'foo = [\n    \'long-text-that-only-fits-in-singl-row\'\n];',
+  'foo = ["very-long-text-that-will-never-fit-according-to-the-configured-max-width"]': 'foo = [\n    \'very-long-text-that-will-never-fit-according-to-the-configured-max-width\'\n];'
+}
+}, {
+  options: {
+    format: {
+        arrays: {
+          multilineArrayStartsInline: false,
+          maxElementsPerLine: 3,
+          maxLineWidth: 40
+        }
+    }
+},
+items: {
+  '[,,3]': '[, , 3];',
+  '[1, 2, 3]': '[1, 2, 3];',
+  '[1, 2, 3, 4]': '[\n    1, 2, 3,\n    4\n];',
+  '[1, 2, "three-is-a-longer-string-in-this-test"]': '[\n    1, 2,\n    \'three-is-a-longer-string-in-this-test\'\n];',
+  'foo = ["long-text-that-only-fits-in-singl-row"]': 'foo = [\n    \'long-text-that-only-fits-in-singl-row\'\n];',
+  'foo = ["very-long-text-that-will-never-fit-according-to-the-configured-max-width"]': 'foo = [\n    \'very-long-text-that-will-never-fit-according-to-the-configured-max-width\'\n];'
+}
+}, {
+  options: {
+    format: {
+        arrays: {
+          multilineArrayStartsInline: true,
+          maxElementsPerLine: 3,
+          maxLineWidth: 40
+        }
+    }
+},
+items: {
+  '[,,3]': '[, , 3];',
+  '[1, 2, 3]': '[1, 2, 3];',
+  '[1, 2, 3, 4]': '[1, 2, 3,\n    4\n];',
+  '[1, 2, "three-is-a-longer-string-in-this-test"]': '[1, 2,\n    \'three-is-a-longer-string-in-this-test\'\n];',
+  'foo = ["long-text-that-only-fits-in-singl-row"]': 'foo = [\n    \'long-text-that-only-fits-in-singl-row\'\n];',
+  'foo = ["very-long-text-that-will-never-fit-according-to-the-configured-max-width"]': 'foo = [\n    \'very-long-text-that-will-never-fit-according-to-the-configured-max-width\'\n];'
+}
 }];
 
 function adjustRegexLiteral(key, value) {

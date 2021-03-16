@@ -56,6 +56,9 @@
         parentheses,
         semicolons,
         safeConcatenation,
+        multilineArrayStartsInline,
+        maxArrayElementsPerLine,
+        arrayMaxLineWidth,
         directive,
         extra,
         parse,
@@ -196,7 +199,12 @@
                 parentheses: true,
                 semicolons: true,
                 safeConcatenation: false,
-                preserveBlankLines: false
+                preserveBlankLines: false,
+                arrays: {
+                  multilineArrayStartsInline: false,
+                  maxElementsPerLine: 1,
+                  maxLineWidth: 80
+                }
             },
             moz: {
                 comprehensionExpressionStartsWithAssignment: false,
@@ -2087,35 +2095,95 @@
         },
 
         ArrayExpression: function (expr, precedence, flags, isPattern) {
-            var result, multiline, that = this;
+            var result, multiline, currentLine, elementsInLine, that = this;
             if (!expr.elements.length) {
                 return '[]';
             }
-            multiline = isPattern ? false : expr.elements.length > 1;
-            result = ['[', multiline ? newline : ''];
+
+            var i, iz;
+
+            result = ['['];
+
+            for (i = 0, iz = expr.elements.length; i < iz; ++i) {
+                if (!expr.elements[i]) {
+                    if (i + 1 === iz) {
+                        result.push(',');
+                    }
+                } else {
+                    result.push(that.generateExpression(expr.elements[i], Precedence.Assignment, E_TTT));
+                }
+                if (i + 1 < iz) {
+                    result.push(',' + space);
+                }
+            }
+
+            result.push(']');
+
+            var arrayLength = (base + toSourceNodeWhenNeeded(result).toString()).length;
+            multiline = !isPattern && (arrayLength > arrayMaxLineWidth || expr.elements.length > maxArrayElementsPerLine);
+
+            if (!multiline) {
+                return result;
+            }
+
             withIndent(function (indent) {
-                var i, iz;
+
+                if (multilineArrayStartsInline) {
+                    result = ['['];
+                    currentLine = base + '[';
+                } else {
+                    result = ['[', newline, indent];
+                    currentLine = indent;
+                }
+
+                elementsInLine = 0;
+
+                var i, iz, content, contentPrefix, contentStr, exceedsMaxLength;
+
                 for (i = 0, iz = expr.elements.length; i < iz; ++i) {
+
+                    content = [];
+
                     if (!expr.elements[i]) {
-                        if (multiline) {
-                            result.push(indent);
-                        }
                         if (i + 1 === iz) {
                             result.push(',');
                         }
                     } else {
-                        result.push(multiline ? indent : '');
-                        result.push(that.generateExpression(expr.elements[i], Precedence.Assignment, E_TTT));
+                        content.push(that.generateExpression(expr.elements[i], Precedence.Assignment, E_TTT));
                     }
                     if (i + 1 < iz) {
-                        result.push(',' + (multiline ? newline : space));
+                        content.push(',');
                     }
+
+                    contentPrefix = (i > 0 ? space : '');
+                    contentStr = contentPrefix + toSourceNodeWhenNeeded(content).toString();
+                    exceedsMaxLength = (currentLine + contentStr.split(newline)[0]).length > arrayMaxLineWidth;
+
+                    if (exceedsMaxLength && currentLine === indent) {
+                      // it will never fit
+                      exceedsMaxLength = false;
+                    }
+
+                    if (exceedsMaxLength || elementsInLine >= maxArrayElementsPerLine) {
+                        result.push(newline + indent);
+                        currentLine = indent;
+                        elementsInLine = 1;
+                    } else {
+                        result.push(contentPrefix);
+                        currentLine += contentPrefix + contentStr;
+                        var lines = currentLine.split(newline)
+                        currentLine = lines[lines.length-1];
+                        elementsInLine++;
+                    }
+
+                    result.push(content);
                 }
             });
-            if (multiline && !endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
+
+            if (!endsWithLineTerminator(toSourceNodeWhenNeeded(result).toString())) {
                 result.push(newline);
             }
-            result.push(multiline ? base : '');
+            result.push(base);
             result.push(']');
             return result;
         },
@@ -2598,6 +2666,9 @@
         parentheses = options.format.parentheses;
         semicolons = options.format.semicolons;
         safeConcatenation = options.format.safeConcatenation;
+        multilineArrayStartsInline = options.format.arrays.multilineArrayStartsInline;
+        maxArrayElementsPerLine = options.format.arrays.maxElementsPerLine;
+        arrayMaxLineWidth = options.format.arrays.maxLineWidth;
         directive = options.directive;
         parse = json ? null : options.parse;
         sourceMap = options.sourceMap;
