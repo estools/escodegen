@@ -27,7 +27,7 @@
 
 var esprima = require('./3rdparty/esprima-1.0.0-dev'),
     escodegen = require('./loader'),
-    sourcemap = require('source-map'),
+    sourcemap = require('source-map-js'),
     chai = require('chai'),
     expect = chai.expect;
 

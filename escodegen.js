@@ -2609,7 +2609,7 @@
             if (!exports.browser) {
                 // We assume environment is node.js
                 // And prevent from including source-map by browserify
-                SourceNode = require('source-map').SourceNode;
+                SourceNode = require('source-map-js').SourceNode;
             } else {
                 SourceNode = global.sourceMap.SourceNode;
             }
