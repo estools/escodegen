@@ -16,10 +16,10 @@ for a demo.
 Escodegen can be used in a web browser:
 
 ```html
-<script src="escodegen.browser.js"></script>
+<script src="dist/escodegen.umd.js"></script>
 ```
 
-escodegen.browser.js can be found in tagged revisions on GitHub.
+`dist/escodegen.umd.js` can be found in tagged revisions on GitHub.
 
 Or in a Node.js application via npm:
 
@@ -54,7 +54,7 @@ After that,
 npm run-script build
 ```
 
-will generate `escodegen.browser.js`, which can be used in browser environments.
+will generate `dist/escodegen.umd.js`, which can be used in browser environments.
 
 And,
 

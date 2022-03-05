@@ -7,14 +7,18 @@ module.exports = {
         SharedArrayBuffer: 'readonly'
     },
     env: {
-        node: true,
         es6: true
     },
     parserOptions: {
         sourceType: 'module',
-        ecmaVersion: 2018
+        ecmaVersion: 2020
     },
     overrides: [{
+        files: ['*-node.js', '.eslintrc.cjs', 'benchmark/**', 'bin/**', 'tools/**'],
+        env: {
+            node: true
+        }
+    }, {
         files: '.eslintrc.js',
         parserOptions: {
             sourceType: 'script'

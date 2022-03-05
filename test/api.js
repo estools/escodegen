@@ -22,13 +22,8 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
-
-var esprima = require('./3rdparty/esprima-1.0.0-dev'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    expect = chai.expect,
-    fixtures;
+// import esprima from './3rdparty/esprima-1.0.0-dev.js';
+import escodegen from './loader.js';
 
 function slug(name) {
     return name.toLowerCase().replace(/\s/g, '-');
@@ -41,7 +36,7 @@ function adjustRegexLiteral(key, value) {
     return value;
 }
 
-fixtures = {
+const fixtures = {
     'generate with no options': {
         call: 'generate',
         args: [{

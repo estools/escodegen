@@ -23,13 +23,11 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*jslint sloppy:true node:true */
+import fs from 'fs';
+import * as escodegen from '../src/escodegen-node.js';
+import Optionator from 'optionator';
 
-var fs = require('fs'),
-    path = require('path'),
-    root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
-    escodegen = require(root),
-    optionator = require('optionator')({
+const optionator = Optionator({
         prepend: 'Usage: esgenerate [options] file.json ...',
         options: [
             {
@@ -41,13 +39,14 @@ var fs = require('fs'),
         ]
     }),
     args = optionator.parse(process.argv),
-    files = args._,
-    options;
+    files = args._;
 
 if (files.length === 0) {
     console.log(optionator.generateHelp());
     process.exit(1);
 }
+
+let options;
 
 if (args.config) {
     try {

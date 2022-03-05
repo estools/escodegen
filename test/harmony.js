@@ -29,15 +29,10 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
+import * as esprima from './3rdparty/esprima-harmony.original.js';
+import escodegen from './loader.js';
 
-var esprima = require('./3rdparty/esprima-harmony.original'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    expect = chai.expect,
-    data;
-
-data = {
+const data = {
     'Yield (with star, harmony proposed)': {
         'function* a() { yield* test; }': {
             type: 'Program',
@@ -6547,7 +6542,7 @@ data = {
                 "generator": false,
                 "expression": false,
                 "async": true
-            }   
+            }
         },
 
         'f(async function (promise) {\n    await promise;\n});': {

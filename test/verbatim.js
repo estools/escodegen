@@ -22,14 +22,8 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
-
-var esprima = require('./3rdparty/esprima-1.0.0-dev'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    expect = chai.expect,
-    StringData,
-    ObjectData;
+import esprima from 'esprima';
+import escodegen from './loader.js';
 
 function make_eval(code) {
     return {
@@ -62,7 +56,7 @@ function runTest(expected, result, verbatim) {
     expect(expected).to.be.equal(actual);
 }
 
-StringData = {
+const StringData = {
     'DISABLED': {
         "eval('foo');": {
             type: 'ExpressionStatement',
@@ -143,7 +137,7 @@ describe('verbatim string test', function () {
     });
 });
 
-ObjectData = {
+const ObjectData = {
     'verbatim': {
         // Floating point
         "(0).a": {

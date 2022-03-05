@@ -4,6 +4,7 @@ script:
   - npm run build
   - npm test
 node_js:
-  - 10
   - 12
   - 14
+  - 16
+  - 17

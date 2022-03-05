@@ -22,14 +22,13 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
+import fs from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import esprima from './3rdparty/esprima-1.0.0-dev.js';
+import escodegen from './loader.js';
 
-var fs = require('fs'),
-    esprima = require('./3rdparty/esprima-1.0.0-dev'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    expect = chai.expect,
-    fixtures;
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function slug(name) {
     return name.toLowerCase().replace(/\s/g, '-');
@@ -42,7 +41,7 @@ function adjustRegexLiteral(key, value) {
     return value;
 }
 
-fixtures = [
+const fixtures = [
     'jQuery 1.7.1',
     'jQuery 1.6.4',
     'jQuery.Mobile 1.0',

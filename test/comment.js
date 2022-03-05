@@ -22,13 +22,14 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
+import fs from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-var fs = require('fs'),
-    esprima = require('./3rdparty/esprima-harmony.original'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    expect = chai.expect;
+import * as esprima from './3rdparty/esprima-harmony.original.js';
+import escodegen from './loader.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function test(code, expected) {
     var tree, actual, options, StringObject;

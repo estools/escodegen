@@ -23,14 +23,13 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*jslint sloppy:true node:true */
+import fs from 'fs';
+import path from 'path';
+import esprima from 'esprima';
+import Optionator from 'optionator';
+import * as escodegen from '../src/escodegen-node.js';
 
-var fs = require('fs'),
-    path = require('path'),
-    root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
-    esprima = require('esprima'),
-    escodegen = require(root),
-    optionator = require('optionator')({
+const optionator = Optionator({
         prepend: 'Usage: escodegen [options] file...',
         options: [
             {
@@ -43,7 +42,6 @@ var fs = require('fs'),
     }),
     args = optionator.parse(process.argv),
     files = args._,
-    options,
     esprimaOptions = {
         raw: true,
         tokens: true,
@@ -56,6 +54,7 @@ if (files.length === 0) {
     process.exit(1);
 }
 
+let options;
 if (args.config) {
     try {
         options = JSON.parse(fs.readFileSync(args.config, 'utf-8'));
@@ -68,7 +67,7 @@ files.forEach(function (filename) {
     var content = fs.readFileSync(filename, 'utf-8'),
         syntax = esprima.parse(content, esprimaOptions);
 
-    if (options.comment) {
+    if (options && options.comment) {
         escodegen.attachComments(syntax, syntax.comments, syntax.tokens);
     }
 

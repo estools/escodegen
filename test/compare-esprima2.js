@@ -22,14 +22,14 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-'use strict';
+import fs from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import esprima from './3rdparty/esprima-2.7.1.js';
+import escodegen from  './loader.js';
 
-var fs = require('fs'),
-   esprima = require('./3rdparty/esprima-2.7.1'),
-   escodegen = require('./loader'),
-   chai = require('chai'),
-   expect = chai.expect,
-   DIR = 'compare-esprima2';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DIR = 'compare-esprima2';
 
 function test(code, expected) {
    var tree, actual, options, StringObject;

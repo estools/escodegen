@@ -23,12 +23,11 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*jslint sloppy:true node:true */
+import fs from 'fs';
+import path from 'path';
+import child_process from 'child_process';
 
-const fs = require('fs'),
-    path = require('path'),
-    root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
-    child_process = require('child_process');
+const root = path.join(path.dirname(fs.realpathSync(__filename)), '..');
 
 function exec(cmd) {
     return new Promise(function (resolve, reject) {
