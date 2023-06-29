@@ -48,7 +48,7 @@
         "gulp-eslint": "^6.0.0",
         "gulp-mocha": "^7.0.2",
         "minimist": "^1.2.5",
-        "optionator": "^0.9.1",
+        "optionator": "^0.9.3",
         "semver": "^7.3.4"
     },
     "license": "BSD-2-Clause",
