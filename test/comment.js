@@ -25,7 +25,7 @@
 'use strict';
 
 var fs = require('fs'),
-    esprima = require('./3rdparty/esprima-harmony.original'),
+    esprima = require('esprima'),
     escodegen = require('./loader'),
     chai = require('chai'),
     expect = chai.expect;
@@ -41,7 +41,8 @@ function test(code, expected) {
         range: true,
         loc: false,
         tokens: true,
-        raw: false
+        raw: false,
+        sourceType: 'module'
     };
 
     tree = esprima.parse(code, options);

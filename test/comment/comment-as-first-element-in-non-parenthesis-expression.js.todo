@@ -1,0 +1,14 @@
+// this test should pass, but it is not passing due to a bug
+// https://github.com/estools/escodegen/issues/336
+// https://github.com/estools/escodegen/issues/435
+
+function foo(x) {
+    return /* comment 1 */ x > 0 || // comment 2
+        x < 5;
+}
+
+function foo(x) {
+    return /* comment 1 */ x > 0 ||
+        // comment 2
+        x < 5;
+}
