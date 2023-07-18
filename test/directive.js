@@ -22,15 +22,10 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
+import esprima from 'esprima';
+import escodegen from './loader.js';
 
-var esprima = require('./3rdparty/esprima-1.0.0-dev'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    expect = chai.expect,
-    data;
-
-data = {
+const data = {
     'DirectiveStatement': {
 
         '\'use strict\';': {

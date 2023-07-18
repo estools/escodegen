@@ -1,0 +1,9 @@
+node_modules
+lib
+
+!.eslintrc.js
+coverage
+
+test/*/*.js
+
+dist

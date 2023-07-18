@@ -23,13 +23,9 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
-
-var esprima = require('./3rdparty/esprima-1.0.0-dev'),
-    escodegen = require('./loader'),
-    sourcemap = require('source-map'),
-    chai = require('chai'),
-    expect = chai.expect;
+// import esprima from 'esprima';
+import sourcemap from 'source-map';
+import escodegen from './loader.js';
 
 describe('source map test', function () {
     it('function expression identifier test', function () {
@@ -469,8 +465,8 @@ describe('source map test', function () {
         expect(result.map._names._array.length).to.be.equal(3);
     });
 
-    it('sourceContent support', function() {
-        var source = "(+ a b)"
+    it('sourceContent support', async function() {
+        var source = "(+ a b)";
         var ast = {
             "type": "ExpressionStatement",
             "expression": {"type": "BinaryExpression",
@@ -499,7 +495,7 @@ describe('source map test', function () {
         expect(output.code).to.be.equal("a + b;");
 
 
-        var consumer = new sourcemap.SourceMapConsumer(output.map.toString());
+        var consumer = await (new sourcemap.SourceMapConsumer(output.map.toString()));
         expect(consumer.sourceContentFor("sum.ls")).to.be.equal(source);
     });
 

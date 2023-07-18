@@ -22,15 +22,10 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
+import esprima from 'esprima';
+import escodegen from './loader.js';
 
-var data,
-    esprima = require('./3rdparty/esprima-1.0.0-dev'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    expect = chai.expect;
-
-data = {
+const data = {
     'RegExp string': [
         {
             type: 'Program',
@@ -60,7 +55,7 @@ data = {
                 type: 'ExpressionStatement',
                 expression: {
                     type: 'Literal',
-                    value: new RegExp('\n', 'i')
+                    value: /\n/i
                 },
             }],
             expected: '/\\n/i;'
@@ -71,7 +66,7 @@ data = {
                 type: 'ExpressionStatement',
                 expression: {
                     type: 'Literal',
-                    value: new RegExp('\r', 'i')
+                    value: /\r/i
                 },
             }],
             expected: '/\\r/i;'

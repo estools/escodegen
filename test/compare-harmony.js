@@ -22,14 +22,13 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
+import fs from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import * as esprima from './3rdparty/esprima-harmony.original.js';
+import escodegen from './loader.js';
 
-var fs = require('fs'),
-    esprima = require('./3rdparty/esprima-harmony.original'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    expect = chai.expect,
-    DIR;
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function test(code, expected) {
     var tree, actual, options, StringObject;
@@ -82,7 +81,7 @@ function testMin(code, expected) {
     expect(actual2).to.be.equal(actual);
 }
 
-DIR = 'compare-harmony';
+const DIR = 'compare-harmony';
 
 describe('compare harmony test', function () {
     fs.readdirSync(__dirname + '/' + DIR).sort().forEach(function(file) {

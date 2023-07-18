@@ -22,13 +22,13 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
+import fs from 'fs';
+import * as acorn from 'acorn';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import escodegen from './loader.js';
 
-var fs = require('fs'),
-    acorn = require('acorn'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    expect = chai.expect;
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function test(code, expected) {
     var tree, actual, options, StringObject;

@@ -23,14 +23,15 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
+import fs from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import * as acorn from 'acorn';
+import chai from 'chai';
+import chaiExclude from 'chai-exclude';
+import escodegen from './loader.js';
 
-var fs = require('fs'),
-    acorn = require('acorn'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    chaiExclude = require('chai-exclude'),
-    expect = chai.expect;
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 chai.use(chaiExclude);
 

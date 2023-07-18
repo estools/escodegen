@@ -8,5 +8,10 @@ node_modules/
 # Cover
 .coverage_data/
 cover_html/
+coverage
+
+.idea
 
 npm-debug.log
+
+dist

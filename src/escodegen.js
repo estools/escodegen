@@ -34,16 +34,13 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*global exports:true, require:true, global:true*/
-(function () {
-    'use strict';
+    import * as estraverse from 'estraverse';
+    import * as esutils from 'esutils';
 
     var Syntax,
         Precedence,
         BinaryPrecedence,
         SourceNode,
-        estraverse,
-        esutils,
         base,
         indent,
         json,
@@ -64,9 +61,6 @@
         preserveBlankLines,
         FORMAT_MINIFY,
         FORMAT_DEFAULTS;
-
-    estraverse = require('estraverse');
-    esutils = require('esutils');
 
     Syntax = estraverse.Syntax;
 
@@ -2606,13 +2600,7 @@
         extra = options;
 
         if (sourceMap) {
-            if (!exports.browser) {
-                // We assume environment is node.js
-                // And prevent from including source-map by browserify
-                SourceNode = require('source-map').SourceNode;
-            } else {
-                SourceNode = global.sourceMap.SourceNode;
-            }
+            ({ SourceNode } = generate.sourceMapModule);
         }
 
         result = generateInternal(node);
@@ -2656,12 +2644,18 @@
 
     FORMAT_DEFAULTS = getDefaultOptions().format;
 
-    exports.version = require('./package.json').version;
-    exports.generate = generate;
-    exports.attachComments = estraverse.attachComments;
-    exports.Precedence = updateDeeply({}, Precedence);
-    exports.browser = false;
-    exports.FORMAT_MINIFY = FORMAT_MINIFY;
-    exports.FORMAT_DEFAULTS = FORMAT_DEFAULTS;
-}());
+    // const browser = false;
+    const PrecedenceCopy = updateDeeply({}, Precedence);
+    const {attachComments} = estraverse;
+
+    export {
+        // version = require('./package.json').version;
+        // browser,
+        generate,
+        attachComments,
+        PrecedenceCopy as Precedence,
+        FORMAT_MINIFY,
+        FORMAT_DEFAULTS
+    };
+
 /* vim: set sw=4 ts=4 et tw=80 : */

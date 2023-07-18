@@ -29,15 +29,10 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
+import esprima from './3rdparty/esprima-2.7.1.js';
+import escodegen from './loader.js';
 
-var esprima = require('./3rdparty/esprima-2.7.1'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    expect = chai.expect,
-    data;
-
-data = {
+const data = {
     'Harmony MetaProperty': {
         'class SomeClass { constructor() { if (new.target === SomeClass) { throw new Error(\'Boom\'); }}}': {
             type: 'Program',

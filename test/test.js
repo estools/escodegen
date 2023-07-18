@@ -28,15 +28,10 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-'use strict';
+import esprima from './3rdparty/esprima-1.0.0-dev.js';
+import escodegen from './loader.js';
 
-var esprima = require('./3rdparty/esprima-1.0.0-dev'),
-    escodegen = require('./loader'),
-    chai = require('chai'),
-    expect = chai.expect,
-    data;
-
-data = {
+const data = {
 
     'Primary Expression': {
 
@@ -13603,7 +13598,7 @@ data = {
                             expression: {
                                 type: 'Literal',
                                 value: 'use strict',
-                                raw: '\"use strict\"',
+                                raw: '"use strict"',
                                 range: [37, 49],
                                 loc: {
                                     start: { line: 1, column: 37 },

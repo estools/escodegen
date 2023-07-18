@@ -1,9 +1,8 @@
-var Benchmark = require('benchmark'),
-    escodegen = require('../'),
-    old = require('./old.js'),
-    esotope = require('esotope'),
-    asts = require('./asts');
-
+import Benchmark from 'benchmark';
+import esotope from 'esotope';
+import * as escodegen from '../src/escodegen-node.js';
+import old from './old.cjs';
+import asts from './asts.js';
 
 function cycle(codegen) {
     for (var i = 0; i < asts.length; i++)
@@ -24,7 +23,7 @@ new Benchmark.Suite()
     })
 
     .on('start', function () {
-        console.log('Benchmarking...')
+        console.log('Benchmarking...');
     })
 
     .on('cycle', function (event) {
@@ -32,7 +31,7 @@ new Benchmark.Suite()
     })
 
     .on('complete', function () {
-        console.log('Fastest is ' + this.filter('fastest').pluck('name'));
+        console.log(`Fastest is ${this.filter('fastest').map('name')}`);
 
         console.log('esotope is x' + (this[0].hz / this[1].hz).toFixed(2) + ' times faster vs escodegen.');
     })

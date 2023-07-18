@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /*
   Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
 
@@ -22,8 +23,5 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-(function () {
-    'use strict';
-    global.escodegen = require('../escodegen');
-    escodegen.browser = true;
-}());
+export * from '../src/escodegen.js';
+export const browser = true;
