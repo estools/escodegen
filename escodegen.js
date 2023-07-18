@@ -663,6 +663,37 @@
         return '/*' + comment.value + '*/';
     }
 
+    function addInlineComment(stmt, result, bAddIndent) {
+        if (stmt.inlineComments) {
+            for (var i = 0; i < stmt.inlineComments.length; i++) {
+                var comment = stmt.inlineComments[i];
+                // For object, replace '{}' in result with empty array
+                if (stmt.type === Syntax.ObjectExpression) {
+                    if (!isArray(result)) {
+                        result = [];
+                        result.push("{");
+                        result.push("\n");
+                        result.push(generateComment(comment));
+                        result.push("}");
+                    } else {
+                        // Add in index 2: index 0 is '{', index 1 is newline
+                        result.splice(2 + i, 0, generateComment(comment));
+                    }
+                } else if (stmt.type === Syntax.BlockStatement) {
+					// Add in index 2: index 0 is '{', index 1 is newline (see definition of BlockStatement)
+                    result.splice(2 + i, 0, generateComment(comment));
+                }
+            }
+            return result;
+        } else {
+            if (bAddIndent) {
+		return addIndent(result);
+            } else {
+		return result;
+            }
+        }
+    }
+
     function addComments(stmt, result) {
         var i, len, comment, save, tailingToStatement, specialBase, fragment,
             extRange, range, prevRange, prefix, infix, suffix, count;
@@ -725,7 +756,12 @@
                 }
             }
 
-            result.push(addIndent(save));
+            // Add inline comments after the leading comments were added
+            result.push(addInlineComment(stmt, save, true));
+        }
+        else {
+          // Add inline comments
+          result = addInlineComment(stmt, result, false);
         }
 
         if (stmt.trailingComments) {
