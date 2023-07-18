@@ -24,7 +24,7 @@ new Benchmark.Suite()
     })
 
     .on('start', function () {
-        console.log('Benchmarking...')
+        console.log('Benchmarking...');
     })
 
     .on('cycle', function (event) {

@@ -469,8 +469,8 @@ describe('source map test', function () {
         expect(result.map._names._array.length).to.be.equal(3);
     });
 
-    it('sourceContent support', function() {
-        var source = "(+ a b)"
+    it('sourceContent support', async function() {
+        var source = "(+ a b)";
         var ast = {
             "type": "ExpressionStatement",
             "expression": {"type": "BinaryExpression",
@@ -499,7 +499,7 @@ describe('source map test', function () {
         expect(output.code).to.be.equal("a + b;");
 
 
-        var consumer = new sourcemap.SourceMapConsumer(output.map.toString());
+        var consumer = await (new sourcemap.SourceMapConsumer(output.map.toString()));
         expect(consumer.sourceContentFor("sum.ls")).to.be.equal(source);
     });
 

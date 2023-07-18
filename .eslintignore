@@ -1,0 +1,10 @@
+node_modules
+lib
+
+!.eslintrc.js
+coverage
+
+test/*/*.js
+
+escodegen.browser.min.js
+escodegen.browser.js

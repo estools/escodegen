@@ -13603,7 +13603,7 @@ data = {
                             expression: {
                                 type: 'Literal',
                                 value: 'use strict',
-                                raw: '\"use strict\"',
+                                raw: '"use strict"',
                                 range: [37, 49],
                                 loc: {
                                     start: { line: 1, column: 37 },

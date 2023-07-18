@@ -25,15 +25,10 @@
 
 /*jslint sloppy:true node:true */
 
-var fs = require('fs'),
+const fs = require('fs'),
     path = require('path'),
     root = path.join(path.dirname(fs.realpathSync(__filename)), '..'),
-    escodegen = require(root),
-    esprima = require('esprima'),
-    RegistryClient = require('bower-registry-client'),
-    semver = require('semver'),
-    child_process = require('child_process'),
-    Promise = require('bluebird');
+    child_process = require('child_process');
 
 function exec(cmd) {
     return new Promise(function (resolve, reject) {
@@ -44,85 +39,43 @@ function exec(cmd) {
     });
 }
 
-(function () {
-    var config, matched, version, devVersion, registry;
-
-    config = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf-8'));
-    devVersion = config.version;
-    matched = devVersion.match(/^(\d+\.\d+\.\d+(-\d+)?)$/);
+(async () => {
+    const config = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf-8'));
+    const devVersion = config.version;
+    const matched = devVersion.match(/^(\d+\.\d+\.\d+(-\d+)?)$/);
     if (!matched) {
-        console.error('version style "' + devVersion + '" is not matched to X.X.X[-X].');
+        console.error(`version style "${devVersion}" is not matched to X.X.X[-X].`);
         process.exit(1);
     }
 
-    version = matched[1];
+    const [, version] = matched;
     config.version = version;
 
-    registry = new RegistryClient();
+    await exec(`git branch -D ${version}`);
+    await exec(`git checkout -b ${version}`);
 
-    function ping(memo, name) {
-        return new Promise(function (resolve, reject) {
-            var pattern;
-            console.log('[' + name + '] ' + 'send ping');
+    // generate configs
+    const dependencies = {},
+        optionalDependencies = {};
+    fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify(config, null, 4), 'utf-8');
 
-            pattern = config.dependencies[name];
+    // generate component.json
+    config.dependencies = dependencies;
+    config.optionalDependencies = optionalDependencies;
+    fs.writeFileSync(path.join(root, 'component.json'), JSON.stringify(config, null, 4), 'utf-8');
 
-            registry.lookup(name, function (err, entry) {
-                var i, iz, version;
-
-                if (err) {
-                    console.error('[' + name + '] ' + err.message + '. skip this dependency');
-                    return;
-                }
-
-                console.log('[' + name + '] ' + 'received result');
-                memo[name] = pattern;
-                resolve();
-            });
-        });
-    }
-
-    exec('git branch -D ' + version)
-    .then(function () {
-        return exec('git checkout -b ' + version);
-    })
-    .then(function generateConfigs() {
-        var dependencies = {},
-            optionalDependencies = {},
-            promises;
-        fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify(config, null, 4), 'utf-8');
-
-        // generate component.json
-        promises =
-            Object.keys(config.dependencies).map(ping.bind(null, dependencies)).concat(
-                Object.keys(config.optionalDependencies).map(ping.bind(null, optionalDependencies)));
-        return Promise.all(promises).then(function () {
-            config.dependencies = dependencies;
-            config.optionalDependencies = optionalDependencies;
-            fs.writeFileSync(path.join(root, 'component.json'), JSON.stringify(config, null, 4), 'utf-8');
-        });
-    })
-    .then(function browserify() {
-        return exec('npm run-script build');
-    })
-    .then(function browserify() {
-        return exec('npm run-script build-min');
-    })
-    .then(function gitAdd() {
-        return exec('git add "' + root + '"');
-    })
-    .then(function gitCommit() {
-        return exec('git commit -m "Bump version ' + version + '"');
-    })
-    .then(function gitDeleteTag() {
-        return exec('git tag -d ' + version);
-    })
-    .then(function gitAddTag() {
-        return exec('git tag -a ' + version + ' -m "version ' + version + '"');
-    })
-    .then(function () {
-        console.log('Finally you should execute npm publish and git push --tags');
-    });
-}());
+    // browserify
+    await exec('npm run-script build');
+    await exec('npm run-script build-min');
+    // git add
+    await exec(`git add "${root}"`);
+    // git commit
+    await exec(`git commit -m "Bump version ${version}"`);
+    // git delete tag
+    await exec(`git tag -d ${version}`);
+    // git add tag
+    await exec(`git tag -a ${version} -m "version ${version}"`);
+    console.log('Finally you should execute npm publish and git push --tags');
+})();
 
 /* vim: set sw=4 ts=4 et tw=80 : */

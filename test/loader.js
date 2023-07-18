@@ -37,7 +37,7 @@ function freezing(escodegen) {
         return original.apply(this, arguments);
     };
     return escodegen;
-};
+}
 
 module.exports = freezing(escodegen);
 
