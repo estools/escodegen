@@ -738,6 +738,10 @@
                 prefix = sourceCode.substring(extRange[0], range[0]);
                 count = (prefix.match(/\n/g) || []).length;
 
+                if (typeof result === 'string') {
+                    result = [result];
+                }
+
                 if (count > 0) {
                     result.push(stringRepeat('\n', count));
                     result.push(addIndent(generateComment(comment)));
@@ -2193,18 +2197,20 @@
         },
 
         ObjectExpression: function (expr, precedence, flags) {
-            var multiline, result, fragment, that = this;
+            var multiline, result, fragment, trailingCommentExists, that = this;
 
             if (!expr.properties.length) {
                 return '{}';
             }
+
+            trailingCommentExists = extra.comment && expr.properties.length === 1 && expr.properties[0].value.trailingComments;
             multiline = expr.properties.length > 1;
 
             withIndent(function () {
                 fragment = that.generateExpression(expr.properties[0], Precedence.Sequence, E_TTT);
             });
 
-            if (!multiline) {
+            if (!(multiline || trailingCommentExists)) {
                 // issues 4
                 // Do not transform from
                 //   dejavu.Class.declare({
@@ -2227,6 +2233,7 @@
                     for (i = 1, iz = expr.properties.length; i < iz; ++i) {
                         result.push(indent);
                         result.push(that.generateExpression(expr.properties[i], Precedence.Sequence, E_TTT));
+
                         if (i + 1 < iz) {
                             result.push(',' + newline);
                         }
@@ -2514,7 +2521,6 @@
         }
 
         result = this[type](expr, precedence, flags);
-
 
         if (extra.comment) {
             result = addComments(expr, result);
