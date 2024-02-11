@@ -11,6 +11,9 @@ code generator from [Mozilla's Parser API](https://developer.mozilla.org/en/Spid
 AST. See the [online generator](https://estools.github.io/escodegen/demo/index.html)
 for a demo.
 
+> This is an incomplete fork intended to satisfy a couple very specific uses cases while the following two upstream requests are completed
+> - Native JSON Support - https://github.com/estools/escodegen/issues/455
+> - ESM Support - https://github.com/estools/escodegen/pull/450
 
 ### Install
 
@@ -22,7 +25,7 @@ escodegen.browser.js can be found in tagged revisions on GitHub.
 
 Or in a Node.js application via npm:
 
-    npm install escodegen
+    npm install escodegen-esm
 
 ### Usage
 
