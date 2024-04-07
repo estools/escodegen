@@ -1126,11 +1126,16 @@
             var result = [ '{', newline], that = this;
 
             withIndent(function (indent) {
-                var i, iz;
+                var bodyFlags, i, iz;
 
+                bodyFlags = E_TTT;
                 for (i = 0, iz = stmt.body.length; i < iz; ++i) {
+                    if (i === iz - 1) {
+                        bodyFlags |= F_SEMICOLON_OPT;
+                    }
+
                     result.push(indent);
-                    result.push(that.generateExpression(stmt.body[i], Precedence.Sequence, E_TTT));
+                    result.push(that.generateExpression(stmt.body[i], Precedence.Sequence, bodyFlags));
                     if (i + 1 < iz) {
                         result.push(newline);
                     }
@@ -2161,6 +2166,10 @@
             return join(result, fragment);
         },
 
+        PrivateIdentifier: function(expr, precedence, flags) {
+            return toSourceNodeWhenNeeded('#' + expr.name, expr);
+        },
+
         Property: function (expr, precedence, flags) {
             if (expr.kind === 'get' || expr.kind === 'set') {
                 return [
@@ -2190,6 +2199,22 @@
                 ':' + space,
                 this.generateExpression(expr.value, Precedence.Assignment, E_TTT)
             ];
+        },
+
+        PropertyDefinition: function(expr, precedence, flags) {
+            var keywords = [];
+            if (expr.static) {
+                keywords.push('static');
+            }
+
+            return join(keywords, [
+                this.generatePropertyKey(expr.key, expr.computed),
+                space,
+                '=',
+                space,
+                this.generateExpression(expr.value, Precedence.Assignment, E_TTT),
+                this.semicolon(flags),
+            ]);
         },
 
         ObjectExpression: function (expr, precedence, flags) {
@@ -2513,6 +2538,9 @@
             return generateVerbatim(expr, precedence);
         }
 
+        if (!(type in this)) {
+            throw new Error('Unknown node type: ' + type);
+        }
         result = this[type](expr, precedence, flags);
 
 
