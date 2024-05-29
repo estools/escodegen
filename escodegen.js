@@ -2499,6 +2499,15 @@
                 this.generateExpression(expr.source, Precedence.Assignment, E_TTT),
                 ')'
             ], Precedence.Call, precedence);
+        },
+
+        PropertyDefinition: function ( expr, precedence, flags ) {
+            return [
+                ...( expr.static ? [ 'static ' ] : [] ),
+                this.Identifier( expr.key, precedence, flags ),
+                '=',
+                this.ObjectExpression( expr.value, precedence, flags )
+            ]
         }
     };
 
