@@ -1130,7 +1130,8 @@
 
                 for (i = 0, iz = stmt.body.length; i < iz; ++i) {
                     result.push(indent);
-                    result.push(that.generateExpression(stmt.body[i], Precedence.Sequence, E_TTT));
+                    var flag = E_TTT | (i === iz - 1 ? F_SEMICOLON_OPT : 0)
+                    result.push(that.generateExpression(stmt.body[i], Precedence.Sequence, flag));
                     if (i + 1 < iz) {
                         result.push(newline);
                     }
@@ -2159,6 +2160,28 @@
                 ];
             }
             return join(result, fragment);
+        },
+
+        PrivateIdentifier: function (expr, precedence, flags) {
+            return toSourceNodeWhenNeeded('#' + expr.name, expr);
+        },
+        PropertyDefinition: function (expr, precedence, flags) {
+            var keywords = [];
+            if (expr.static) {
+                keywords.push('static');
+            }
+            // null for property without value
+            var assign = expr.value !== null ? [
+                space,
+                '=',
+                space,
+                this.generateExpression(expr.value, Precedence.Assignment, E_TTT)
+            ] : []
+            return join(keywords, [].concat(
+                this.generatePropertyKey(expr.key, expr.computed),
+                assign,
+                this.semicolon(flags)
+            ));
         },
 
         Property: function (expr, precedence, flags) {
