@@ -1310,6 +1310,15 @@
                 return code === 0x28 /* '(' */ || esutils.code.isWhiteSpace(code) || code === 0x2A  /* '*' */ || esutils.code.isLineTerminator(code);
             }
 
+            function isLetPrefixed(fragment) {
+                // An ExpressionStatement cannot begin with the token sequence
+                // `let [`, because that is the start of a lexical declaration.
+                if (fragment.slice(0, 3) !== 'let') {
+                    return false;
+                }
+                return fragment.charCodeAt(3) === 0x5B; /* '[' */
+            }
+
             function isAsyncPrefixed(fragment) {
                 var code, i, iz;
                 if (fragment.slice(0, 5) !== 'async') {
@@ -1334,13 +1343,15 @@
             }
 
             result = [this.generateExpression(stmt.expression, Precedence.Sequence, E_TTT)];
-            // 12.4 '{', 'function', 'class' is not allowed in this position.
+            // 12.4 '{', 'function', 'class' and the token sequence 'let [' are
+            // not allowed at the start of an ExpressionStatement.
             // wrap expression with parentheses
             fragment = toSourceNodeWhenNeeded(result).toString();
             if (fragment.charCodeAt(0) === 0x7B  /* '{' */ ||  // ObjectExpression
                     isClassPrefixed(fragment) ||
                     isFunctionPrefixed(fragment) ||
                     isAsyncPrefixed(fragment) ||
+                    isLetPrefixed(fragment) ||
                     (directive && (flags & F_DIRECTIVE_CTX) && stmt.expression.type === Syntax.Literal && typeof stmt.expression.value === 'string')) {
                 result = ['(', result, ')' + this.semicolon(flags)];
             } else {
